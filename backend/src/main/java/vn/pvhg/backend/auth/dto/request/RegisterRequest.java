@@ -1,4 +1,13 @@
 package vn.pvhg.backend.auth.dto.request;
 
-public record RegisterRequest() {
+import java.time.LocalDate;
+
+public record RegisterRequest(
+        String email,
+        String password,
+        String confirmPassword,
+        String username,
+        String bio,
+        LocalDate birthday
+) {
 }
