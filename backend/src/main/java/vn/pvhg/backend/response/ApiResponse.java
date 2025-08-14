@@ -25,4 +25,8 @@ public class ApiResponse<T> {
         this.success = success;
         this.data = null;
     }
+
+    public ApiResponse() {
+        
+    }
 }
