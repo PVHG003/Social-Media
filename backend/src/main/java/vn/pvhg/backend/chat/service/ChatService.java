@@ -19,4 +19,10 @@ public interface ChatService {
     ChatDetailDto createPrivateChat(UUID currentUserId, ChatCreateRequest request);
 
     ChatDetailDto createGroupChat(UUID currentUserId, ChatCreateRequest request);
+
+    void deleteChat(UUID currentUserId, UUID chatId);
+
+    void addMemberToChat(UUID currentUserId, UUID chatId, UUID memberToAddUserId);
+
+    void leaveChat(UUID currentUserId, UUID chatId);
 }

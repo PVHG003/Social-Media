@@ -1,6 +1,7 @@
 package vn.pvhg.backend.chat.service.impl;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -71,7 +72,7 @@ public class ChatServiceImpl implements ChatService {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
 
-        List<ChatParticipant> chatParticipants = chatParticipantRepository.getParticipantsByChatId(chatId);
+        List<ChatParticipant> chatParticipants = chatParticipantRepository.getParticipantsByChat(chat);
         List<UUID> participantIds = chatParticipants.stream().map(ChatParticipant::getUser).map(User::getId).toList();
 
         if (!participantIds.contains(userId)) {
@@ -102,10 +103,11 @@ public class ChatServiceImpl implements ChatService {
         return new PageImpl<>(dtos, pageable, messages.getTotalElements());
     }
 
+    @Transactional
     @Override
     public ChatDetailDto createPrivateChat(UUID currentUserId, ChatCreateRequest request) {
         if (request.participantIds().size() != 1) {
-            throw new IllegalArgumentException("Private chat must have exactly 1 other participant");
+            throw new IllegalArgumentException("Private chat must have exactly 2 participants including the current user");
         }
 
         UUID otherUserId = request.participantIds().getFirst();
@@ -141,13 +143,14 @@ public class ChatServiceImpl implements ChatService {
         return chatMapper.toChatDetailDto(currentUserId, savedChat, savedChatParticipants);
     }
 
+    @Transactional
     @Override
     public ChatDetailDto createGroupChat(UUID currentUserId, ChatCreateRequest request) {
         Set<UUID> participantIds = request.participantIds().stream()
                 .filter(id -> !id.equals(currentUserId))
                 .collect(Collectors.toSet());
         if (participantIds.isEmpty()) {
-            throw new IllegalArgumentException("Group chat must have at least 1 participants including the current user");
+            throw new IllegalArgumentException("Group chat must have at least one other participant besides the current user");
         }
 
         Chat chat = Chat.builder()
@@ -158,13 +161,77 @@ public class ChatServiceImpl implements ChatService {
         Chat savedChat = chatRepository.save(chat);
 
         List<ChatParticipant> savedChatParticipants = chatParticipantRepository.saveAll(participantIds.stream()
+                .filter(cp -> !cp.equals(currentUserId))
                 .map(id -> ChatParticipant.builder()
                         .chat(savedChat)
                         .user(User.builder().id(id).build())
                         .isAdmin(false)
                         .build())
                 .toList());
+        savedChatParticipants.add(chatParticipantRepository.save(ChatParticipant.builder()
+                .chat(savedChat)
+                .user(User.builder().id(currentUserId).build())
+                .isAdmin(true)
+                .build()));
 
         return chatMapper.toChatDetailDto(currentUserId, chat, savedChatParticipants);
+    }
+
+    @Transactional
+    @Override
+    public void deleteChat(UUID currentUserId, UUID chatId) {
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
+
+        boolean isAdmin = chatParticipantRepository.getParticipantsByChat(chat).stream()
+                .anyMatch(p -> p.getUser().getId().equals(currentUserId) && p.isAdmin());
+        if (!isAdmin) {
+            throw new AccessDeniedException("Access to chat " + chatId + " is denied, not an admin");
+        }
+
+        chatRepository.delete(chat);
+    }
+
+    @Transactional
+    @Override
+    public void addMemberToChat(UUID currentUserId, UUID chatId, UUID memberToAddUserId) {
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
+
+
+        if (!chatParticipantRepository.existsByChatAndUserIdAndIsAdminTrue(chat, currentUserId)) {
+            throw new AccessDeniedException("Access to chat " + chatId + " is denied, not an admin");
+        }
+        if (chat.isPrivate()) {
+            throw new IllegalStateException("Private chat cannot be modified");
+        }
+        if (chatParticipantRepository.existsByChatIdAndUserId(chatId, memberToAddUserId)) {
+            throw new IllegalStateException("User is already in the chat");
+        }
+        ChatParticipant chatParticipant = ChatParticipant.builder()
+                .chat(chat)
+                .user(User.builder().id(memberToAddUserId).build())
+                .isAdmin(false)
+                .build();
+        chatParticipantRepository.save(chatParticipant);
+    }
+
+    @Transactional
+    @Override
+    public void leaveChat(UUID currentUserId, UUID chatId) {
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
+
+        if (chatParticipantRepository.existsByChatAndUserIdAndIsAdminTrue(chat, currentUserId)) {
+            long adminCount = chatParticipantRepository.countByChatIdAndIsAdminTrue(chatId);
+            if (adminCount <= 1) {
+                throw new AccessDeniedException("The last admin cannot leave the chat");
+            }
+        }
+
+        int deleted = chatParticipantRepository.deleteChatParticipantByChatIdAndUserId(chatId, currentUserId);
+        if (deleted == 0) {
+            throw new EntityNotFoundException("User is not a participant in chat " + chatId);
+        }
     }
 }

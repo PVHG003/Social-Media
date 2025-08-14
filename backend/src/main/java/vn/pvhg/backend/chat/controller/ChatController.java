@@ -62,6 +62,39 @@ public class ChatController {
         return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
     }
 
+    @PostMapping("/{chatId}/members")
+    public ResponseEntity<ApiResponse<Void>> addMemberToChat(
+            @PathVariable UUID chatId,
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestParam UUID userId
+    ) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
+        chatService.addMemberToChat(userDetails.getUser().getId(), chatId, userId);
+        ApiResponse<Void> response = new ApiResponse<>(
+                HttpStatus.OK,
+                "Add member to chat success",
+                true,
+                null
+        );
+        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+    }
+
+    @PostMapping("/{chatId}/members/leave")
+    public ResponseEntity<ApiResponse<Void>> leaveChat(
+            @PathVariable UUID chatId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
+        chatService.leaveChat(userDetails.getUser().getId(), chatId);
+        ApiResponse<Void> response = new ApiResponse<>(
+                HttpStatus.OK,
+                "Leave chat success",
+                true,
+                null
+        );
+        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+    }
+
     @GetMapping
     public ResponseEntity<ApiPageResponse<List<ChatListItemDto>>> getChats(
             @RequestParam(defaultValue = "0") int page,
@@ -130,6 +163,22 @@ public class ChatController {
                 messagePage.getTotalPages()
         );
 
+        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+    }
+
+    @DeleteMapping("/{chatId}")
+    public ResponseEntity<ApiResponse<Void>> deleteChat(
+            @PathVariable UUID chatId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
+        chatService.deleteChat(userDetails.getUser().getId(), chatId);
+        ApiResponse<Void> response = new ApiResponse<>(
+                HttpStatus.OK,
+                "Delete chat success",
+                true,
+                null
+        );
         return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
     }
 }
