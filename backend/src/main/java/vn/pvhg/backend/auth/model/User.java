@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -18,8 +19,8 @@ import java.time.LocalDate;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(nullable = false, unique = true, length = 100)
     private String email;
@@ -40,16 +41,24 @@ public class User {
     private LocalDate birthday;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean accountNonExpired = true;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean accountNonLocked = true;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean credentialsNonExpired = true;
 
     @Column(nullable = false)
-    private boolean enabled = true;
+    @Builder.Default
+    private boolean enabled = false;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean active = true;
 
     @CreationTimestamp
     @Column(updatable = false)

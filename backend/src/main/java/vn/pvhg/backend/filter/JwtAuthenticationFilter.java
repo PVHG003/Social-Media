@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,6 +27,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -61,14 +63,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             String subject = jwt.getSubject();
-            UserDetailsImpl user = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(subject);
+            log.info("JWT subject: {}", subject);
+
+            UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(subject);
+            log.info("Loaded user: {}", userDetails != null ? userDetails.getUsername() : "null");
 
             List<String> authorities = jwt.getClaimAsStringList("authorities");
             List<GrantedAuthority> grantedAuthorities = authorities.stream()
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    user,
+                    userDetails,
                     null,
                     grantedAuthorities
             );

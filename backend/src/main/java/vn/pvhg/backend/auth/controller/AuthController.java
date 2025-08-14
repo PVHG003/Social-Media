@@ -16,7 +16,7 @@ import vn.pvhg.backend.auth.service.AuthService;
 import vn.pvhg.backend.response.ApiResponse;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
 

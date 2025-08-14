@@ -23,6 +23,9 @@ spring:
         cachecontrol:
           max-age: 86400
           cache-public: true
+  output:
+    ansi:
+      enabled: ALWAYS
 
 jwt:
   key:
@@ -30,12 +33,19 @@ jwt:
     public-key: classpath:keys/public.pem
   expiration: 86400000
 
-file:
-  image-upload: uploads/images/
-  video-upload: uploads/videos/
+springdoc:
+  default-produces-media-type: application/json
+
+application:
+  file:
+    uploads:
+      media-output-path: ./uploads
 
 logging:
   level:
     root: INFO
     web: TRACE
-    org.springframework.data.neo4j: DEBUG
+  #    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+  #    org.apache.coyote.http11: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{36}) %green(%M) %yellow(%L) - %msg%n"
