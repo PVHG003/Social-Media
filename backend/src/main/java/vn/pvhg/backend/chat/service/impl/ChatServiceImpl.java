@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import vn.pvhg.backend.auth.model.User;
 import vn.pvhg.backend.chat.dto.request.ChatCreateRequest;
 import vn.pvhg.backend.chat.dto.response.ChatDetailDto;
@@ -24,7 +25,9 @@ import vn.pvhg.backend.chat.repository.ChatParticipantRepository;
 import vn.pvhg.backend.chat.repository.ChatRepository;
 import vn.pvhg.backend.chat.repository.MessageRepository;
 import vn.pvhg.backend.chat.service.ChatService;
+import vn.pvhg.backend.utils.FileStorageUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,14 +43,16 @@ public class ChatServiceImpl implements ChatService {
     private final ChatParticipantRepository chatParticipantRepository;
     private final ChatMapper chatMapper;
     private final MessageMapper messageMapper;
+    private final FileStorageUtils fileStorageUtils;
 
     @Override
     public Page<ChatListItemDto> getUserChats(UUID userId, Pageable pageable) {
-        Page<Chat> chatPage = chatRepository.findAllByUserId(userId, pageable);
-        log.info("Found {} chats for user {}", chatPage.getTotalElements(), userId);
+        Page<Chat> chatPage = chatRepository.findAllByUserIdAndDeletedFalse(userId, false, pageable);
 
-        List<UUID> chatIds = chatPage.getContent().stream().map(Chat::getId).toList();
-        log.info("Found {} chat ids for user {}", chatIds.size(), userId);
+        List<UUID> chatIds = chatPage.getContent()
+                .stream()
+                .map(Chat::getId)
+                .toList();
 
         Map<UUID, Message> lastMessageForChats = messageRepository.findLastMessagesForChats(chatIds)
                 .stream()
@@ -57,20 +62,18 @@ public class ChatServiceImpl implements ChatService {
                         (m1, m2) ->
                                 m2.getSentAt().isAfter(m1.getSentAt()) ? m2 : m1
                 ));
-        lastMessageForChats.forEach((k, v) -> log.info("Found last message for chat {}", k));
 
         List<ChatListItemDto> dtos = chatPage.getContent().stream()
                 .map(chat -> chatMapper.toChatListItemDto(userId, chat, lastMessageForChats))
                 .toList();
-        log.info("Mapped {} chat list items for user {}", dtos.size(), userId);
 
         return new PageImpl<>(dtos, pageable, chatPage.getTotalElements());
     }
 
     @Override
     public ChatDetailDto getChatDetail(UUID userId, UUID chatId) {
-        Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
+        Chat chat = chatRepository.findByIdAndDeletedFalse(chatId, false)
+                .orElseThrow(() -> new EntityNotFoundException("Chat not found or is deleted"));
 
         List<ChatParticipant> chatParticipants = chatParticipantRepository.getParticipantsByChat(chat);
         List<UUID> participantIds = chatParticipants.stream().map(ChatParticipant::getUser).map(User::getId).toList();
@@ -84,8 +87,8 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Page<MessageDto> getChatMessages(UUID userId, UUID chatId, Pageable pageable) {
-        Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
+        Chat chat = chatRepository.findByIdAndDeletedFalse(chatId, false)
+                .orElseThrow(() -> new EntityNotFoundException("Chat not found or is deleted"));
 
         List<ChatParticipant> chatParticipants = chatParticipantRepository.getParticipantsByChat(chat);
         List<UUID> participantIds = chatParticipants.stream().map(ChatParticipant::getUser).map(User::getId).toList();
@@ -105,7 +108,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Transactional
     @Override
-    public ChatDetailDto createPrivateChat(UUID currentUserId, ChatCreateRequest request) {
+    public ChatDetailDto createPrivateChat(UUID currentUserId, ChatCreateRequest request, MultipartFile coverImage) {
         if (request.participantIds().size() != 1) {
             throw new IllegalArgumentException("Private chat must have exactly 2 participants including the current user");
         }
@@ -120,8 +123,6 @@ public class ChatServiceImpl implements ChatService {
         }
 
         Chat chat = Chat.builder()
-                .groupName(request.groupName())
-                .groupImage(request.groupImage())
                 .chatType(ChatType.PRIVATE)
                 .build();
         Chat savedChat = chatRepository.save(chat);
@@ -145,7 +146,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Transactional
     @Override
-    public ChatDetailDto createGroupChat(UUID currentUserId, ChatCreateRequest request) {
+    public ChatDetailDto createGroupChat(UUID currentUserId, ChatCreateRequest request, MultipartFile coverImage) {
         Set<UUID> participantIds = request.participantIds().stream()
                 .filter(id -> !id.equals(currentUserId))
                 .collect(Collectors.toSet());
@@ -156,9 +157,14 @@ public class ChatServiceImpl implements ChatService {
         Chat chat = Chat.builder()
                 .chatType(ChatType.GROUP)
                 .groupName(request.groupName())
-                .groupImage(request.groupImage())
                 .build();
         Chat savedChat = chatRepository.save(chat);
+
+        String groupImageUrl = fileStorageUtils.saveFile(coverImage, "chat", savedChat.getId().toString());
+        if (coverImage != null) {
+            savedChat.setGroupImage(groupImageUrl);
+            chatRepository.save(savedChat);
+        }
 
         List<ChatParticipant> savedChatParticipants = chatParticipantRepository.saveAll(participantIds.stream()
                 .filter(cp -> !cp.equals(currentUserId))
@@ -180,8 +186,8 @@ public class ChatServiceImpl implements ChatService {
     @Transactional
     @Override
     public void deleteChat(UUID currentUserId, UUID chatId) {
-        Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
+        Chat chat = chatRepository.findByIdAndDeletedFalse(chatId, false)
+                .orElseThrow(() -> new EntityNotFoundException("Chat not found or is deleted"));
 
         boolean isAdmin = chatParticipantRepository.getParticipantsByChat(chat).stream()
                 .anyMatch(p -> p.getUser().getId().equals(currentUserId) && p.isAdmin());
@@ -189,15 +195,15 @@ public class ChatServiceImpl implements ChatService {
             throw new AccessDeniedException("Access to chat " + chatId + " is denied, not an admin");
         }
 
-        chatRepository.delete(chat);
+        chat.setDeleted(true);
+        chat.setDeletedAt(LocalDateTime.now());
     }
 
     @Transactional
     @Override
     public void addMemberToChat(UUID currentUserId, UUID chatId, UUID memberToAddUserId) {
-        Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
-
+        Chat chat = chatRepository.findByIdAndDeletedFalse(chatId, false)
+                .orElseThrow(() -> new EntityNotFoundException("Chat not found or is deleted"));
 
         if (!chatParticipantRepository.existsByChatAndUserIdAndIsAdminTrue(chat, currentUserId)) {
             throw new AccessDeniedException("Access to chat " + chatId + " is denied, not an admin");
@@ -219,8 +225,8 @@ public class ChatServiceImpl implements ChatService {
     @Transactional
     @Override
     public void leaveChat(UUID currentUserId, UUID chatId) {
-        Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
+        Chat chat = chatRepository.findByIdAndDeletedFalse(chatId, false)
+                .orElseThrow(() -> new EntityNotFoundException("Chat not found or is deleted"));
 
         if (chatParticipantRepository.existsByChatAndUserIdAndIsAdminTrue(chat, currentUserId)) {
             long adminCount = chatParticipantRepository.countByChatIdAndIsAdminTrue(chatId);

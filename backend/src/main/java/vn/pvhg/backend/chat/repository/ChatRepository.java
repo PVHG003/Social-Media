@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import vn.pvhg.backend.chat.model.Chat;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ChatRepository extends JpaRepository<Chat, UUID> {
@@ -16,29 +17,15 @@ public interface ChatRepository extends JpaRepository<Chat, UUID> {
             SELECT DISTINCT c
             FROM Chat c
             JOIN c.participants p
-            WHERE p.user.id = :userId
+            WHERE c.deleted = :deleted and p.user.id = :userId
             ORDER BY c.updatedAt DESC
             """)
-    Page<Chat> findAllByUserId(@Param("userId") UUID userId, Pageable pageable);
-
-    // 3. Get the private chat's display name (the other participant)
-    @Query("""
-            SELECT COALESCE((
-                SELECT u.username
-                FROM Chat c
-                JOIN c.participants p
-                JOIN p.user u
-                WHERE c.id = :chatId
-                AND u.id <> :currentUserId
-            ), false)
-            """)
-    String findPrivateChatDisplayName(@Param("chatId") UUID chatId,
-                                      @Param("currentUserId") UUID currentUserId);
+    Page<Chat> findAllByUserIdAndDeletedFalse(@Param("userId") UUID userId, boolean deleted, Pageable pageable);
 
     @Query("""
                 SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END
                 FROM Chat c
-                WHERE c.chatType = 'PRIVATE'
+                WHERE c.chatType = 'PRIVATE' AND c.deleted = false
                   AND EXISTS (
                       SELECT 1 FROM ChatParticipant p
                       WHERE p.chat = c AND p.user.id = :currentUserId
@@ -48,6 +35,15 @@ public interface ChatRepository extends JpaRepository<Chat, UUID> {
                       WHERE p.chat = c AND p.user.id = :otherUserId
                   )
             """)
-    boolean existsPrivateChatBetween(@Param("currentUserId") UUID currentUserId,
-                                     @Param("otherUserId") UUID otherUserId);
+    boolean existsPrivateChatBetween(
+            @Param("currentUserId") UUID currentUserId,
+            @Param("otherUserId") UUID otherUserId);
+
+    @Query("""
+            SELECT c
+            FROM Chat c
+            WHERE c.id = :id
+            AND c.deleted = :deleted
+            """)
+    Optional<Chat> findByIdAndDeletedFalse(UUID id, boolean deleted);
 }

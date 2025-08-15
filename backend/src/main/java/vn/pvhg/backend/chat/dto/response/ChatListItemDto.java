@@ -11,8 +11,8 @@ import java.util.UUID;
  */
 public record ChatListItemDto(
         UUID id,
-        String displayName,
-        String displayImageUrl, // group image or other user’s profile
+        String displayChatName,
+        String displayChatImageUrl, // group image or other user’s profile
         String lastMessageContent,
         LocalDateTime lastMessageSentAt,
         String lastMessageSenderName,

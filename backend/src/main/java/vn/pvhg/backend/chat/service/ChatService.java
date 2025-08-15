@@ -2,6 +2,7 @@ package vn.pvhg.backend.chat.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 import vn.pvhg.backend.chat.dto.request.ChatCreateRequest;
 import vn.pvhg.backend.chat.dto.response.ChatDetailDto;
 import vn.pvhg.backend.chat.dto.response.ChatListItemDto;
@@ -16,9 +17,9 @@ public interface ChatService {
 
     Page<MessageDto> getChatMessages(UUID userId, UUID chatId, Pageable pageable);
 
-    ChatDetailDto createPrivateChat(UUID currentUserId, ChatCreateRequest request);
+    ChatDetailDto createPrivateChat(UUID currentUserId, ChatCreateRequest request, MultipartFile coverImage);
 
-    ChatDetailDto createGroupChat(UUID currentUserId, ChatCreateRequest request);
+    ChatDetailDto createGroupChat(UUID currentUserId, ChatCreateRequest request, MultipartFile coverImage);
 
     void deleteChat(UUID currentUserId, UUID chatId);
 

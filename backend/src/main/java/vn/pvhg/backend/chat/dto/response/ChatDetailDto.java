@@ -11,8 +11,8 @@ import java.util.UUID;
 public record ChatDetailDto(
         UUID chatId,
         ChatType chatType,
-        String displayName,
-        String displayImageUrl,
+        String displayChatName,
+        String displayChatImageUrl,
         List<ChatParticipantDto> participants
 ) {
 }

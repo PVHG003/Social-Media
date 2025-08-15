@@ -42,18 +42,17 @@ public class ChatController {
             @RequestPart(name = "coverImage", required = false) MultipartFile coverImage
     ) {
         UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
-        UUID userId = userDetails.getUser().getId();
+        UUID currentUserId = userDetails.getUser().getId();
         ApiResponse<ChatDetailDto> response = new ApiResponse<>();
         if (request.chatType() == ChatType.PRIVATE) {
-            ChatDetailDto chatDetail = chatService.createPrivateChat(userId, request);
+            ChatDetailDto chatDetail = chatService.createPrivateChat(currentUserId, request, coverImage);
             response.setStatus(HttpStatus.OK);
             response.setMessage("Create private chat success");
             response.setSuccess(true);
             response.setData(chatDetail);
-
         }
         if (request.chatType() == ChatType.GROUP) {
-            ChatDetailDto chatDetail = chatService.createGroupChat(userId, request);
+            ChatDetailDto chatDetail = chatService.createGroupChat(currentUserId, request, coverImage);
             response.setStatus(HttpStatus.OK);
             response.setMessage("Create group chat success");
             response.setSuccess(true);
@@ -139,7 +138,7 @@ public class ChatController {
     }
 
     @GetMapping("/{chatId}/messages")
-    public ResponseEntity<ApiPageResponse<Page<MessageDto>>> getChatMessages(
+    public ResponseEntity<ApiPageResponse<List<MessageDto>>> getChatMessages(
             @PathVariable UUID chatId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -152,11 +151,11 @@ public class ChatController {
 
         Page<MessageDto> messagePage = chatService.getChatMessages(userId, chatId, pageable);
 
-        ApiPageResponse<Page<MessageDto>> response = new ApiPageResponse<>(
+        ApiPageResponse<List<MessageDto>> response = new ApiPageResponse<>(
                 HttpStatus.OK,
                 "Get " + messagePage.getNumberOfElements() + " messages success",
                 true,
-                messagePage,
+                messagePage.getContent(),
                 page,
                 size,
                 messagePage.getTotalElements(),

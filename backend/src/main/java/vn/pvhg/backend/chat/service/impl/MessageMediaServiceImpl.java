@@ -37,7 +37,6 @@ public class MessageMediaServiceImpl implements MessageMediaService {
     public List<AttachmentDto> uploadTempAttachment(UUID currentUserId, List<MultipartFile> files) {
 
         Path dir = Paths.get(uploadDir, currentUserId.toString(), "attachments");
-        List<Attachment> attachments = new ArrayList<>();
         try {
             Files.createDirectories(dir);
         } catch (IOException e) {

@@ -45,12 +45,18 @@ public class Chat {
     @Builder.Default
     private List<Message> messages = new ArrayList<>();
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean deleted = false;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    private LocalDateTime deletedAt;
 
     public boolean isPrivate() {
         return chatType == ChatType.PRIVATE;
@@ -92,7 +98,7 @@ public class Chat {
 
     @Transient
     public MessagePreview getLastMessagePreview() {
-        if (messages.isEmpty()) {
+        if (messages == null || messages.isEmpty()) {
             return null;
         }
 

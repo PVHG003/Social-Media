@@ -12,7 +12,6 @@ import java.util.UUID;
 public record ChatCreateRequest(
         ChatType chatType,
         String groupName,
-        String groupImage,
         List<UUID> participantIds
 ) implements Serializable {
 }
