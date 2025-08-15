@@ -1,7 +1,6 @@
 package vn.pvhg.backend.chat.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import vn.pvhg.backend.chat.enums.MediaType;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -15,7 +14,8 @@ public record AttachmentDto(
         UUID id,
         String fileName,
         String filePath,
-        MediaType mediaType,
+        UUID uploaderId,
+        String mediaType,
         LocalDateTime uploadedAt
 ) implements Serializable {
 }

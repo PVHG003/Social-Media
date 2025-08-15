@@ -20,6 +20,7 @@ public record MessageDto(
         List<AttachmentDto> attachments,
         MessageState state,
         LocalDateTime sentAt,
-        boolean isOwner // derived from token vs senderId
+        boolean isOwner, // derived from token vs senderId
+        boolean isDeleted
 ) {
 }

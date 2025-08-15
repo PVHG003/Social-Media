@@ -39,7 +39,7 @@ springdoc:
 application:
   file:
     uploads:
-      media-output-path: ./uploads
+      media-output-path: backend/uploads
 
 logging:
   level:

@@ -94,7 +94,7 @@ public class ChatServiceImpl implements ChatService {
             throw new AccessDeniedException("Access to chat " + chatId + " is denied, not a member");
         }
 
-        Page<Message> messages = messageRepository.getAllByChatId(chatId, pageable);
+        Page<Message> messages = messageRepository.getAllByChatIdAndDeletedIsFalse(chatId, pageable);
 
         List<MessageDto> dtos = messages.getContent().stream()
                 .map(message -> messageMapper.toMessageDto(userId, message))
@@ -205,7 +205,7 @@ public class ChatServiceImpl implements ChatService {
         if (chat.isPrivate()) {
             throw new IllegalStateException("Private chat cannot be modified");
         }
-        if (chatParticipantRepository.existsByChatIdAndUserId(chatId, memberToAddUserId)) {
+        if (chatParticipantRepository.existsByChatAndUserId(chat, memberToAddUserId)) {
             throw new IllegalStateException("User is already in the chat");
         }
         ChatParticipant chatParticipant = ChatParticipant.builder()

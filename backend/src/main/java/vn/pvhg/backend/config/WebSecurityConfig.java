@@ -23,6 +23,7 @@ public class WebSecurityConfig {
             "/v2/api-docs",
             "/v3/api-docs",
             "/v3/api-docs/**",
+            "/v3/api-docs.yaml",
             "/swagger-resources",
             "/swagger-resources/**",
             "/configuration/ui",
@@ -46,6 +47,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(registry -> registry
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers(PUBLIC_URLS).permitAll()
+//                        .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

@@ -31,6 +31,10 @@ public class Message {
     @Builder.Default
     private MessageState state = MessageState.SENT;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean deleted = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id")
     private Chat chat;
@@ -48,4 +52,6 @@ public class Message {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    private LocalDateTime deletedAt;
 }

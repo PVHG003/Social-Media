@@ -24,15 +24,13 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
               )
             """)
     List<Message> findLastMessagesForChats(@Param("chatIds") List<UUID> chatIds);
-
-    // 4. Get messages for a specific chat (paginated)
+    
     @Query("""
-            SELECT m
-            FROM Message m
-            WHERE m.chat.id = :chatId
+            select m
+            from Message m
+            where m.chat.id = :chatId
+            and m.deleted = false
             ORDER BY m.sentAt DESC
             """)
-    List<Message> findMessagesByChatId(@Param("chatId") UUID chatId, Pageable pageable);
-
-    Page<Message> getAllByChatId(UUID chatId, Pageable pageable);
+    Page<Message> getAllByChatIdAndDeletedIsFalse(UUID chatId, Pageable pageable);
 }

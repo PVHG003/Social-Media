@@ -28,11 +28,11 @@ public interface ChatParticipantRepository extends JpaRepository<ChatParticipant
             SELECT EXISTS (
                 SELECT 1
                 FROM ChatParticipant cp
-                WHERE cp.chat.id = :chatId
+                WHERE cp.chat = :chat
                 AND cp.user.id = :memberToAddUserId
             )
             """)
-    boolean existsByChatIdAndUserId(UUID chatId, UUID memberToAddUserId);
+    boolean existsByChatAndUserId(Chat chat, UUID memberToAddUserId);
 
     @Query("""
             SELECT COUNT(*)
@@ -46,8 +46,8 @@ public interface ChatParticipantRepository extends JpaRepository<ChatParticipant
             SELECT EXISTS (
                 SELECT 1
                 FROM ChatParticipant cp
-                WHERE cp.chat.id = :chat
-                AND cp.user.id = :userId
+                WHERE cp.chat = :chat
+                AND cp.user.id = :currentUserId
                 AND cp.isAdmin = true
             )
             """)

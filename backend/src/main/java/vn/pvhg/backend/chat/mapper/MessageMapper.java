@@ -19,18 +19,20 @@ public class MessageMapper {
                 message.getSender().getUsername(),
                 message.getSender().getProfileImage(),
                 message.getContent(),
-                message.getAttachments().stream()
+                message.getAttachments() == null ? null : message.getAttachments().stream()
                         .map(attachment -> new AttachmentDto(
                                 attachment.getId(),
                                 attachment.getFileName(),
                                 attachment.getFilePath(),
+                                attachment.getUploader().getId(),
                                 attachment.getMediaType(),
                                 attachment.getUploadedAt()
                         ))
                         .toList(),
                 message.getState(),
                 message.getSentAt(),
-                message.getSender().getId().equals(userId)
+                message.getSender().getId().equals(userId),
+                message.isDeleted()
         );
     }
 }
