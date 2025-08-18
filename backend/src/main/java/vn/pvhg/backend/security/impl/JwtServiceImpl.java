@@ -1,18 +1,16 @@
 package vn.pvhg.backend.security.impl;
 
 import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import vn.pvhg.backend.security.JwtService;
-import vn.pvhg.backend.user.dto.response.TokenResponseDTO;
+import vn.pvhg.backend.user.dto.response.AuthResourceResponseDTO;
+import vn.pvhg.backend.user.mapper.AuthMapper;
 import vn.pvhg.backend.user.model.User;
 import vn.pvhg.backend.utils.AuthConstant;
 
@@ -32,6 +30,7 @@ public class JwtServiceImpl implements JwtService {
     private final PublicKey publicKey;
 
     private final String JWT_PREFIX = "jwt:";
+    private final AuthMapper authMapper;
 
     @Override
     public String generateToken(User user, AuthConstant.TokenSubject subject) {
@@ -42,6 +41,13 @@ public class JwtServiceImpl implements JwtService {
 
         Date now = new Date();
 
+        String role = null;
+        if(user.getRole() == AuthConstant.Role.USER.getValue()){
+            role = "user";
+        } else if (user.getRole() == AuthConstant.Role.ADMIN.getValue()) {
+            role = "admin";
+        }
+
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .issuer("Social Media")
                 .subject(subject.getValue())
@@ -49,6 +55,7 @@ public class JwtServiceImpl implements JwtService {
                 .issueTime(now)
                 .claim("userId", user.getId())
                 .claim("email", user.getEmail())
+                .claim("role", role)
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -77,21 +84,12 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public TokenResponseDTO getToken(String token) {
+    public AuthResourceResponseDTO getToken(String token) {
         JWTClaimsSet jwtClaimsSet = getClaimsFromToken(token);
         if(jwtClaimsSet == null){
             return null;
         }
-        try{
-            return TokenResponseDTO.builder()
-                    .subject(jwtClaimsSet.getSubject())
-                    .userId(jwtClaimsSet.getLongClaim("userId"))
-                    .email(jwtClaimsSet.getStringClaim("email"))
-                    .token(token)
-                    .build();
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
+        return authMapper.toAuthResourceResponseDTO(jwtClaimsSet, token);
     }
 
     @Override

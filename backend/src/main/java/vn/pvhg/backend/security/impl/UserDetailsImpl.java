@@ -52,6 +52,7 @@ public class UserDetailsImpl implements UserDetails {
         return user.getEmail();
     }
 
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -70,5 +71,13 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public boolean isEnabled() {
         return user.getIsVerified() == AuthConstant.IsVerified.VERIFIED.getValue();
+    }
+
+    public Long getId() {
+        return user.getId();
+    }
+
+    public String getEmail() {
+        return user.getEmail();
     }
 }

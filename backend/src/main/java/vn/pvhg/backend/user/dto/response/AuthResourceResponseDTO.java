@@ -7,9 +7,10 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TokenResponseDTO {
+public class AuthResourceResponseDTO {
     private String subject;
     private Long userId;
     private String email;
+    private String role;
     private String token;
 }
