@@ -1,5 +1,6 @@
 package vn.pvhg.backend.user.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,64 +20,64 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public CustomResponse<AuthResourceResponseDTO> register(@RequestBody RegisterRequestDTO request){
+    public CustomResponse<AuthResourceResponseDTO> register(@Valid @RequestBody RegisterRequestDTO request){
         AuthResourceResponseDTO response = authService.register(request);
-        return new CustomResponse<>(true, response, "Registered Successfully");
+        return new CustomResponse<>(true, response, "Đăng kí thành công. Vui lòng kiểm tra email để xác thực tài khoản.");
     }
 
     @PostMapping("/verify/new-user")
     public CustomResponse<AuthResourceResponseDTO> verifyNewUser(
-            @RequestBody VerificationCodeRequestDTO request,
+            @Valid @RequestBody VerificationCodeRequestDTO request,
             @AuthenticationPrincipal UserDetailsImpl currentUser){
             Long userId = currentUser.getId();
             AuthResourceResponseDTO response = authService.verifyNewUser(userId, request);
-        return new CustomResponse<>(true, response, "Verify Account Successfully");
+        return new CustomResponse<>(true, response, "Xác thực tài khoản thành công.");
     }
 
     @PostMapping("/login")
-    public CustomResponse<AuthResourceResponseDTO> login(@RequestBody LoginRequestDTO request){
+    public CustomResponse<AuthResourceResponseDTO> login(@Valid @RequestBody LoginRequestDTO request){
         AuthResourceResponseDTO response = authService.login(request);
-        return new CustomResponse<>(true, response, "Login Successfully");
+        return new CustomResponse<>(true, response, "Đăng nhập thành công.");
     }
 
     @PostMapping("/logout")
     public CustomResponse<Void> logout(@AuthenticationPrincipal UserDetailsImpl currentUser) {
         Long userId = currentUser.getId();
         authService.logout(userId);
-        return new CustomResponse<>(true, "Logout Successfully");
+        return new CustomResponse<>(true, "Đăng xuất thành công.");
     }
 
     @PostMapping("/forgot-password")
-    public CustomResponse<AuthResourceResponseDTO> forgotPassword(@RequestBody ForgotPasswordRequestDTO request){
+    public CustomResponse<AuthResourceResponseDTO> forgotPassword(@Valid @RequestBody ForgotPasswordRequestDTO request){
         AuthResourceResponseDTO response = authService.forgotPassword(request);
-        return new CustomResponse<>(true, response, "Please check your email to get OTP.");
+        return new CustomResponse<>(true, response, "Vui lòng kiểm tra email để xác thực tài khoản.");
     }
 
     @PostMapping("/verify/reset-password")
     public CustomResponse<AuthResourceResponseDTO> resetPassword(
-            @RequestBody VerificationCodeRequestDTO request,
+            @Valid @RequestBody VerificationCodeRequestDTO request,
             @AuthenticationPrincipal UserDetailsImpl currentUser){
         Long userId = currentUser.getId();
         AuthResourceResponseDTO response = authService.verifyOtpResetPassword(userId, request);
-        return new CustomResponse<>(true, response, "Please enter new password");
+        return new CustomResponse<>(true, response, "Vui lòng nhập mật khẩu mới");
     }
 
     @PostMapping("/reset-password")
     public CustomResponse<Void> resetPassword(
-            @RequestBody ResetPasswordRequestDTO request,
+            @Valid @RequestBody ResetPasswordRequestDTO request,
             @AuthenticationPrincipal UserDetailsImpl currentUser) {
         Long userId = currentUser.getId();
         authService.resetPassword(userId, request);
-        return new CustomResponse<>(true, "Reset Password Successfully, please login again");
+        return new CustomResponse<>(true, "Thay đổi mật khẩu thành công.");
     }
 
     @PostMapping("/change-password")
     public CustomResponse<AuthResourceResponseDTO> changePassword(
-            @RequestBody ChangePasswordRequestDTO request,
+            @Valid @RequestBody ChangePasswordRequestDTO request,
             @AuthenticationPrincipal UserDetailsImpl currentUser) {
         Long userId = currentUser.getId();
         AuthResourceResponseDTO response = authService.changePassword(userId, request);
-        return new CustomResponse<>(true, response, "Change Password Successfully");
+        return new CustomResponse<>(true, response, "Thay đổi mật khẩu thành công.");
     }
 
 }
