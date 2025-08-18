@@ -1,125 +1,102 @@
 package vn.pvhg.backend.chat.service.impl;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import vn.pvhg.backend.auth.model.User;
 import vn.pvhg.backend.chat.dto.request.ChatCreateRequest;
-import vn.pvhg.backend.chat.dto.response.ChatDetailDto;
-import vn.pvhg.backend.chat.dto.response.ChatListItemDto;
-import vn.pvhg.backend.chat.dto.response.MessageDto;
+import vn.pvhg.backend.chat.dto.response.ChatDetailResponse;
+import vn.pvhg.backend.chat.dto.response.ChatListResponse;
+import vn.pvhg.backend.chat.dto.response.ChatMessageResponse;
 import vn.pvhg.backend.chat.enums.ChatType;
+import vn.pvhg.backend.chat.enums.MemberRole;
+import vn.pvhg.backend.chat.exception.*;
 import vn.pvhg.backend.chat.mapper.ChatMapper;
 import vn.pvhg.backend.chat.mapper.MessageMapper;
 import vn.pvhg.backend.chat.model.Chat;
-import vn.pvhg.backend.chat.model.ChatParticipant;
+import vn.pvhg.backend.chat.model.ChatMember;
 import vn.pvhg.backend.chat.model.Message;
-import vn.pvhg.backend.chat.repository.ChatParticipantRepository;
+import vn.pvhg.backend.chat.repository.ChatMemberRepository;
 import vn.pvhg.backend.chat.repository.ChatRepository;
 import vn.pvhg.backend.chat.repository.MessageRepository;
 import vn.pvhg.backend.chat.service.ChatService;
-import vn.pvhg.backend.utils.FileStorageUtils;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
     private final ChatRepository chatRepository;
-    private final MessageRepository messageRepository;
-    private final ChatParticipantRepository chatParticipantRepository;
     private final ChatMapper chatMapper;
+    private final MessageRepository messageRepository;
     private final MessageMapper messageMapper;
-    private final FileStorageUtils fileStorageUtils;
+    private final ChatMemberRepository chatMemberRepository;
 
     @Override
-    public Page<ChatListItemDto> getUserChats(UUID userId, Pageable pageable) {
-        Page<Chat> chatPage = chatRepository.findAllByUserIdAndDeletedFalse(userId, false, pageable);
+    public Page<ChatListResponse> getChatList(UUID currentUserId, Pageable pageable) {
+        Page<Object[]> chatMessageList = chatRepository.getUserChatWithLatestMessage(currentUserId, pageable);
+        List<ChatListResponse> chatListResponses = chatMessageList.stream().map(row -> {
+            Chat chat = (Chat) row[0];
+            Message latestMessage = (Message) row[1]; // could be null if no messages
 
-        List<UUID> chatIds = chatPage.getContent()
-                .stream()
-                .map(Chat::getId)
-                .toList();
+            return chatMapper.toChatListResponse(currentUserId, chat, latestMessage);
+        }).toList();
 
-        Map<UUID, Message> lastMessageForChats = messageRepository.findLastMessagesForChats(chatIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        m -> m.getChat().getId(),
-                        m -> m,
-                        (m1, m2) ->
-                                m2.getSentAt().isAfter(m1.getSentAt()) ? m2 : m1
-                ));
-
-        List<ChatListItemDto> dtos = chatPage.getContent().stream()
-                .map(chat -> chatMapper.toChatListItemDto(userId, chat, lastMessageForChats))
-                .toList();
-
-        return new PageImpl<>(dtos, pageable, chatPage.getTotalElements());
+        return new PageImpl<>(chatListResponses, pageable, chatMessageList.getTotalElements());
     }
 
     @Override
-    public ChatDetailDto getChatDetail(UUID userId, UUID chatId) {
-        Chat chat = chatRepository.findByIdAndDeletedFalse(chatId, false)
-                .orElseThrow(() -> new EntityNotFoundException("Chat not found or is deleted"));
+    public ChatDetailResponse getChatInfo(UUID currentUserId, UUID chatId) {
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new ChatNotFoundException("Chat id " + chatId + " not found"));
 
-        List<ChatParticipant> chatParticipants = chatParticipantRepository.getParticipantsByChat(chat);
-        List<UUID> participantIds = chatParticipants.stream().map(ChatParticipant::getUser).map(User::getId).toList();
-
-        if (!participantIds.contains(userId)) {
-            throw new AccessDeniedException("Access to chat " + chatId + " is denied, not a member");
+        if (!chatRepository.existsByMemberIdAndChatId(currentUserId, chatId)) {
+            throw new NotChatMemberException("User " + currentUserId + " is not a member of chat " + chatId);
         }
 
-        return chatMapper.toChatDetailDto(userId, chat, chatParticipants);
+        return chatMapper.toChatDetailResponse(currentUserId, chat, chat.getMembers());
     }
 
     @Override
-    public Page<MessageDto> getChatMessages(UUID userId, UUID chatId, Pageable pageable) {
-        Chat chat = chatRepository.findByIdAndDeletedFalse(chatId, false)
-                .orElseThrow(() -> new EntityNotFoundException("Chat not found or is deleted"));
-
-        List<ChatParticipant> chatParticipants = chatParticipantRepository.getParticipantsByChat(chat);
-        List<UUID> participantIds = chatParticipants.stream().map(ChatParticipant::getUser).map(User::getId).toList();
-
-        if (!participantIds.contains(userId)) {
-            throw new AccessDeniedException("Access to chat " + chatId + " is denied, not a member");
+    public Page<ChatMessageResponse> getChatMessages(UUID currentUserId, UUID chatId, Pageable pageable) {
+        if (!chatRepository.existsById(chatId)) {
+            throw new ChatNotFoundException("Chat id " + chatId + " not found");
         }
 
-        Page<Message> messages = messageRepository.getAllByChatIdAndDeletedIsFalse(chatId, pageable);
+        if (!chatRepository.existsByMemberIdAndChatId(currentUserId, chatId)) {
+            throw new NotChatMemberException("User " + currentUserId + " is not a member of chat " + chatId);
+        }
 
-        List<MessageDto> dtos = messages.getContent().stream()
-                .map(message -> messageMapper.toMessageDto(userId, message))
+        Page<Message> messages = messageRepository.findByChatId(chatId, pageable);
+
+        List<ChatMessageResponse> chatMessageResponses = messages.stream()
+                .map(message -> messageMapper.toChatMessageResponse(currentUserId, message))
                 .toList();
 
-        return new PageImpl<>(dtos, pageable, messages.getTotalElements());
+        return new PageImpl<>(
+                chatMessageResponses, pageable, messages.getTotalElements()
+        );
     }
 
-    @Transactional
     @Override
-    public ChatDetailDto createPrivateChat(UUID currentUserId, ChatCreateRequest request, MultipartFile coverImage) {
-        if (request.participantIds().size() != 1) {
-            throw new IllegalArgumentException("Private chat must have exactly 2 participants including the current user");
+    public ChatDetailResponse createPrivateChat(UUID currentUserId, ChatCreateRequest request) {
+        if (request.memberIds() == null || request.memberIds().isEmpty()) {
+            throw new ChatCreationException("Member ids cannot be null or empty");
+        }
+        if (request.memberIds().size() != 1) {
+            throw new ChatCreationException("Private chat can only have 1 other member excluding the current user");
+        }
+        if (request.memberIds().contains(currentUserId)) {
+            throw new ChatCreationException("Current user cannot be included in the list");
         }
 
-        UUID otherUserId = request.participantIds().getFirst();
-        if (otherUserId.equals(currentUserId)) {
-            throw new IllegalArgumentException("Cannot create a private chat with yourself");
-        }
-
-        if (chatRepository.existsPrivateChatBetween(currentUserId, otherUserId)) {
-            throw new IllegalStateException("Private chat already exists");
+        UUID otherMemberId = request.memberIds().getFirst();
+        if (chatRepository.existsBetweenMembers(currentUserId, otherMemberId)) {
+            throw new ChatCreationException("Chat already exists between the members");
         }
 
         Chat chat = Chat.builder()
@@ -127,117 +104,92 @@ public class ChatServiceImpl implements ChatService {
                 .build();
         Chat savedChat = chatRepository.save(chat);
 
-        List<ChatParticipant> participants = List.of(
-                ChatParticipant.builder()
-                        .chat(savedChat)
-                        .user(User.builder().id(currentUserId).build())
-                        .isAdmin(true)
-                        .build(),
-                ChatParticipant.builder()
-                        .chat(savedChat)
-                        .user(User.builder().id(otherUserId).build())
-                        .isAdmin(false)
-                        .build()
-        );
-        List<ChatParticipant> savedChatParticipants = chatParticipantRepository.saveAll(participants);
+        List<ChatMember> members = new ArrayList<>();
+        members.add(ChatMember.builder()
+                .chat(savedChat)
+                .member(User.builder().id(currentUserId).build())
+                .role(MemberRole.MEMBER)
+                .build());
+        members.add(ChatMember.builder()
+                .chat(savedChat)
+                .member(User.builder().id(otherMemberId).build())
+                .role(MemberRole.MEMBER)
+                .build());
 
-        return chatMapper.toChatDetailDto(currentUserId, savedChat, savedChatParticipants);
+        List<ChatMember> savedMembers = chatMemberRepository.saveAll(members);
+
+        return chatMapper.toChatDetailResponse(currentUserId, savedChat, savedMembers);
     }
 
-    @Transactional
     @Override
-    public ChatDetailDto createGroupChat(UUID currentUserId, ChatCreateRequest request, MultipartFile coverImage) {
-        Set<UUID> participantIds = request.participantIds().stream()
-                .filter(id -> !id.equals(currentUserId))
-                .collect(Collectors.toSet());
-        if (participantIds.isEmpty()) {
-            throw new IllegalArgumentException("Group chat must have at least one other participant besides the current user");
+    public ChatDetailResponse createGroupChat(UUID currentUserId, ChatCreateRequest request) {
+        Set<UUID> uniqueMemberIds = new HashSet<>(request.memberIds());
+
+        if (uniqueMemberIds.contains(currentUserId)) {
+            throw new ChatCreationException("Current user cannot be included in the list");
         }
 
         Chat chat = Chat.builder()
                 .chatType(ChatType.GROUP)
                 .groupName(request.groupName())
+                .groupImage(request.groupImage())
                 .build();
         Chat savedChat = chatRepository.save(chat);
 
-        String groupImageUrl = fileStorageUtils.saveFile(coverImage, "chat", savedChat.getId().toString());
-        if (coverImage != null) {
-            savedChat.setGroupImage(groupImageUrl);
-            chatRepository.save(savedChat);
-        }
-
-        List<ChatParticipant> savedChatParticipants = chatParticipantRepository.saveAll(participantIds.stream()
-                .filter(cp -> !cp.equals(currentUserId))
-                .map(id -> ChatParticipant.builder()
+        List<ChatMember> membersToSave = new ArrayList<>();
+        membersToSave.add(ChatMember.builder()
+                .member(User.builder().id(currentUserId).build())
+                .chat(savedChat)
+                .role(MemberRole.ADMIN)
+                .build());
+        membersToSave.addAll(uniqueMemberIds.stream()
+                .map(memberId -> ChatMember.builder()
+                        .member(User.builder().id(memberId).build())
                         .chat(savedChat)
-                        .user(User.builder().id(id).build())
-                        .isAdmin(false)
+                        .role(MemberRole.MEMBER)
                         .build())
                 .toList());
-        savedChatParticipants.add(chatParticipantRepository.save(ChatParticipant.builder()
-                .chat(savedChat)
-                .user(User.builder().id(currentUserId).build())
-                .isAdmin(true)
-                .build()));
 
-        return chatMapper.toChatDetailDto(currentUserId, chat, savedChatParticipants);
+        List<ChatMember> savedMembers = chatMemberRepository.saveAll(membersToSave);
+
+        return chatMapper.toChatDetailResponse(currentUserId, savedChat, savedMembers);
     }
 
-    @Transactional
     @Override
-    public void deleteChat(UUID currentUserId, UUID chatId) {
-        Chat chat = chatRepository.findByIdAndDeletedFalse(chatId, false)
-                .orElseThrow(() -> new EntityNotFoundException("Chat not found or is deleted"));
+    public ChatDetailResponse addMembers(UUID currentUserId, UUID chatId, List<UUID> userIds) {
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new ChatNotFoundException("Chat id " + chatId + " not found"));
 
-        boolean isAdmin = chatParticipantRepository.getParticipantsByChat(chat).stream()
-                .anyMatch(p -> p.getUser().getId().equals(currentUserId) && p.isAdmin());
+        if (chat.getChatType() != ChatType.GROUP) {
+            throw new InvalidChatTypeException("Chat id " + chatId + " is not a group chat");
+        }
+
+        boolean isAdmin = chat.getMembers().stream()
+                .anyMatch(m -> m.getMember().getId().equals(currentUserId) && m.getRole() == MemberRole.ADMIN);
         if (!isAdmin) {
-            throw new AccessDeniedException("Access to chat " + chatId + " is denied, not an admin");
+            throw new NotChatAdminException("Only admins can update the group image");
         }
 
-        chat.setDeleted(true);
-        chat.setDeletedAt(LocalDateTime.now());
-    }
+        List<UUID> existingMemberIds = chatMemberRepository.findByChatId(chatId)
+                .stream()
+                .map(chatMember -> chatMember.getMember().getId())
+                .toList();
 
-    @Transactional
-    @Override
-    public void addMemberToChat(UUID currentUserId, UUID chatId, UUID memberToAddUserId) {
-        Chat chat = chatRepository.findByIdAndDeletedFalse(chatId, false)
-                .orElseThrow(() -> new EntityNotFoundException("Chat not found or is deleted"));
+        List<UUID> newMemberIds = userIds.stream()
+                .filter(id -> !existingMemberIds.contains(id))
+                .distinct()
+                .toList();
 
-        if (!chatParticipantRepository.existsByChatAndUserIdAndIsAdminTrue(chat, currentUserId)) {
-            throw new AccessDeniedException("Access to chat " + chatId + " is denied, not an admin");
-        }
-        if (chat.isPrivate()) {
-            throw new IllegalStateException("Private chat cannot be modified");
-        }
-        if (chatParticipantRepository.existsByChatAndUserId(chat, memberToAddUserId)) {
-            throw new IllegalStateException("User is already in the chat");
-        }
-        ChatParticipant chatParticipant = ChatParticipant.builder()
-                .chat(chat)
-                .user(User.builder().id(memberToAddUserId).build())
-                .isAdmin(false)
-                .build();
-        chatParticipantRepository.save(chatParticipant);
-    }
+        List<ChatMember> savedMembers = chatMemberRepository.saveAll(newMemberIds.stream()
+                .map(memberId -> ChatMember.builder()
+                        .member(User.builder().id(memberId).build())
+                        .chat(chat)
+                        .role(MemberRole.MEMBER)
+                        .build())
+                .toList());
 
-    @Transactional
-    @Override
-    public void leaveChat(UUID currentUserId, UUID chatId) {
-        Chat chat = chatRepository.findByIdAndDeletedFalse(chatId, false)
-                .orElseThrow(() -> new EntityNotFoundException("Chat not found or is deleted"));
+        Chat savedChat = chatRepository.save(chat);
 
-        if (chatParticipantRepository.existsByChatAndUserIdAndIsAdminTrue(chat, currentUserId)) {
-            long adminCount = chatParticipantRepository.countByChatIdAndIsAdminTrue(chatId);
-            if (adminCount <= 1) {
-                throw new AccessDeniedException("The last admin cannot leave the chat");
-            }
-        }
-
-        int deleted = chatParticipantRepository.deleteChatParticipantByChatIdAndUserId(chatId, currentUserId);
-        if (deleted == 0) {
-            throw new EntityNotFoundException("User is not a participant in chat " + chatId);
-        }
+        return chatMapper.toChatDetailResponse(currentUserId, savedChat, savedMembers);
     }
 }

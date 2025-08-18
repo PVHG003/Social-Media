@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import vn.pvhg.backend.auth.model.User;
-import vn.pvhg.backend.chat.enums.AttachmentStatus;
+import vn.pvhg.backend.chat.enums.FileState;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -19,28 +19,31 @@ import java.util.UUID;
 public class Attachment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false)
+    @Column(nullable = false)
     private UUID id;
 
+    @Column(nullable = false)
     private String fileName;
 
+    @Column(nullable = false)
     private String filePath;
 
-    //    @Enumerated(EnumType.STRING)
-    private String mediaType;
+    @Column(nullable = false)
+    private String contentType;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     @Builder.Default
-    private AttachmentStatus status = AttachmentStatus.TEMPORARY;
+    private FileState fileState = FileState.TEMPORARY;
+
+    @CreationTimestamp
+    private LocalDateTime uploadedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "uploader_id", nullable = false)
     private User uploader;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "message_id")
     private Message message;
-
-    @CreationTimestamp
-    private LocalDateTime uploadedAt;
 }

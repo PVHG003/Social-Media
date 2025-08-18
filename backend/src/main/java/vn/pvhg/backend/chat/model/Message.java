@@ -1,11 +1,11 @@
 package vn.pvhg.backend.chat.model;
 
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import vn.pvhg.backend.auth.model.User;
-import vn.pvhg.backend.chat.enums.MessageState;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,36 +22,33 @@ import java.util.UUID;
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(nullable = false)
     private UUID id;
 
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private MessageState state = MessageState.SENT;
-
     @Column(nullable = false)
     @Builder.Default
     private boolean deleted = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_id")
-    private Chat chat;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id", nullable = false)
-    private User sender;
-
-    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<Attachment> attachments = new ArrayList<>();
-
     @CreationTimestamp
-    @Column(updatable = false)
     private LocalDateTime sentAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     private LocalDateTime deletedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_id", nullable = false)
+    private User sender;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chat_id", nullable = false)
+    private Chat chat;
+
+    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Attachment> attachments = new ArrayList<>();
 }

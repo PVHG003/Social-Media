@@ -11,21 +11,15 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
+        format_sql: false
   servlet:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
   web:
     resources:
-      static-locations: classpath:/static/, classpath:/public/, file:./uploads/
-      cache:
-        cachecontrol:
-          max-age: 86400
-          cache-public: true
-  output:
-    ansi:
-      enabled: ALWAYS
+      static-locations: file:uploads/
+      add-mappings: true
 
 jwt:
   key:
@@ -39,9 +33,10 @@ springdoc:
 application:
   file:
     uploads:
-      media-output-path: backend/uploads
+      media-output-path: uploads/
 
 logging:
   level:
-    root: INFO
-    web: TRACE
+    root: info
+    sql: info
+    web: trace

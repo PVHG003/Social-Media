@@ -3,181 +3,140 @@ package vn.pvhg.backend.chat.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import vn.pvhg.backend.chat.dto.request.AddMembersRequest;
 import vn.pvhg.backend.chat.dto.request.ChatCreateRequest;
-import vn.pvhg.backend.chat.dto.response.ChatDetailDto;
-import vn.pvhg.backend.chat.dto.response.ChatListItemDto;
-import vn.pvhg.backend.chat.dto.response.MessageDto;
+import vn.pvhg.backend.chat.dto.response.ChatDetailResponse;
+import vn.pvhg.backend.chat.dto.response.ChatListResponse;
+import vn.pvhg.backend.chat.dto.response.ChatMessageResponse;
 import vn.pvhg.backend.chat.enums.ChatType;
 import vn.pvhg.backend.chat.service.ChatService;
 import vn.pvhg.backend.response.ApiPageResponse;
 import vn.pvhg.backend.response.ApiResponse;
-import vn.pvhg.backend.security.UserDetailsImpl;
-import vn.pvhg.backend.security.UserDetailsServiceImpl;
 
 import java.util.List;
 import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/chats")
+@RequestMapping("/api/chats")
 @RequiredArgsConstructor
 public class ChatController {
+
+    private static final UUID testCurrentUserId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+
     private final ChatService chatService;
-    private final UserDetailsServiceImpl userDetailsServiceImpl;
-
-    @PostMapping(consumes = "multipart/form-data")
-    public ResponseEntity<ApiResponse<ChatDetailDto>> createChat(
-            @AuthenticationPrincipal Jwt jwt,
-            @RequestPart ChatCreateRequest request,
-            @RequestPart(name = "coverImage", required = false) MultipartFile coverImage
-    ) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
-        UUID currentUserId = userDetails.getUser().getId();
-        ApiResponse<ChatDetailDto> response = new ApiResponse<>();
-        if (request.chatType() == ChatType.PRIVATE) {
-            ChatDetailDto chatDetail = chatService.createPrivateChat(currentUserId, request, coverImage);
-            response.setStatus(HttpStatus.OK);
-            response.setMessage("Create private chat success");
-            response.setSuccess(true);
-            response.setData(chatDetail);
-        }
-        if (request.chatType() == ChatType.GROUP) {
-            ChatDetailDto chatDetail = chatService.createGroupChat(currentUserId, request, coverImage);
-            response.setStatus(HttpStatus.OK);
-            response.setMessage("Create group chat success");
-            response.setSuccess(true);
-            response.setData(chatDetail);
-        }
-        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
-    }
-
-    @PostMapping("/{chatId}/members")
-    public ResponseEntity<ApiResponse<Void>> addMemberToChat(
-            @PathVariable UUID chatId,
-            @AuthenticationPrincipal Jwt jwt,
-            @RequestParam UUID userId
-    ) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
-        chatService.addMemberToChat(userDetails.getUser().getId(), chatId, userId);
-        ApiResponse<Void> response = new ApiResponse<>(
-                HttpStatus.OK,
-                "Add member to chat success",
-                true,
-                null
-        );
-        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
-    }
-
-    @PostMapping("/{chatId}/members/leave")
-    public ResponseEntity<ApiResponse<Void>> leaveChat(
-            @PathVariable UUID chatId,
-            @AuthenticationPrincipal Jwt jwt
-    ) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
-        chatService.leaveChat(userDetails.getUser().getId(), chatId);
-        ApiResponse<Void> response = new ApiResponse<>(
-                HttpStatus.OK,
-                "Leave chat success",
-                true,
-                null
-        );
-        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
-    }
 
     @GetMapping
-    public ResponseEntity<ApiPageResponse<List<ChatListItemDto>>> getChats(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @AuthenticationPrincipal Jwt jwt) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
+    public ResponseEntity<ApiPageResponse<List<ChatListResponse>>> getChatList(
+            @AuthenticationPrincipal Jwt jwt,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        UUID currentUserId = UUID.fromString(jwt.getClaims().get("uuid").toString());
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("updatedAt").descending());
-
-        Page<ChatListItemDto> chatPage = chatService.getUserChats(userDetails.getUser().getId(), pageable);
-
-        ApiPageResponse<List<ChatListItemDto>> response = new ApiPageResponse<>(
+        Page<ChatListResponse> chatList = chatService.getChatList(currentUserId, pageable);
+        ApiPageResponse<List<ChatListResponse>> response = new ApiPageResponse<>(
                 HttpStatus.OK,
-                "Get " + chatPage.getNumberOfElements() + " chats success",
+                "Get messages successful for user " + currentUserId,
                 true,
-                chatPage.getContent(),
-                page,
-                size,
-                chatPage.getTotalElements(),
-                chatPage.getTotalPages()
+                chatList.getContent(),
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                chatList.getTotalElements(),
+                chatList.getTotalPages()
         );
-
         return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
     }
 
     @GetMapping("/{chatId}")
-    public ResponseEntity<ApiResponse<ChatDetailDto>> getChatDetail(
+    public ResponseEntity<ApiResponse<ChatDetailResponse>> getChatInfo(
             @PathVariable UUID chatId,
             @AuthenticationPrincipal Jwt jwt
     ) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
+        UUID currentUserId = UUID.fromString(jwt.getClaims().get("uuid").toString());
 
-        ChatDetailDto chatDetail = chatService.getChatDetail(userDetails.getUser().getId(), chatId);
-
-        ApiResponse<ChatDetailDto> response = new ApiResponse<>(
-                HttpStatus.OK,
-                "Get chat detail success",
-                true,
-                chatDetail
-        );
+        ChatDetailResponse chatDetail = chatService.getChatInfo(currentUserId, chatId);
+        ApiResponse<ChatDetailResponse> response = new ApiResponse<>(HttpStatus.OK, "Get chat info success", true, chatDetail);
         return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
     }
 
     @GetMapping("/{chatId}/messages")
-    public ResponseEntity<ApiPageResponse<List<MessageDto>>> getChatMessages(
+    public ResponseEntity<ApiPageResponse<List<ChatMessageResponse>>> getChatMessages(
             @PathVariable UUID chatId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
+            @AuthenticationPrincipal Jwt jwt,
+            @PageableDefault(size = 10, sort = "sentAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        UUID currentUserId = UUID.fromString(jwt.getClaims().get("uuid").toString());
+
+        Page<ChatMessageResponse> chatMessageList = chatService.getChatMessages(currentUserId, chatId, pageable);
+        ApiPageResponse<List<ChatMessageResponse>> response = new ApiPageResponse<>(
+                HttpStatus.OK,
+                "Get messages successful for user " + currentUserId,
+                true,
+                chatMessageList.getContent(),
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                chatMessageList.getTotalElements(),
+                chatMessageList.getTotalPages()
+        );
+        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+    }
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<ChatDetailResponse>> createChat(
+            @RequestBody ChatCreateRequest request,
             @AuthenticationPrincipal Jwt jwt
     ) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
-        UUID userId = userDetails.getUser().getId();
+        UUID currentUserId = UUID.fromString(jwt.getClaims().get("uuid").toString());
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("updatedAt").descending());
+        ChatDetailResponse chatDetail = null;
 
-        Page<MessageDto> messagePage = chatService.getChatMessages(userId, chatId, pageable);
+        log.info("Chat detail: {}", request.chatType());
+        if (request.chatType() == ChatType.PRIVATE) {
+            chatDetail = chatService.createPrivateChat(currentUserId, request);
+        }
+        if (request.chatType() == ChatType.GROUP) {
+            chatDetail = chatService.createGroupChat(currentUserId, request);
+        }
 
-        ApiPageResponse<List<MessageDto>> response = new ApiPageResponse<>(
-                HttpStatus.OK,
-                "Get " + messagePage.getNumberOfElements() + " messages success",
-                true,
-                messagePage.getContent(),
-                page,
-                size,
-                messagePage.getTotalElements(),
-                messagePage.getTotalPages()
-        );
+        ApiResponse<ChatDetailResponse> response = new ApiResponse<>(HttpStatus.OK, "Create chat success", true, chatDetail);
+        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+    }
+
+    @PostMapping("/{chatId}/members")
+    public ResponseEntity<ApiResponse<ChatDetailResponse>> addMembers(
+            @PathVariable UUID chatId,
+            @RequestBody AddMembersRequest request,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        UUID currentUserId = UUID.fromString(jwt.getClaims().get("uuid").toString());
+
+        ChatDetailResponse chatDetail = chatService.addMembers(currentUserId, chatId, request.userIds());
+        ApiResponse<ChatDetailResponse> response = new ApiResponse<>(HttpStatus.OK, "Add members success", true, chatDetail);
 
         return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
     }
 
+    @PutMapping("/{chatId}")
+    public ResponseEntity<Object> updateChat(@PathVariable UUID chatId, @RequestBody Object request) {
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/{chatId}")
-    public ResponseEntity<ApiResponse<Void>> deleteChat(
-            @PathVariable UUID chatId,
-            @AuthenticationPrincipal Jwt jwt
-    ) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
-        chatService.deleteChat(userDetails.getUser().getId(), chatId);
-        ApiResponse<Void> response = new ApiResponse<>(
-                HttpStatus.OK,
-                "Delete chat success",
-                true,
-                null
-        );
-        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+    public ResponseEntity<Object> deleteChat(@PathVariable UUID chatId) {
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{chatId}/members/{memberId}")
+    public ResponseEntity<Object> removeMember(@PathVariable UUID chatId, @PathVariable UUID memberId) {
+        return ResponseEntity.ok().build();
     }
 }

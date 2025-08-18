@@ -1,7 +1,6 @@
 package vn.pvhg.backend.auth.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import vn.pvhg.backend.auth.model.RevokedToken;
 import vn.pvhg.backend.auth.repository.RevokedTokenRepository;
@@ -26,7 +25,6 @@ public class RevokedTokenServiceImpl implements RevokedTokenService {
         return revokedToken != null;
     }
 
-    @Scheduled(cron = "0 * * * * *")
     @Override
     public void cleanupExpiredTokens() {
         revokedTokenRepository.deleteByExpiryDateBefore(Instant.now());

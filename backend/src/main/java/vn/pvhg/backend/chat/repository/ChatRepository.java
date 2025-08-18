@@ -7,43 +7,41 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import vn.pvhg.backend.chat.model.Chat;
 
-import java.util.Optional;
 import java.util.UUID;
 
 public interface ChatRepository extends JpaRepository<Chat, UUID> {
 
-    // 1. Get all conversations where user is a participant (sorted by latest activity)
     @Query("""
-            SELECT DISTINCT c
+            SELECT c, m
             FROM Chat c
-            JOIN c.participants p
-            WHERE c.deleted = :deleted and p.user.id = :userId
-            ORDER BY c.updatedAt DESC
+            JOIN c.members cm
+            JOIN cm.member u
+            LEFT JOIN c.messages m ON m.sentAt = (
+                SELECT MAX(m2.sentAt)
+                FROM Message m2
+                WHERE m2.chat.id = c.id
+            )
+            WHERE cm.member.id = :currentUserId
+            ORDER BY m.sentAt DESC
             """)
-    Page<Chat> findAllByUserIdAndDeletedFalse(@Param("userId") UUID userId, boolean deleted, Pageable pageable);
+    Page<Object[]> getUserChatWithLatestMessage(@Param("currentUserId") UUID currentUserId, Pageable pageable);
 
     @Query("""
-                SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END
+            SELECT CASE WHEN COUNT(cm) > 0 THEN true ELSE false END
+            FROM ChatMember cm
+            WHERE cm.member.id = :currentUserId AND cm.chat.id = :chatId
+            """)
+    boolean existsByMemberIdAndChatId(@Param("currentUserId") UUID currentUserId, @Param("chatId") UUID chatId);
+
+    @Query("""
+            SELECT CASE WHEN COUNT(cm) > 0 THEN true ELSE false END
+            FROM ChatMember cm
+            WHERE cm.member.id = :currentUserId AND cm.chat.id IN (
+                SELECT c.id
                 FROM Chat c
-                WHERE c.chatType = 'PRIVATE' AND c.deleted = false
-                  AND EXISTS (
-                      SELECT 1 FROM ChatParticipant p
-                      WHERE p.chat = c AND p.user.id = :currentUserId
-                  )
-                  AND EXISTS (
-                      SELECT 1 FROM ChatParticipant p
-                      WHERE p.chat = c AND p.user.id = :otherUserId
-                  )
+                JOIN c.members cm2
+                WHERE cm2.member.id = :otherMemberId AND c.chatType = 'PRIVATE'
+            )
             """)
-    boolean existsPrivateChatBetween(
-            @Param("currentUserId") UUID currentUserId,
-            @Param("otherUserId") UUID otherUserId);
-
-    @Query("""
-            SELECT c
-            FROM Chat c
-            WHERE c.id = :id
-            AND c.deleted = :deleted
-            """)
-    Optional<Chat> findByIdAndDeletedFalse(UUID id, boolean deleted);
+    boolean existsBetweenMembers(UUID currentUserId, UUID otherMemberId);
 }

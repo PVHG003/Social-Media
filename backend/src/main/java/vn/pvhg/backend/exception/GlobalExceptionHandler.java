@@ -1,7 +1,5 @@
 package vn.pvhg.backend.exception;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,23 +24,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ApiError> handleEntityNotFoundException(EntityNotFoundException ex) {
-        String error = ex.getMessage();
-        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, "Entity Not Found", error);
-        return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
-    }
-
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiError> handleConstraintViolationException(ConstraintViolationException e) {
-        Map<String, Object> errors = new HashMap<>();
-        e.getConstraintViolations().forEach(violation -> {
-            errors.put(violation.getPropertyPath().toString(), violation.getMessage());
-        });
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Constraint Violation Exception", errors);
-        return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
-    }
-
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiError> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
         String error = ex.getName() + " should be of type " + Objects.requireNonNull(ex.getRequiredType()).getSimpleName();
@@ -60,20 +41,6 @@ public class GlobalExceptionHandler {
             errors.put(globalError.getObjectName(), globalError.getDefaultMessage());
         });
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Method Argument Not Valid Exception", errors);
-        return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
-    }
-
-    @ExceptionHandler({IllegalStateException.class, IllegalArgumentException.class})
-    public ResponseEntity<ApiError> handleIllegalException(RuntimeException ex) {
-        String error = ex.getMessage();
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Illegal Exception", error);
-        return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ApiError> handleRuntimeException(RuntimeException ex) {
-        String error = ex.getMessage();
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Runtime Exception", error);
         return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
     }
 

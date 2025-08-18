@@ -22,10 +22,11 @@ public class JwtUtils {
     @Value("${jwt.expiration}")
     private long expiration;
 
-    public String generateToken(Authentication authentication) {
+    public String generateToken(UUID id, Authentication authentication) {
         Instant now = Instant.now();
         Instant expiry = now.plusMillis(expiration);
         JwtClaimsSet jwtClaimsSet = JwtClaimsSet.builder()
+                .claim("uuid", id)
                 .subject(authentication.getName())
                 .id(UUID.randomUUID().toString())
                 .issuedAt(now)

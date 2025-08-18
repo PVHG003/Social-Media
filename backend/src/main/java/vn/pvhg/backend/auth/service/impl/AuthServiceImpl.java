@@ -33,7 +33,7 @@ public class AuthServiceImpl implements AuthService {
                         request.email(), request.password())
         );
         UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
-        String token = jwtUtils.generateToken(authentication);
+        String token = jwtUtils.generateToken(user.getUser().getId(), authentication);
         return new AuthResponse(
                 token,
                 userMapper.toResponse(user.getUser())
