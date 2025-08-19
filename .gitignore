@@ -56,3 +56,9 @@ yarn-error.log*
 
 # Misc
 .DS_Store
+
+# ======================
+# File upload
+# ======================
+
+uploads/*
