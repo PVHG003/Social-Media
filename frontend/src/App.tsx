@@ -1,12 +1,12 @@
-import { AuthProvider } from "./context/authContext";
-import Route from "./routes/ AppRoute";
+import Chat from "@/Chat.tsx";
 
-const App = () => {
-  return (
-    <AuthProvider>
-      <Route />
-    </AuthProvider>
-  );
-};
+function App() {
 
-export default App;
+    return (
+        <div>
+            return <Chat roomId={1} currentUserId={1}/>;
+        </div>
+    )
+}
+
+export default App
