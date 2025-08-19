@@ -3,6 +3,7 @@ package vn.pvhg.backend.chat.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import vn.pvhg.backend.auth.model.User;
+import vn.pvhg.backend.auth.repository.UserRepository;
 import vn.pvhg.backend.chat.dto.message.OutgoingMessage;
 import vn.pvhg.backend.chat.dto.payload.MessagePayload;
 import vn.pvhg.backend.chat.enums.FileState;
@@ -26,9 +27,13 @@ public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
     private final AttachmentRepository attachmentRepository;
     private final MessageMapper messageMapper;
+    private final UserRepository userRepository;
 
     @Override
     public OutgoingMessage saveMessage(UUID currentUserId, UUID chatId, MessagePayload messagePayload) {
+        User user = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new ChatNotFoundException("User id " + currentUserId + " not found"));
+
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new ChatNotFoundException("Chat id " + chatId + " not found"));
 
@@ -53,6 +58,6 @@ public class MessageServiceImpl implements MessageService {
             attachmentRepository.saveAll(attachments);
         }
 
-        return messageMapper.toOutgoingMessage(currentUserId, savedMessage);
+        return messageMapper.toOutgoingMessage(user, savedMessage);
     }
 }

@@ -17,40 +17,41 @@ import vn.pvhg.backend.filter.JwtAuthenticationFilter;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
-    private static final String[] PUBLIC_URLS = {
-            "/api/auth/login",
-            "/api/auth/register",
-            "/v2/api-docs",
-            "/v3/api-docs",
-            "/v3/api-docs/**",
-            "/v3/api-docs.yaml",
-            "/swagger-resources",
-            "/swagger-resources/**",
-            "/configuration/ui",
-            "/configuration/security",
-            "/swagger-ui/**",
-            "/webjars/**",
-            "/swagger-ui.html"
-    };
+        private static final String[] PUBLIC_URLS = {
+                        "/api/auth/login",
+                        "/api/auth/register",
+                        "/v2/api-docs",
+                        "/v3/api-docs",
+                        "/v3/api-docs/**",
+                        "/v3/api-docs.yaml",
+                        "/swagger-resources",
+                        "/swagger-resources/**",
+                        "/configuration/ui",
+                        "/configuration/security",
+                        "/swagger-ui/**",
+                        "/webjars/**",
+                        "/swagger-ui.html",
+                        "/uploads/**",
+        };
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+        private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
-                        .jwt(Customizer.withDefaults()))
-                .authorizeHttpRequests(registry -> registry
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers(PUBLIC_URLS).permitAll()
-//                        .requestMatchers("/ws/**").permitAll()
-                        .anyRequest().authenticated())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .cors(Customizer.withDefaults())
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
+                                                .jwt(Customizer.withDefaults()))
+                                .authorizeHttpRequests(registry -> registry
+                                                .requestMatchers("/api/v1/auth/**").permitAll()
+                                                .requestMatchers(PUBLIC_URLS).permitAll()
+                                                .requestMatchers("/ws/**").permitAll()
+                                                .anyRequest().authenticated())
+                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+                return http.build();
+        }
 }

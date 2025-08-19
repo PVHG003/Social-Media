@@ -19,7 +19,7 @@ import java.util.UUID;
 
 //TODO: sample codes implement later
 @RestController
-@RequestMapping("/api/files")
+@RequestMapping("/api/v1/files")
 @RequiredArgsConstructor
 public class MediaController {
 

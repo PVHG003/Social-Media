@@ -1,6 +1,7 @@
 package vn.pvhg.backend.chat.mapper;
 
 import org.springframework.stereotype.Service;
+import vn.pvhg.backend.auth.model.User;
 import vn.pvhg.backend.chat.dto.message.OutgoingMessage;
 import vn.pvhg.backend.chat.dto.response.ChatMessageResponse;
 import vn.pvhg.backend.chat.model.Message;
@@ -31,19 +32,19 @@ public class MessageMapper {
         );
     }
 
-    public OutgoingMessage toOutgoingMessage(UUID currentUserId, Message message) {
+    public OutgoingMessage toOutgoingMessage(User currentUser, Message message) {
         return new OutgoingMessage(
                 message.getId(),
-                message.getSender().getId(),
-                message.getSender().getUsername(),
-                message.getSender().getProfileImage(),
+                currentUser.getId(),
+                currentUser.getUsername(),
+                currentUser.getProfileImage(),
                 message.getContent(),
                 message.getAttachments().stream()
                         .map(attachmentMapper::toAttachmentResponse)
                         .toList(),
                 message.getSentAt(),
                 message.isDeleted(),
-                !message.getSender().getId().equals(currentUserId)
+                !message.getSender().getId().equals(currentUser.getId())
         );
     }
 }

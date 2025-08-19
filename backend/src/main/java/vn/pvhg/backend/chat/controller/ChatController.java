@@ -27,7 +27,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/chats")
+@RequestMapping("/api/v1/chats")
 @RequiredArgsConstructor
 public class ChatController {
 

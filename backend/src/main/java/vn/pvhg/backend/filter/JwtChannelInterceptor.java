@@ -30,29 +30,36 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             String authorization = accessor.getFirstNativeHeader("Authorization");
 
-            if (authorization == null || !authorization.startsWith("Bearer ")) {
-                return message;
+            // fallback to query param for SockJS
+            if (authorization == null) {
+                String token = accessor.getSessionAttributes() != null
+                        ? (String) accessor.getSessionAttributes().get("token")
+                        : null;
+                authorization = token != null ? "Bearer " + token : null;
             }
 
-            String token = authorization.substring("Bearer ".length());
-            Jwt jwt = jwtDecoder.decode(token);
-            String subject = jwt.getSubject();
-            UserDetailsImpl user = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(subject);
+            if (authorization != null && authorization.startsWith("Bearer ")) {
+                String token = authorization.substring("Bearer ".length());
+                Jwt jwt = jwtDecoder.decode(token);
+                String subject = jwt.getSubject();
+                UserDetailsImpl user = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(subject);
 
-            List<String> authorities = jwt.getClaimAsStringList("authorities");
-            List<GrantedAuthority> grantedAuthorities = authorities.stream()
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    user,
-                    null,
-                    grantedAuthorities
-            );
-            accessor.setUser(authentication);
-            log.info("Principal: {}", authentication.getName());
+                List<String> authorities = jwt.getClaimAsStringList("authorities");
+                List<GrantedAuthority> grantedAuthorities = authorities.stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
+
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        user,
+                        null,
+                        grantedAuthorities);
+                accessor.setUser(authentication);
+                log.info("Principal: {}", authentication.getName());
+            }
         }
 
         return message;
