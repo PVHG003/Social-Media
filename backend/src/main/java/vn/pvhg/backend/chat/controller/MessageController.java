@@ -26,7 +26,7 @@ public class MessageController {
     private final UserDetailsServiceImpl userDetailsServiceImpl;
     private final MessageService messageService;
 
-    @MessageMapping("/chat.sendMessage.{chatId}")
+    @MessageMapping("/chat.send.{chatId}")
     public void sendMessage(
             @DestinationVariable UUID chatId,
             @Payload MessagePayload messagePayload,
@@ -44,9 +44,29 @@ public class MessageController {
         );
     }
 
-    @MessageMapping("/message.deleteMessage.{messageId}")
+    @MessageMapping("/chat.{chatId}.message.delete.{messageId}")
     public void deleteMessage(
+            @DestinationVariable UUID chatId,
             @DestinationVariable UUID messageId,
+            Principal principal
+    ) {
+        UserDetailsImpl user = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(principal.getName());
+        UUID currentUserId = user.getUser().getId();
+
+        OutgoingMessage outgoingMessage = messageService.deleteMessage(currentUserId, messageId);
+
+        String topic = "/topic/chat/" + chatId;
+        messagingTemplate.convertAndSend(
+                topic,
+                new MessageEvent<>(MessageEventType.MESSAGE_DELETED, outgoingMessage)
+        );
+    }
+
+    @MessageMapping("/chat.{chatId}.message.update.{messageId}")
+    public void updateMessage(
+            @DestinationVariable UUID chatId,
+            @DestinationVariable UUID messageId,
+            @Payload MessagePayload messagePayload,
             Principal principal
     ) {
         UserDetailsImpl user = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(principal.getName());
@@ -54,27 +74,9 @@ public class MessageController {
 
         Message message = Message.builder().id(messageId).build();
 
-        String topic = "/topic/chat/" + message.getChat().getId();
-        messagingTemplate.convertAndSend(
-                topic,
-                new MessageEvent<>(MessageEventType.MESSAGE_DELETED, null)
-        );
-    }
+        String topic = "/topic/chat/" + chatId;
 
-    @MessageMapping("/message.updateMessage.{messageId}")
-    public void updateMessage(
-            @DestinationVariable UUID messageId,
-            @Payload MessagePayload messageUpdatePayload,
-            Principal principal
-    ) {
-        UserDetailsImpl user = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(principal.getName());
-        String username = user.getUser().getUsername();
-
-        Message message = Message.builder().id(messageId).build();
-
-        String topic = "/topic/chat/" + message.getChat().getId();
-
-        OutgoingMessage updatedMessage = null;
+        OutgoingMessage updatedMessage = messageService.updateMessage(currentUserId, messageId, messagePayload);
 
         messagingTemplate.convertAndSend(
                 topic,

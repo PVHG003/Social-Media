@@ -22,14 +22,13 @@ public class MessageMapper {
                 message.getSender().getId(),
                 message.getSender().getUsername(),
                 message.getSender().getProfileImage(),
-                message.getContent(),
+                message.isDeleted() ? "Message deleted" : message.getContent(),
                 message.getAttachments().stream()
                         .map(attachmentMapper::toAttachmentResponse)
                         .toList(),
                 message.getSentAt(),
                 message.isDeleted(),
-                message.getSender().getId().equals(currentUserId)
-        );
+                message.getSender().getId().equals(currentUserId));
     }
 
     public OutgoingMessage toOutgoingMessage(User currentUser, Message message) {
@@ -38,13 +37,12 @@ public class MessageMapper {
                 currentUser.getId(),
                 currentUser.getUsername(),
                 currentUser.getProfileImage(),
-                message.getContent(),
+                message.isDeleted() ? "Message deleted" : message.getContent(),
                 message.getAttachments().stream()
                         .map(attachmentMapper::toAttachmentResponse)
                         .toList(),
                 message.getSentAt(),
                 message.isDeleted(),
-                !message.getSender().getId().equals(currentUser.getId())
-        );
+                !message.getSender().getId().equals(currentUser.getId()));
     }
 }

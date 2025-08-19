@@ -7,4 +7,8 @@ import java.util.UUID;
 
 public interface MessageService {
     OutgoingMessage saveMessage(UUID currentUserId, UUID chatId, MessagePayload messagePayload);
+
+    OutgoingMessage deleteMessage(UUID currentUserId, UUID messageId);
+
+    OutgoingMessage updateMessage(UUID currentUserId, UUID messageId, MessagePayload messagePayload);
 }
