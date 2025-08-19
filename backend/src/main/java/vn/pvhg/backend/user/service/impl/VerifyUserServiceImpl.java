@@ -5,6 +5,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import vn.pvhg.backend.user.service.VerifyUserService;
 
+import java.text.DecimalFormat;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -15,20 +17,21 @@ public class VerifyUserServiceImpl implements VerifyUserService {
     private static final long OTP_EXPIRATION_MINUTES = 5;
 
     @Override
-    public String generateVerificationCode(Long userId) {
-        String verificationCode = "1111";
-        String redisKey = OTP_PREFIX + userId;
-        redisTemplate.opsForValue().set(redisKey, verificationCode, OTP_EXPIRATION_MINUTES, TimeUnit.MINUTES);
+    public String generateAndSaveOtp(Long userId) {
+        String otpCode = new DecimalFormat("000000").format(new Random().nextInt(999999));
 
-        return verificationCode;
+        String redisKey = OTP_PREFIX + userId;
+        redisTemplate.opsForValue().set(redisKey, otpCode, OTP_EXPIRATION_MINUTES, TimeUnit.MINUTES);
+
+        return otpCode;
     }
 
     @Override
-    public boolean verifyVerificationCode(Long userId, String verificationCode) {
+    public boolean verifyOtp(Long userId, String code) {
         String redisKey = OTP_PREFIX + userId;
-        String verifiedOtp = redisTemplate.opsForValue().get(redisKey);
+        String storedOtp = redisTemplate.opsForValue().get(redisKey);
 
-        if(verifiedOtp != null && verifiedOtp.equals(verificationCode)) {
+        if(storedOtp != null && storedOtp.equals(code)) {
             redisTemplate.delete(redisKey);
             return true;
         }

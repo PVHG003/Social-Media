@@ -3,10 +3,7 @@ package vn.pvhg.backend.user.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vn.pvhg.backend.security.impl.UserDetailsImpl;
 import vn.pvhg.backend.user.dto.request.*;
 import vn.pvhg.backend.user.dto.response.AuthResourceResponseDTO;
@@ -14,7 +11,7 @@ import vn.pvhg.backend.user.dto.response.CustomResponse;
 import vn.pvhg.backend.user.service.AuthService;
 
 @RestController
-@RequestMapping("/v1/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
@@ -25,12 +22,14 @@ public class AuthController {
         return new CustomResponse<>(true, response, "Đăng kí thành công. Vui lòng kiểm tra email để xác thực tài khoản.");
     }
 
-    @PostMapping("/verify/new-user")
-    public CustomResponse<AuthResourceResponseDTO> verifyNewUser(
-            @Valid @RequestBody VerificationCodeRequestDTO request,
-            @AuthenticationPrincipal UserDetailsImpl currentUser){
-            Long userId = currentUser.getId();
-            AuthResourceResponseDTO response = authService.verifyNewUser(userId, request);
+    @PostMapping("/verify")
+    public CustomResponse<AuthResourceResponseDTO> verify(
+            @RequestParam ("email") String email,
+            @RequestParam("code") String code,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+            ){
+        Long userId = userDetails.getId();
+        AuthResourceResponseDTO response = authService.verify(userId, email, code);
         return new CustomResponse<>(true, response, "Xác thực tài khoản thành công.");
     }
 
@@ -47,22 +46,13 @@ public class AuthController {
         return new CustomResponse<>(true, "Đăng xuất thành công.");
     }
 
-    @PostMapping("/forgot-password")
-    public CustomResponse<AuthResourceResponseDTO> forgotPassword(@Valid @RequestBody ForgotPasswordRequestDTO request){
-        AuthResourceResponseDTO response = authService.forgotPassword(request);
+    @PostMapping("/forget")
+    public CustomResponse<AuthResourceResponseDTO> forgotPassword(@RequestParam("email") String email){
+        AuthResourceResponseDTO response = authService.forgotPassword(email);
         return new CustomResponse<>(true, response, "Vui lòng kiểm tra email để xác thực tài khoản.");
     }
 
-    @PostMapping("/verify/reset-password")
-    public CustomResponse<AuthResourceResponseDTO> resetPassword(
-            @Valid @RequestBody VerificationCodeRequestDTO request,
-            @AuthenticationPrincipal UserDetailsImpl currentUser){
-        Long userId = currentUser.getId();
-        AuthResourceResponseDTO response = authService.verifyOtpResetPassword(userId, request);
-        return new CustomResponse<>(true, response, "Vui lòng nhập mật khẩu mới");
-    }
-
-    @PostMapping("/reset-password")
+    @PostMapping("/reset")
     public CustomResponse<Void> resetPassword(
             @Valid @RequestBody ResetPasswordRequestDTO request,
             @AuthenticationPrincipal UserDetailsImpl currentUser) {
@@ -80,4 +70,10 @@ public class AuthController {
         return new CustomResponse<>(true, response, "Thay đổi mật khẩu thành công.");
     }
 
+    @PostMapping("/send-code")
+    public CustomResponse<AuthResourceResponseDTO> sendCode(
+            @RequestParam("email") String email) {
+        authService.sendOtp(email);
+        return new CustomResponse<>(true, "Gửi mã OTP thành công");
+    }
 }

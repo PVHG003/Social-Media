@@ -2,7 +2,6 @@ package vn.pvhg.backend.user.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vn.pvhg.backend.exception.AccountNotVerifiedException;
@@ -16,6 +15,7 @@ import vn.pvhg.backend.user.mapper.AuthMapper;
 import vn.pvhg.backend.user.model.User;
 import vn.pvhg.backend.user.repository.UserRepository;
 import vn.pvhg.backend.user.service.AuthService;
+import vn.pvhg.backend.user.service.MailService;
 import vn.pvhg.backend.user.service.VerifyUserService;
 import vn.pvhg.backend.utils.AuthConstant;
 
@@ -27,7 +27,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthMapper authMapper;
     private final JwtService jwtService;
     private final VerifyUserService verifyUserService;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final MailService mailService;
 
     @Override
     @Transactional
@@ -41,29 +41,36 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
 
+        sendOtp(user.getEmail());
+
         String token = jwtService.generateToken(user, AuthConstant.TokenSubject.OTP_VERIFIED_ACCOUNT);
-        verifyUserService.generateVerificationCode(user.getId());
 
         return jwtService.getToken(token);
     }
 
     @Override
-    public AuthResourceResponseDTO verifyNewUser(Long userId, VerificationCodeRequestDTO request) {
+    public AuthResourceResponseDTO verify(Long userId, String email, String code) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng với id: " + userId));
 
-        if(user.getIsVerified() == AuthConstant.IsVerified.VERIFIED.getValue()){
-            throw new IllegalArgumentException("Tài khoản đã được xác thực");
+        if(!user.getEmail().equals(email)) {
+            throw new ResourceNotFoundException("Email không trùng với email tài khoản");
         }
 
-        if(!verifyUserService.verifyVerificationCode(user.getId(), request.getVerificationCode())){
+        if(!verifyUserService.verifyOtp(user.getId(), code)){
             throw new InvalidCredentialsException("Mã OTP không chính xác hoặc đã hết hạn.");
         }
 
-        user.setIsVerified(AuthConstant.IsVerified.VERIFIED.getValue());
-        userRepository.save(user);
+        String token = null;
 
-        String token = jwtService.generateToken(user, AuthConstant.TokenSubject.USER_ACCESS);
+        if(user.getIsVerified() == AuthConstant.IsVerified.UNVERIFIED.getValue()){
+            user.setIsVerified(AuthConstant.IsVerified.VERIFIED.getValue());
+            userRepository.save(user);
+
+            token = jwtService.generateToken(user, AuthConstant.TokenSubject.USER_ACCESS);
+        } else if (user.getIsVerified() == AuthConstant.IsVerified.VERIFIED.getValue()){
+            token = jwtService.generateToken(user, AuthConstant.TokenSubject.RESET_PASSWORD);
+        }
 
         return jwtService.getToken(token);
     }
@@ -81,7 +88,7 @@ public class AuthServiceImpl implements AuthService {
         if (user.getIsVerified() == AuthConstant.IsVerified.VERIFIED.getValue()) {
             token = jwtService.generateToken(user, AuthConstant.TokenSubject.USER_ACCESS);
         } else {
-            verifyUserService.generateVerificationCode(user.getId());
+            verifyUserService.generateAndSaveOtp(user.getId());
             throw new AccountNotVerifiedException("Tài khoản của bạn chưa được xác thực. Một mã OTP mới đã được gửi.");
         }
 
@@ -94,25 +101,13 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthResourceResponseDTO forgotPassword(ForgotPasswordRequestDTO request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng với email: " + request.getEmail()));
+    public AuthResourceResponseDTO forgotPassword(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng với email: " + email));
         String token = jwtService.generateToken(user, AuthConstant.TokenSubject.OTP_RESET_PASSWORD);
-        verifyUserService.generateVerificationCode(user.getId());
+        verifyUserService.generateAndSaveOtp(user.getId());
 
-        return jwtService.getToken(token);
-    }
-
-    @Override
-    public AuthResourceResponseDTO verifyOtpResetPassword(Long userId, VerificationCodeRequestDTO request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng với id: " + userId));
-
-        if(!verifyUserService.verifyVerificationCode(user.getId(), request.getVerificationCode())){
-            throw new InvalidCredentialsException("Mã OTP không chính xác hoặc đã hết hạn.");
-        }
-
-        String token = jwtService.generateToken(user, AuthConstant.TokenSubject.RESET_PASSWORD);
+        sendOtp(user.getEmail());
 
         return jwtService.getToken(token);
     }
@@ -144,5 +139,12 @@ public class AuthServiceImpl implements AuthService {
         return jwtService.getToken(token);
     }
 
+    @Override
+    public void sendOtp(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng với email: " + email));
 
+        String otp = verifyUserService.generateAndSaveOtp(user.getId());
+        mailService.sendOtpEmail(user.getEmail(), otp);
+    }
 }

@@ -5,11 +5,11 @@ import vn.pvhg.backend.user.dto.response.AuthResourceResponseDTO;
 
 public interface AuthService {
     AuthResourceResponseDTO register(RegisterRequestDTO request);
-    AuthResourceResponseDTO verifyNewUser(Long userId, VerificationCodeRequestDTO request);
+    AuthResourceResponseDTO verify(Long userId, String email, String code);
     AuthResourceResponseDTO login(LoginRequestDTO request);
     void logout(Long userId);
-    AuthResourceResponseDTO forgotPassword(ForgotPasswordRequestDTO request);
-    AuthResourceResponseDTO verifyOtpResetPassword(Long userId, VerificationCodeRequestDTO request);
+    AuthResourceResponseDTO forgotPassword(String email);
     void resetPassword(Long userId, ResetPasswordRequestDTO request);
     AuthResourceResponseDTO changePassword(Long userId, ChangePasswordRequestDTO request);
+    void sendOtp(String email);
 }
