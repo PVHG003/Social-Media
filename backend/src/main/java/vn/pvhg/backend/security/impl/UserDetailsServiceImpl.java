@@ -7,8 +7,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import vn.pvhg.backend.exception.ResourceNotFoundException;
-import vn.pvhg.backend.user.model.User;
-import vn.pvhg.backend.user.repository.UserRepository;
+import vn.pvhg.backend.authentication.model.User;
+import vn.pvhg.backend.authentication.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
