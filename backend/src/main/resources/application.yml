@@ -11,18 +11,15 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
+        format_sql: false
   servlet:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
   web:
     resources:
-      static-locations: classpath:/static/, classpath:/public/, file:./uploads/
-      cache:
-        cachecontrol:
-          max-age: 86400
-          cache-public: true
+      static-locations: file:uploads/
+      add-mappings: true
 
 jwt:
   key:
@@ -30,12 +27,16 @@ jwt:
     public-key: classpath:keys/public.pem
   expiration: 86400000
 
-file:
-  image-upload: uploads/images/
-  video-upload: uploads/videos/
+springdoc:
+  default-produces-media-type: application/json
+
+application:
+  file:
+    uploads:
+      media-output-path: uploads/
 
 logging:
   level:
-    root: INFO
-    web: TRACE
-    org.springframework.data.neo4j: DEBUG
+    root: info
+    sql: info
+    web: trace
