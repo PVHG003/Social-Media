@@ -1,9 +1,9 @@
-package vn.pvhg.backend.user.service.impl;
+package vn.pvhg.backend.authentication.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import vn.pvhg.backend.user.service.VerifyUserService;
+import vn.pvhg.backend.authentication.service.VerifyUserService;
 
 import java.text.DecimalFormat;
 import java.util.Random;

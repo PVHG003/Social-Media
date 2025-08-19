@@ -1,7 +1,7 @@
-package vn.pvhg.backend.user.service;
+package vn.pvhg.backend.authentication.service;
 
-import vn.pvhg.backend.user.dto.request.*;
-import vn.pvhg.backend.user.dto.response.AuthResourceResponseDTO;
+import vn.pvhg.backend.authentication.dto.request.*;
+import vn.pvhg.backend.authentication.dto.response.AuthResourceResponseDTO;
 
 public interface AuthService {
     AuthResourceResponseDTO register(RegisterRequestDTO request);

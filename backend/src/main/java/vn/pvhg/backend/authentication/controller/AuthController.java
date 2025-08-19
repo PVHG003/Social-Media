@@ -1,14 +1,14 @@
-package vn.pvhg.backend.user.controller;
+package vn.pvhg.backend.authentication.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import vn.pvhg.backend.security.impl.UserDetailsImpl;
-import vn.pvhg.backend.user.dto.request.*;
-import vn.pvhg.backend.user.dto.response.AuthResourceResponseDTO;
-import vn.pvhg.backend.user.dto.response.CustomResponse;
-import vn.pvhg.backend.user.service.AuthService;
+import vn.pvhg.backend.authentication.dto.request.*;
+import vn.pvhg.backend.authentication.dto.response.AuthResourceResponseDTO;
+import vn.pvhg.backend.authentication.dto.response.CustomResponse;
+import vn.pvhg.backend.authentication.service.AuthService;
 
 @RestController
 @RequestMapping("/api/auth")

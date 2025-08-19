@@ -1,17 +1,13 @@
-package vn.pvhg.backend.user.dto.request;
+package vn.pvhg.backend.authentication.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
-public class ChangePasswordRequestDTO {
-    @JsonProperty("current_password")
-    @NotBlank(message = "Mật khẩu hiện tại không được để trống")
-    private String currentPassword;
-
+@Getter
+public class ResetPasswordRequestDTO {
     @JsonProperty("new_password")
     @NotBlank(message = "Mật khẩu không được để trống")
     @Size(min = 8, max = 100, message = "Mật khẩu phải có từ 8 đến 100 kí tự")

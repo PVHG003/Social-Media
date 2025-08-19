@@ -1,4 +1,4 @@
-package vn.pvhg.backend.user.model;
+package vn.pvhg.backend.authentication.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
