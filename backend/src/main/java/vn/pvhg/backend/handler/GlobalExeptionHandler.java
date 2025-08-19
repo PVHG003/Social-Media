@@ -12,7 +12,7 @@ import vn.pvhg.backend.exception.AccountNotVerifiedException;
 import vn.pvhg.backend.exception.DuplicateResourceException;
 import vn.pvhg.backend.exception.InvalidCredentialsException;
 import vn.pvhg.backend.exception.ResourceNotFoundException;
-import vn.pvhg.backend.authentication.dto.response.CustomResponse;
+import vn.pvhg.backend.user.dto.response.CustomResponse;
 
 import java.util.HashMap;
 import java.util.Map;

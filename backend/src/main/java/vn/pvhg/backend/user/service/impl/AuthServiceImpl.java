@@ -1,4 +1,4 @@
-package vn.pvhg.backend.authentication.service.impl;
+package vn.pvhg.backend.user.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -9,14 +9,14 @@ import vn.pvhg.backend.exception.DuplicateResourceException;
 import vn.pvhg.backend.exception.InvalidCredentialsException;
 import vn.pvhg.backend.exception.ResourceNotFoundException;
 import vn.pvhg.backend.security.JwtService;
-import vn.pvhg.backend.authentication.dto.request.*;
-import vn.pvhg.backend.authentication.dto.response.AuthResourceResponseDTO;
-import vn.pvhg.backend.authentication.mapper.AuthMapper;
-import vn.pvhg.backend.authentication.model.User;
-import vn.pvhg.backend.authentication.repository.UserRepository;
-import vn.pvhg.backend.authentication.service.AuthService;
-import vn.pvhg.backend.authentication.service.MailService;
-import vn.pvhg.backend.authentication.service.VerifyUserService;
+import vn.pvhg.backend.user.dto.request.*;
+import vn.pvhg.backend.user.dto.response.AuthResourceResponseDTO;
+import vn.pvhg.backend.user.mapper.AuthMapper;
+import vn.pvhg.backend.user.model.User;
+import vn.pvhg.backend.user.repository.UserRepository;
+import vn.pvhg.backend.user.service.AuthService;
+import vn.pvhg.backend.user.service.MailService;
+import vn.pvhg.backend.user.service.VerifyUserService;
 import vn.pvhg.backend.utils.AuthConstant;
 
 @Service

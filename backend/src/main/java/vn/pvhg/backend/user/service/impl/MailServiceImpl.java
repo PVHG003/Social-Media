@@ -1,4 +1,4 @@
-package vn.pvhg.backend.authentication.service.impl;
+package vn.pvhg.backend.user.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,7 +7,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import vn.pvhg.backend.authentication.service.MailService;
+import vn.pvhg.backend.user.service.MailService;
 
 @Service
 @RequiredArgsConstructor

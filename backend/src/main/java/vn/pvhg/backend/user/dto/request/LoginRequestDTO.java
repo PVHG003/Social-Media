@@ -1,4 +1,4 @@
-package vn.pvhg.backend.authentication.dto.request;
+package vn.pvhg.backend.user.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;

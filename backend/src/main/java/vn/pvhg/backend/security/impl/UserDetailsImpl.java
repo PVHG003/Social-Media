@@ -5,7 +5,7 @@ import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import vn.pvhg.backend.authentication.model.User;
+import vn.pvhg.backend.user.model.User;
 import vn.pvhg.backend.utils.AuthConstant;
 
 import java.util.Collection;

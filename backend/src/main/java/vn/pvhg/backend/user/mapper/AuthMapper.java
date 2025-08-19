@@ -1,12 +1,12 @@
-package vn.pvhg.backend.authentication.mapper;
+package vn.pvhg.backend.user.mapper;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import vn.pvhg.backend.authentication.dto.request.RegisterRequestDTO;
-import vn.pvhg.backend.authentication.dto.response.AuthResourceResponseDTO;
-import vn.pvhg.backend.authentication.model.User;
+import vn.pvhg.backend.user.dto.request.RegisterRequestDTO;
+import vn.pvhg.backend.user.dto.response.AuthResourceResponseDTO;
+import vn.pvhg.backend.user.model.User;
 import vn.pvhg.backend.utils.AuthConstant;
 
 import java.text.ParseException;

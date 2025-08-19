@@ -1,4 +1,4 @@
-package vn.pvhg.backend.authentication.service;
+package vn.pvhg.backend.user.service;
 
 public interface VerifyUserService {
     String generateAndSaveOtp(Long userId);

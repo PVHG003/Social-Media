@@ -1,7 +1,7 @@
 package vn.pvhg.backend.security;
 
-import vn.pvhg.backend.authentication.dto.response.AuthResourceResponseDTO;
-import vn.pvhg.backend.authentication.model.User;
+import vn.pvhg.backend.user.dto.response.AuthResourceResponseDTO;
+import vn.pvhg.backend.user.model.User;
 import vn.pvhg.backend.utils.AuthConstant;
 
 public interface JwtService {

@@ -9,9 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import vn.pvhg.backend.security.JwtService;
-import vn.pvhg.backend.authentication.dto.response.AuthResourceResponseDTO;
-import vn.pvhg.backend.authentication.mapper.AuthMapper;
-import vn.pvhg.backend.authentication.model.User;
+import vn.pvhg.backend.user.dto.response.AuthResourceResponseDTO;
+import vn.pvhg.backend.user.mapper.AuthMapper;
+import vn.pvhg.backend.user.model.User;
 import vn.pvhg.backend.utils.AuthConstant;
 
 import java.security.PrivateKey;

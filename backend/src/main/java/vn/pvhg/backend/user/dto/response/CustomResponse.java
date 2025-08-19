@@ -1,4 +1,4 @@
-package vn.pvhg.backend.authentication.dto.response;
+package vn.pvhg.backend.user.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;

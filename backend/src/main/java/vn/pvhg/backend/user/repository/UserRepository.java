@@ -1,7 +1,7 @@
-package vn.pvhg.backend.authentication.repository;
+package vn.pvhg.backend.user.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import vn.pvhg.backend.authentication.model.User;
+import vn.pvhg.backend.user.model.User;
 
 import java.util.Optional;
 
