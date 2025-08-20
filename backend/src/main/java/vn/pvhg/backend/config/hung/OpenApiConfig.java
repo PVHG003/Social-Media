@@ -1,4 +1,4 @@
-package vn.pvhg.backend.config;
+package vn.pvhg.backend.config.hung;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;

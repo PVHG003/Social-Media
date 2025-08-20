@@ -1,4 +1,4 @@
-package vn.pvhg.backend.config;
+package vn.pvhg.backend.config.hung;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

@@ -1,4 +1,4 @@
-package vn.pvhg.backend.utils;
+package vn.pvhg.backend.utils.hung;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

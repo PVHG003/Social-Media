@@ -1,4 +1,4 @@
-package vn.pvhg.backend.config;
+package vn.pvhg.backend.config.hung;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWKSet;

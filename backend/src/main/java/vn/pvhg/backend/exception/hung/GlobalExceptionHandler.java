@@ -1,4 +1,4 @@
-package vn.pvhg.backend.exception;
+package vn.pvhg.backend.exception.hung;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

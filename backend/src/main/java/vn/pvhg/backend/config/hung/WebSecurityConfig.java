@@ -1,4 +1,4 @@
-package vn.pvhg.backend.config;
+package vn.pvhg.backend.config.hung;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -10,7 +10,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import vn.pvhg.backend.filter.JwtAuthenticationFilter;
+import vn.pvhg.backend.filter.hung.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity

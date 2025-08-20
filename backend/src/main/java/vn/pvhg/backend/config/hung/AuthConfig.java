@@ -1,4 +1,4 @@
-package vn.pvhg.backend.config;
+package vn.pvhg.backend.config.hung;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

@@ -15,7 +15,7 @@ import vn.pvhg.backend.auth.model.User;
 import vn.pvhg.backend.auth.repository.UserRepository;
 import vn.pvhg.backend.auth.service.AuthService;
 import vn.pvhg.backend.security.UserDetailsImpl;
-import vn.pvhg.backend.utils.JwtUtils;
+import vn.pvhg.backend.utils.hung.JwtUtils;
 
 @Service
 @RequiredArgsConstructor
