@@ -1,7 +1,7 @@
 package vn.pvhg.backend.chat.mapper;
 
 import org.springframework.stereotype.Service;
-import vn.pvhg.backend.auth.model.User;
+import vn.pvhg.backend.auth.hung.model.User;
 import vn.pvhg.backend.chat.dto.message.OutgoingMessage;
 import vn.pvhg.backend.chat.dto.response.ChatMessageResponse;
 import vn.pvhg.backend.chat.model.Message;

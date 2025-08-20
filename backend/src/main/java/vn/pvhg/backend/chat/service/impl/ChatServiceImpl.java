@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import vn.pvhg.backend.auth.model.User;
+import vn.pvhg.backend.auth.hung.model.User;
 import vn.pvhg.backend.chat.dto.request.ChatCreateRequest;
 import vn.pvhg.backend.chat.dto.response.ChatDetailResponse;
 import vn.pvhg.backend.chat.dto.response.ChatListResponse;

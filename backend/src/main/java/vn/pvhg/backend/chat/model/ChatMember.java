@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import vn.pvhg.backend.auth.model.User;
+import vn.pvhg.backend.auth.hung.model.User;
 import vn.pvhg.backend.chat.enums.MemberRole;
 
 import java.time.LocalDateTime;

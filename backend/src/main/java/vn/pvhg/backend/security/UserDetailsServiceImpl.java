@@ -5,8 +5,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import vn.pvhg.backend.auth.model.User;
-import vn.pvhg.backend.auth.repository.UserRepository;
+import vn.pvhg.backend.auth.hung.model.User;
+import vn.pvhg.backend.auth.hung.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor

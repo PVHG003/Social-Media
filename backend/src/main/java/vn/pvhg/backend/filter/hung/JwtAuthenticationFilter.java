@@ -17,7 +17,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
-import vn.pvhg.backend.auth.service.RevokedTokenService;
+import vn.pvhg.backend.auth.hung.service.RevokedTokenService;
 import vn.pvhg.backend.security.UserDetailsImpl;
 import vn.pvhg.backend.security.UserDetailsServiceImpl;
 

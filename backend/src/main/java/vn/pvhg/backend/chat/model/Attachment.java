@@ -3,7 +3,7 @@ package vn.pvhg.backend.chat.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import vn.pvhg.backend.auth.model.User;
+import vn.pvhg.backend.auth.hung.model.User;
 import vn.pvhg.backend.chat.enums.FileState;
 
 import java.time.LocalDateTime;

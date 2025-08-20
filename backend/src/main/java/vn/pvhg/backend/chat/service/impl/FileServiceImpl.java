@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import vn.pvhg.backend.auth.model.User;
+import vn.pvhg.backend.auth.hung.model.User;
 import vn.pvhg.backend.chat.dto.response.AttachmentResponse;
 import vn.pvhg.backend.chat.dto.response.ChatDetailResponse;
 import vn.pvhg.backend.chat.enums.ChatType;
