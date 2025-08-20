@@ -14,8 +14,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Component;
-import vn.pvhg.backend.security.UserDetailsImpl;
-import vn.pvhg.backend.security.UserDetailsServiceImpl;
+import vn.pvhg.backend.security.hung.UserDetailsImpl;
+import vn.pvhg.backend.security.hung.UserDetailsServiceImpl;
 
 import java.util.List;
 import java.util.stream.Collectors;

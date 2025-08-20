@@ -9,7 +9,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import vn.pvhg.backend.security.UserDetailsServiceImpl;
+import vn.pvhg.backend.security.hung.UserDetailsServiceImpl;
 
 @Configuration
 @RequiredArgsConstructor

@@ -14,7 +14,7 @@ import vn.pvhg.backend.auth.hung.mapper.UserMapper;
 import vn.pvhg.backend.auth.hung.model.User;
 import vn.pvhg.backend.auth.hung.repository.UserRepository;
 import vn.pvhg.backend.auth.hung.service.AuthService;
-import vn.pvhg.backend.security.UserDetailsImpl;
+import vn.pvhg.backend.security.hung.UserDetailsImpl;
 import vn.pvhg.backend.utils.hung.JwtUtils;
 
 @Service
