@@ -6,8 +6,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vn.pvhg.backend.dto.request.UserUpdateRequest;
 import vn.pvhg.backend.dto.response.UserResponse;
 import vn.pvhg.backend.response.ApiPaginatedResponse;
@@ -40,6 +42,30 @@ public class UserController {
                 HttpStatus.OK, "", true, data
         );
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/me/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<UserResponse>> uploadProfileImage(
+            @RequestParam(name = "file") MultipartFile file
+    ) {
+        UserResponse data = userService.uploadProfileImage(file);
+        ApiResponse<UserResponse> response = new ApiResponse<>(
+                HttpStatus.OK, "", true, data
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
+
+    @PostMapping(value = "/me/cover-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<UserResponse>> uploadCoverImage(
+            @RequestParam(name = "file") MultipartFile file
+    ) {
+        UserResponse data = userService.uploadCoverImage(file);
+        ApiResponse<UserResponse> response = new ApiResponse<>(
+                HttpStatus.OK, "", true, data
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
     }
 
     @GetMapping("/{userId}")

@@ -2,6 +2,7 @@ package vn.pvhg.backend.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 import vn.pvhg.backend.dto.request.UserUpdateRequest;
 import vn.pvhg.backend.dto.response.UserResponse;
 
@@ -21,4 +22,8 @@ public interface UserService {
     void unfollowUser(Long userId);
 
     Page<UserResponse> searchUsers(String q, Pageable pageable);
+
+    UserResponse uploadProfileImage(MultipartFile file);
+
+    UserResponse uploadCoverImage(MultipartFile file);
 }
