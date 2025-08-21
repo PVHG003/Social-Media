@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import vn.pvhg.backend.property.RsaKeyProperties;
 
-// Thêm exclude để thuận tiện cho việc test API
-@SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
-@EnableConfigurationProperties()
+@SpringBootApplication
+@EnableConfigurationProperties({RsaKeyProperties.class})
 public class BackendApplication {
 
     public static void main(String[] args) {
