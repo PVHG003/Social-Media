@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.*;
 import vn.pvhg.backend.dto.request.post.CommentRequestDto;
 import vn.pvhg.backend.dto.request.post.CommentUpdateDto;
 import vn.pvhg.backend.dto.response.CommentResponseDto;
+import vn.pvhg.backend.response.ApiPaginatedResponse;
 import vn.pvhg.backend.response.ApiResponse;
 import vn.pvhg.backend.security.UserDetailsImpl;
 import vn.pvhg.backend.service.CommentService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -59,15 +61,23 @@ public class CommentController {
     }
 
     @GetMapping("/posts/{postId}/comments")
-    public ResponseEntity<ApiResponse<Page<CommentResponseDto>>> getCommentsByPost(
+    public ResponseEntity<ApiPaginatedResponse<List<CommentResponseDto>>> getCommentsByPost(
             @PathVariable UUID postId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "10") int size
     ) {
         try {
             Pageable pageable = PageRequest.of(page, size);
             Page<CommentResponseDto> data = commentService.getCommentsByPostId(postId, pageable);
-            ApiResponse<Page<CommentResponseDto>> response = new ApiResponse<>(HttpStatus.OK, "Comments retrieved", true, data);
+            ApiPaginatedResponse<List<CommentResponseDto>> response = new ApiPaginatedResponse<>(
+                    HttpStatus.OK,
+                    "Comments retrieved",
+                    true,
+                    data.getContent(),
+                    page,
+                    size,
+                    data.getTotalPages(),
+                    data.getTotalElements());
             return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
         } catch (Exception e) {
             log.error("Error getting comments by post: {}", e.getMessage());
@@ -76,7 +86,7 @@ public class CommentController {
     }
 
     @GetMapping("/users/{userId}/comments")
-    public ResponseEntity<ApiResponse<Page<CommentResponseDto>>> getCommentsByUser(
+    public ResponseEntity<ApiPaginatedResponse<List<CommentResponseDto>>> getCommentsByUser(
             @PathVariable UUID userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -84,7 +94,15 @@ public class CommentController {
         try {
             Pageable pageable = PageRequest.of(page, size);
             Page<CommentResponseDto> data = commentService.getCommentsByUserId(userId, pageable);
-            ApiResponse<Page<CommentResponseDto>> response = new ApiResponse<>(HttpStatus.OK, "Comments retrieved", true, data);
+            ApiPaginatedResponse<List<CommentResponseDto>> response = new ApiPaginatedResponse<>(
+                    HttpStatus.OK,
+                    "Comments retrieved",
+                    true,
+                    data.getContent(),
+                    page,
+                    size,
+                    data.getTotalPages(),
+                    data.getTotalElements());
             return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
         } catch (Exception e) {
             log.error("Error getting comments by user: {}", e.getMessage());

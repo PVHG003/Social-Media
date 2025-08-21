@@ -28,7 +28,7 @@ public class Notification {
 
     private String content;
 
-    private UUID referenceId;
+    private UUID referenceId; // references to the id of target of notification
 
     private boolean read = false; // read/unread status
 

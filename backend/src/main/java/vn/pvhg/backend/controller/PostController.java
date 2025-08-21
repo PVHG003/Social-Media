@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import vn.pvhg.backend.dto.request.post.PostRequest;
 import vn.pvhg.backend.dto.request.post.PostUpdateRequest;
 import vn.pvhg.backend.dto.response.PostResponse;
+import vn.pvhg.backend.response.ApiPaginatedResponse;
 import vn.pvhg.backend.response.ApiResponse;
 import vn.pvhg.backend.security.UserDetailsImpl;
 import vn.pvhg.backend.service.PostService;
@@ -77,7 +78,7 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<PostResponse>>> getAllPosts(
+    public ResponseEntity<ApiPaginatedResponse<List<PostResponse>>> getAllPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @AuthenticationPrincipal UserDetailsImpl userDetails
@@ -85,19 +86,24 @@ public class PostController {
         try {
             Pageable pageable = PageRequest.of(page, size);
             Page<PostResponse> data = postService.getAllPosts(userDetails, pageable);
-            ApiResponse<Page<PostResponse>> response = new ApiResponse<>(HttpStatus.OK,
-                    "Posts retrieved successfully", true, data);
+            ApiPaginatedResponse<List<PostResponse>> response = new ApiPaginatedResponse<>(
+                    HttpStatus.OK,
+                    "Posts retrieved successfully",
+                    true,
+                    data.getContent(),
+                    page,
+                    size,
+                    data.getTotalPages(),
+                    data.getTotalElements());
             return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
         } catch (Exception e) {
             log.error("Error getting posts: {}", e.getMessage());
-            ApiResponse<Page<PostResponse>> response = new ApiResponse<>(HttpStatus.BAD_REQUEST,
-                    "Failed to retrieve posts: " + e.getMessage(), false, null);
-            return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+            return ResponseEntity.badRequest().build();
         }
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse<Page<PostResponse>>> getPostsByUser(
+    public ResponseEntity<ApiPaginatedResponse<List<PostResponse>>> getPostsByUser(
             @PathVariable UUID userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -106,14 +112,17 @@ public class PostController {
         try {
             Pageable pageable = PageRequest.of(page, size);
             Page<PostResponse> data = postService.getPostsByUser(userDetails, userId, pageable);
-            ApiResponse<Page<PostResponse>> response = new ApiResponse<>(HttpStatus.OK,
-                    "User posts retrieved successfully", true, data);
+            ApiPaginatedResponse<List<PostResponse>> response = new ApiPaginatedResponse<>(
+                    HttpStatus.OK,
+                    "User posts retrieved successfully", true, data.getContent(),
+                    page,
+                    size,
+                    data.getTotalPages(),
+                    data.getTotalElements());
             return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
         } catch (Exception e) {
             log.error("Error getting user posts: {}", e.getMessage());
-            ApiResponse<Page<PostResponse>> response = new ApiResponse<>(HttpStatus.BAD_REQUEST,
-                    "Failed to retrieve user posts: " + e.getMessage(), false, null);
-            return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -130,9 +139,7 @@ public class PostController {
             return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
         } catch (Exception e) {
             log.error("Error updating post: {}", e.getMessage());
-            ApiResponse<PostResponse> response = new ApiResponse<>(HttpStatus.BAD_REQUEST,
-                    "Failed to update post: " + e.getMessage(), false, null);
-            return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -148,9 +155,7 @@ public class PostController {
             return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
         } catch (Exception e) {
             log.error("Error deleting post: {}", e.getMessage());
-            ApiResponse<Void> response = new ApiResponse<>(HttpStatus.BAD_REQUEST,
-                    "Failed to delete post: " + e.getMessage(), false, null);
-            return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -166,9 +171,7 @@ public class PostController {
             return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
         } catch (Exception e) {
             log.error("Error liking post: {}", e.getMessage());
-            ApiResponse<PostResponse> response = new ApiResponse<>(HttpStatus.BAD_REQUEST,
-                    "Failed to like post: " + e.getMessage(), false, null);
-            return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -184,9 +187,7 @@ public class PostController {
             return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
         } catch (Exception e) {
             log.error("Error unliking post: {}", e.getMessage());
-            ApiResponse<PostResponse> response = new ApiResponse<>(HttpStatus.BAD_REQUEST,
-                    "Failed to unlike post: " + e.getMessage(), false, null);
-            return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+            return ResponseEntity.badRequest().build();
         }
     }
 }
