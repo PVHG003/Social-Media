@@ -3,9 +3,7 @@ package vn.pvhg.backend.config;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
@@ -16,18 +14,10 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 @OpenAPIDefinition(
         info = @Info(
-                contact = @Contact(
-                        name = "Social Media Application",
-                        email = "phamhung155tp@gmail.com",
-                        url = ""
-                ),
                 description = "OpenApi documentation for Spring Security",
                 title = "OpenApi specification",
-                version = "1.0",
-                license = @License(
-                        name = "Licence name",
-                        url = ""),
-                termsOfService = "Terms of service"),
+                version = "1.0"
+        ),
         servers = {
                 @Server(
                         description = "Local ENV",
