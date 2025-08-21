@@ -1,0 +1,117 @@
+package vn.pvhg.backend.controller;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import vn.pvhg.backend.dto.request.UserUpdateRequest;
+import vn.pvhg.backend.dto.response.UserResponse;
+import vn.pvhg.backend.response.ApiPaginatedResponse;
+import vn.pvhg.backend.response.ApiResponse;
+import vn.pvhg.backend.service.UserService;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/users")
+@RequiredArgsConstructor
+public class UserController {
+
+    private final UserService userService;
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser() {
+        UserResponse data = userService.getCurrentUser();
+        ApiResponse<UserResponse> response = new ApiResponse<>(
+                HttpStatus.OK, "", true, data
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<ApiResponse<UserResponse>> updateCurrentUser(
+            @RequestBody UserUpdateRequest request) {
+        UserResponse data = userService.updateUser(request);
+        ApiResponse<UserResponse> response = new ApiResponse<>(
+                HttpStatus.OK, "", true, data
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<ApiResponse<UserResponse>> getUserProfile(
+            @PathVariable Long userId) {
+        UserResponse data = userService.getUserProfile(userId);
+        ApiResponse<UserResponse> response = new ApiResponse<>(
+                HttpStatus.OK, "", true, data
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/{userId}/followers")
+    public ResponseEntity<ApiPaginatedResponse<List<UserResponse>>> getFollowers(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<UserResponse> data = userService.getFollowers(userId, pageable);
+        ApiPaginatedResponse<List<UserResponse>> response = new ApiPaginatedResponse<>(
+                HttpStatus.OK, "", true, data.getContent(), page, size, data.getTotalPages(), data.getTotalElements()
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/{userId}/following")
+    public ResponseEntity<ApiPaginatedResponse<List<UserResponse>>> getFollowing(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<UserResponse> data = userService.getFollowing(userId, pageable);
+        ApiPaginatedResponse<List<UserResponse>> response = new ApiPaginatedResponse<>(
+                HttpStatus.OK, "", true, data.getContent(), page, size, data.getTotalPages(), data.getTotalElements()
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
+
+    @PostMapping("/{userId}/follow")
+    public ResponseEntity<ApiResponse<Void>> followUser(
+            @PathVariable Long userId
+    ) {
+        userService.followUser(userId);
+        ApiResponse<Void> response = new ApiResponse<>(
+                HttpStatus.OK, "Followed", true, null
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{userId}/follow")
+    public ResponseEntity<ApiResponse<Void>> unfollowUser(@PathVariable Long userId) {
+        userService.unfollowUser(userId);
+        ApiResponse<Void> response = new ApiResponse<>(
+                HttpStatus.NO_CONTENT, "Unfollowed", true, null
+        );
+        return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiPaginatedResponse<List<UserResponse>>> searchUsers(
+            @RequestParam String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<UserResponse> data = userService.searchUsers(q, pageable);
+        ApiPaginatedResponse<List<UserResponse>> response = new ApiPaginatedResponse<>(
+                HttpStatus.OK, "", true, data.getContent(), page, size, data.getTotalPages(), data.getTotalElements()
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+}

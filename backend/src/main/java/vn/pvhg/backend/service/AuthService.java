@@ -1,10 +1,10 @@
 package vn.pvhg.backend.service;
 
 import jakarta.validation.Valid;
-import vn.pvhg.backend.dto.request.ChangePasswordRequest;
-import vn.pvhg.backend.dto.request.LoginRequest;
-import vn.pvhg.backend.dto.request.PasswordResetRequest;
-import vn.pvhg.backend.dto.request.RegisterRequest;
+import vn.pvhg.backend.dto.request.auth.ChangePasswordRequest;
+import vn.pvhg.backend.dto.request.auth.LoginRequest;
+import vn.pvhg.backend.dto.request.auth.PasswordResetRequest;
+import vn.pvhg.backend.dto.request.auth.RegisterRequest;
 import vn.pvhg.backend.dto.response.AuthenticatedResponse;
 
 public interface AuthService {

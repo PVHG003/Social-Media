@@ -11,12 +11,12 @@ public class ApiPaginatedResponse<T> {
     String message;
     boolean success;
     T data;
-    int page;
-    int pageSize;
-    int totalPages;
-    int totalElements;
+    long page;
+    long pageSize;
+    long totalPages;
+    long totalElements;
 
-    public ApiPaginatedResponse(HttpStatus status, String message, boolean success, T data, int page, int pageSize, int totalPages, int totalElements) {
+    public ApiPaginatedResponse(HttpStatus status, String message, boolean success, T data, long page, long pageSize, long totalPages, long totalElements) {
         this.status = status;
         this.message = message;
         this.success = success;

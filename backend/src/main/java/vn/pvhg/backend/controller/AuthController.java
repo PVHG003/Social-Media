@@ -6,10 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import vn.pvhg.backend.dto.request.ChangePasswordRequest;
-import vn.pvhg.backend.dto.request.LoginRequest;
-import vn.pvhg.backend.dto.request.PasswordResetRequest;
-import vn.pvhg.backend.dto.request.RegisterRequest;
+import vn.pvhg.backend.dto.request.auth.ChangePasswordRequest;
+import vn.pvhg.backend.dto.request.auth.LoginRequest;
+import vn.pvhg.backend.dto.request.auth.PasswordResetRequest;
+import vn.pvhg.backend.dto.request.auth.RegisterRequest;
 import vn.pvhg.backend.dto.response.AuthenticatedResponse;
 import vn.pvhg.backend.response.ApiResponse;
 import vn.pvhg.backend.security.UserDetailsImpl;
@@ -25,11 +25,11 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthenticatedResponse>> register(
             @Valid @RequestBody RegisterRequest request
     ) {
-        AuthenticatedResponse response = authService.register(request);
-        ApiResponse<AuthenticatedResponse> apiResponse = new ApiResponse<>(
-                HttpStatus.OK, "Registered success", true, response
+        AuthenticatedResponse data = authService.register(request);
+        ApiResponse<AuthenticatedResponse> response = new ApiResponse<>(
+                HttpStatus.OK, "Registered success", true, data
         );
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/verify")
@@ -40,22 +40,22 @@ public class AuthController {
 
     ) {
         Long userId = userDetails.getUser().getId();
-        AuthenticatedResponse response = authService.verify(userId, email, code);
-        ApiResponse<AuthenticatedResponse> apiResponse = new ApiResponse<>(
-                HttpStatus.OK, "Account verified successfully", true, response
+        AuthenticatedResponse data = authService.verify(userId, email, code);
+        ApiResponse<AuthenticatedResponse> response = new ApiResponse<>(
+                HttpStatus.OK, "Account verified successfully", true, data
         );
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthenticatedResponse>> login(
             @Valid @RequestBody LoginRequest request
     ) {
-        AuthenticatedResponse response = authService.login(request);
-        ApiResponse<AuthenticatedResponse> apiResponse = new ApiResponse<>(
-                HttpStatus.OK, "Login successful", true, response
+        AuthenticatedResponse data = authService.login(request);
+        ApiResponse<AuthenticatedResponse> response = new ApiResponse<>(
+                HttpStatus.OK, "Login successful", true, data
         );
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/logout")
@@ -64,21 +64,21 @@ public class AuthController {
     ) {
         Long userId = currentUser.getUser().getId();
         authService.logout(userId);
-        ApiResponse<Void> apiResponse = new ApiResponse<>(
+        ApiResponse<Void> response = new ApiResponse<>(
                 HttpStatus.OK, "Logout successful", true, null
         );
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/forget")
     public ResponseEntity<ApiResponse<AuthenticatedResponse>> forgotPassword(
             @RequestParam("email") String email
     ) {
-        AuthenticatedResponse response = authService.forgotPassword(email);
-        ApiResponse<AuthenticatedResponse> apiResponse = new ApiResponse<>(
-                HttpStatus.OK, "Please check your email to verify your account", true, response
+        AuthenticatedResponse data = authService.forgotPassword(email);
+        ApiResponse<AuthenticatedResponse> response = new ApiResponse<>(
+                HttpStatus.OK, "Please check your email to verify your account", true, data
         );
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/reset")
@@ -88,10 +88,10 @@ public class AuthController {
     ) {
         Long userId = currentUser.getUser().getId();
         authService.resetPassword(userId, request);
-        ApiResponse<Void> apiResponse = new ApiResponse<>(
+        ApiResponse<Void> response = new ApiResponse<>(
                 HttpStatus.OK, "Password reset successful", true, null
         );
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/change-password")
@@ -100,11 +100,11 @@ public class AuthController {
             @AuthenticationPrincipal UserDetailsImpl currentUser
     ) {
         Long userId = currentUser.getUser().getId();
-        AuthenticatedResponse response = authService.changePassword(userId, request);
-        ApiResponse<AuthenticatedResponse> apiResponse = new ApiResponse<>(
-                HttpStatus.OK, "Password changed successfully", true, response
+        AuthenticatedResponse data = authService.changePassword(userId, request);
+        ApiResponse<AuthenticatedResponse> response = new ApiResponse<>(
+                HttpStatus.OK, "Password changed successfully", true, data
         );
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/send-code")
@@ -112,9 +112,9 @@ public class AuthController {
             @RequestParam("email") String email
     ) {
         authService.sendOtp(email);
-        ApiResponse<Void> apiResponse = new ApiResponse<>(
+        ApiResponse<Void> response = new ApiResponse<>(
                 HttpStatus.OK, "OTP sent successfully", true, null
         );
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

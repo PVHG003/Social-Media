@@ -1,4 +1,4 @@
-package vn.pvhg.backend.dto.request;
+package vn.pvhg.backend.dto.request.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
@@ -7,10 +7,10 @@ import jakarta.validation.constraints.Size;
 
 public record PasswordResetRequest(
         @JsonProperty("new_password")
-        @NotBlank(message = "Mật khẩu không được để trống")
-        @Size(min = 8, max = 100, message = "Mật khẩu phải có từ 8 đến 100 kí tự")
+        @NotBlank(message = "Password must not be blank")
+        @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
         @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$",
-                message = "Mật khẩu mới phải chứa ít nhất một ký tự thường, một ký tự viết hoa và một chữ số")
+                message = "New password must contain at least one lowercase letter, one uppercase letter, and one digit")
         String newPassword
 ) {
 }

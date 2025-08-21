@@ -4,11 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.pvhg.backend.dto.request.ChangePasswordRequest;
-import vn.pvhg.backend.dto.request.LoginRequest;
-import vn.pvhg.backend.dto.request.PasswordResetRequest;
-import vn.pvhg.backend.dto.request.RegisterRequest;
+import vn.pvhg.backend.dto.request.auth.ChangePasswordRequest;
+import vn.pvhg.backend.dto.request.auth.LoginRequest;
+import vn.pvhg.backend.dto.request.auth.PasswordResetRequest;
+import vn.pvhg.backend.dto.request.auth.RegisterRequest;
 import vn.pvhg.backend.dto.response.AuthenticatedResponse;
+import vn.pvhg.backend.enums.Role;
 import vn.pvhg.backend.enums.TokenSubject;
 import vn.pvhg.backend.exception.auth.*;
 import vn.pvhg.backend.exception.share.ResourceNotFoundException;
@@ -42,8 +43,14 @@ public class AuthServiceImpl implements AuthService {
 
         User user = User.builder()
                 .email(request.email())
+                .username(request.username())
+                .firstName(request.firstName())
+                .lastName(request.lastName())
                 .password(passwordEncoder.encode(request.password()))
+                .role(Role.USER)
+                .isEmailVerified(false)
                 .build();
+        userRepository.save(user);
 
         sendOtp(request.email());
 
@@ -149,7 +156,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void sendOtp(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng với email: " + email));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
 
         String otp = verificationService.generateAndSaveOtp(user.getId());
         mailService.sendOtpEmail(user.getEmail(), otp);
