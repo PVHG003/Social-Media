@@ -26,6 +26,7 @@ public class WebSecurityConfig {
             "/api/auth/reset",
             "/api/auth/verify",
             "/api/auth/send-code",
+            "/api/test/ping",
             "/v2/api-docs",
             "/v3/api-docs",
             "/v3/api-docs/**",
@@ -38,7 +39,7 @@ public class WebSecurityConfig {
             "/webjars/**",
             "/swagger-ui.html",
             "/uploads/**",
-            "/ws/**"
+            "/ws/**",
     };
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;

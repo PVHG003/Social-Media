@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.2/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+<h2>WebSocket STOMP Test</h2>
+<div>
+    <button onclick="connect()">Connect</button>
+    <button onclick="disconnect()">Disconnect</button>
+</div>
+<div>
+    <input type="text" id="chatId" placeholder="Chat ID"/>
+    <input type="text" id="message" placeholder="Message"/>
+    <button onclick="sendMessage()">Send</button>
+</div>
+<div id="messages"></div>
+
+<script>
+    let stompClient = null;
+
+    function connect() {
+        const socket = new SockJS('http://localhost:8080/ws'); // replace with your WS endpoint
+        stompClient = Stomp.over(socket);
+        const token = localStorage.getItem('token');
+        stompClient.connect(
+            {Authorization: 'Bearer ' + token}
+            , function (frame) {
+                console.log('Connected: ' + frame);
+                const chatId = document.getElementById('chatId').value || 'test-chat';
+
+                stompClient.subscribe('/topic/chat/' + chatId, function (message) {
+                    const body = JSON.parse(message.body);
+                    document.getElementById('messages').innerHTML += '<p>' + JSON.stringify(body) + '</p>';
+                });
+            });
+    }
+
+    function disconnect() {
+        if (stompClient !== null) {
+            stompClient.disconnect();
+        }
+        console.log("Disconnected");
+    }
+
+    function sendMessage() {
+        const chatId = document.getElementById('chatId').value || 'test-chat';
+        const msg = document.getElementById('message').value;
+        stompClient.send('/app/chat.send.' + chatId, {}, JSON.stringify({
+            content: msg,
+            attachments: []
+        }));
+    }
+</script>
+</body>
+</html>

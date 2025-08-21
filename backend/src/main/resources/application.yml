@@ -34,6 +34,11 @@ file:
   image-upload: uploads/images/
   video-upload: uploads/videos/
 
+application:
+  file:
+    uploads:
+      media-output-path: uploads/
+
 logging:
   level:
     root: INFO
