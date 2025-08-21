@@ -23,7 +23,7 @@ public class PostResponse {
     @Data
     @Builder
     public static class UserDto {
-        private Long id;
+        private UUID id;
         private String username;
         private String email;
     }
@@ -31,7 +31,7 @@ public class PostResponse {
     @Data
     @Builder
     public static class MediaDto {
-        private Long id;
+        private UUID id;
         private String originalFilename;
         private String publicUrl;
         private String mediaType;

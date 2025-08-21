@@ -7,6 +7,7 @@ import vn.pvhg.backend.service.VerificationService;
 
 import java.text.DecimalFormat;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -17,7 +18,7 @@ public class VerificationServiceImpl implements VerificationService {
     private static final long OTP_EXPIRATION_MINUTES = 5;
 
     @Override
-    public String generateAndSaveOtp(Long userId) {
+    public String generateAndSaveOtp(UUID userId) {
         String otpCode = new DecimalFormat("000000").format(new Random().nextInt(999999));
 
         String redisKey = OTP_PREFIX + userId;
@@ -27,7 +28,7 @@ public class VerificationServiceImpl implements VerificationService {
     }
 
     @Override
-    public boolean verifyOtp(Long userId, String code) {
+    public boolean verifyOtp(UUID userId, String code) {
         String redisKey = OTP_PREFIX + userId;
         String storedOtp = redisTemplate.opsForValue().get(redisKey);
 

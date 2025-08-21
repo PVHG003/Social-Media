@@ -20,6 +20,8 @@ import vn.pvhg.backend.service.JwtService;
 import vn.pvhg.backend.service.MailService;
 import vn.pvhg.backend.service.VerificationService;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -60,7 +62,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthenticatedResponse verify(Long userId, String email, String code) {
+    public AuthenticatedResponse verify(UUID userId, String email, String code) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
@@ -107,7 +109,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void logout(Long userId) {
+    public void logout(UUID userId) {
         jwtService.deleteToken(userId);
     }
 
@@ -127,7 +129,7 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public void resetPassword(Long userId, PasswordResetRequest request) {
+    public void resetPassword(UUID userId, PasswordResetRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
@@ -136,7 +138,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthenticatedResponse changePassword(Long userId, ChangePasswordRequest request) {
+    public AuthenticatedResponse changePassword(UUID userId, ChangePasswordRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 

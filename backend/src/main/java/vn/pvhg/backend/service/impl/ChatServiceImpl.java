@@ -41,7 +41,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Page<ChatListResponse> getChatList(UserDetailsImpl userDetails, Pageable pageable) {
-        Long currentUserId = userDetails.getUser().getId();
+        UUID currentUserId = userDetails.getUser().getId();
         Page<Object[]> chatMessageList = chatRepository.getUserChatWithLatestMessage(currentUserId, pageable);
         List<ChatListResponse> chatListResponses = chatMessageList.stream().map(row -> {
             Chat chat = (Chat) row[0];
@@ -53,7 +53,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatDetailResponse getChatInfo(UserDetailsImpl userDetails, UUID chatId) {
-        Long currentUserId = userDetails.getUser().getId();
+        UUID currentUserId = userDetails.getUser().getId();
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new ChatNotFoundException("Chat id " + chatId + " not found"));
 
@@ -66,7 +66,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Page<ChatMessageResponse> getChatMessages(UserDetailsImpl userDetails, UUID chatId, Pageable pageable) {
-        Long currentUserId = userDetails.getUser().getId();
+        UUID currentUserId = userDetails.getUser().getId();
 
         if (!chatRepository.existsById(chatId)) {
             throw new ChatNotFoundException("Chat id " + chatId + " not found");
@@ -87,7 +87,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatDetailResponse createPrivateChat(UserDetailsImpl userDetails, ChatCreateRequest request) {
-        Long currentUserId = userDetails.getUser().getId();
+        UUID currentUserId = userDetails.getUser().getId();
 
         if (request.memberIds() == null || request.memberIds().isEmpty()) {
             throw new ChatCreationException("Member ids cannot be null or empty");
@@ -99,7 +99,7 @@ public class ChatServiceImpl implements ChatService {
             throw new ChatCreationException("Current user cannot be included in the list");
         }
 
-        Long otherMemberId = request.memberIds().getFirst();
+        UUID otherMemberId = request.memberIds().getFirst();
         if (chatRepository.existsBetweenMembers(currentUserId, otherMemberId)) {
             throw new ChatCreationException("Chat already exists between the members");
         }
@@ -119,8 +119,8 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatDetailResponse createGroupChat(UserDetailsImpl userDetails, ChatCreateRequest request) {
-        Long currentUserId = userDetails.getUser().getId();
-        Set<Long> uniqueMemberIds = new HashSet<>(request.memberIds());
+        UUID currentUserId = userDetails.getUser().getId();
+        Set<UUID> uniqueMemberIds = new HashSet<>(request.memberIds());
 
         if (uniqueMemberIds.contains(currentUserId)) {
             throw new ChatCreationException("Current user cannot be included in the list");
@@ -143,8 +143,8 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatDetailResponse addMembers(UserDetailsImpl userDetails, UUID chatId, List<Long> userIds) {
-        Long currentUserId = userDetails.getUser().getId();
+    public ChatDetailResponse addMembers(UserDetailsImpl userDetails, UUID chatId, List<UUID> userIds) {
+        UUID currentUserId = userDetails.getUser().getId();
 
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new ChatNotFoundException("Chat id " + chatId + " not found"));
@@ -159,11 +159,11 @@ public class ChatServiceImpl implements ChatService {
             throw new NotChatAdminException("Only admins can add members");
         }
 
-        List<Long> existingMemberIds = chatMemberRepository.findByChatId(chatId).stream()
+        List<UUID> existingMemberIds = chatMemberRepository.findByChatId(chatId).stream()
                 .map(chatMember -> chatMember.getMember().getId())
                 .toList();
 
-        List<Long> newMemberIds = userIds.stream()
+        List<UUID> newMemberIds = userIds.stream()
                 .filter(id -> !existingMemberIds.contains(id))
                 .distinct()
                 .toList();

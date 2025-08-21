@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public record OutgoingMessage(
         UUID messageId,
-        Long senderId,
+        UUID senderId,
         String senderUsername,
         String senderProfileImage,
         String content,

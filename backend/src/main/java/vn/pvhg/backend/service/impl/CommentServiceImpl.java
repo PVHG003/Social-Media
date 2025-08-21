@@ -57,7 +57,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Page<CommentResponseDto> getCommentsByUserId(Long userId, Pageable pageable) {
+    public Page<CommentResponseDto> getCommentsByUserId(UUID userId, Pageable pageable) {
         return commentRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable)
                 .map(this::convertToResponseDto);
     }

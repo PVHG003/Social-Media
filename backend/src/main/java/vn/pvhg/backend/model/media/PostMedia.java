@@ -10,6 +10,7 @@ import vn.pvhg.backend.enums.MediaType;
 import vn.pvhg.backend.model.Post;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -19,8 +20,8 @@ import java.time.Instant;
 @Table(name = "post_medias")
 public class PostMedia {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)

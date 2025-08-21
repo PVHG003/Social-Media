@@ -17,7 +17,7 @@ public interface CommentService {
 
     Page<CommentResponseDto> getCommentsByPostId(UUID postId, Pageable pageable);
 
-    Page<CommentResponseDto> getCommentsByUserId(Long userId, Pageable pageable);
+    Page<CommentResponseDto> getCommentsByUserId(UUID userId, Pageable pageable);
 
     CommentResponseDto updateComment(UUID commentId, @Valid CommentUpdateDto updateDto, UserDetailsImpl userDetails);
 

@@ -24,14 +24,14 @@ public interface ChatRepository extends JpaRepository<Chat, UUID> {
             WHERE cm.member.id = :currentUserId
             ORDER BY m.sentAt DESC
             """)
-    Page<Object[]> getUserChatWithLatestMessage(@Param("currentUserId") Long currentUserId, Pageable pageable);
+    Page<Object[]> getUserChatWithLatestMessage(@Param("currentUserId") UUID currentUserId, Pageable pageable);
 
     @Query("""
             SELECT CASE WHEN COUNT(cm) > 0 THEN true ELSE false END
             FROM ChatMember cm
             WHERE cm.member.id = :currentUserId AND cm.chat.id = :chatId
             """)
-    boolean existsByMemberIdAndChatId(@Param("currentUserId") Long currentUserId, @Param("chatId") UUID chatId);
+    boolean existsByMemberIdAndChatId(@Param("currentUserId") UUID currentUserId, @Param("chatId") UUID chatId);
 
     @Query("""
             SELECT CASE WHEN COUNT(cm) > 0 THEN true ELSE false END
@@ -43,5 +43,5 @@ public interface ChatRepository extends JpaRepository<Chat, UUID> {
                 WHERE cm2.member.id = :otherMemberId AND c.chatType = 'PRIVATE'
             )
             """)
-    boolean existsBetweenMembers(Long currentUserId, Long otherMemberId);
+    boolean existsBetweenMembers(UUID currentUserId, UUID otherMemberId);
 }

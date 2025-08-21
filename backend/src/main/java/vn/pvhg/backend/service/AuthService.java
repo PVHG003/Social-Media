@@ -7,21 +7,23 @@ import vn.pvhg.backend.dto.request.auth.PasswordResetRequest;
 import vn.pvhg.backend.dto.request.auth.RegisterRequest;
 import vn.pvhg.backend.dto.response.AuthenticatedResponse;
 
+import java.util.UUID;
+
 public interface AuthService {
 
     AuthenticatedResponse register(@Valid RegisterRequest request);
 
-    AuthenticatedResponse verify(Long userId, String email, String code);
+    AuthenticatedResponse verify(UUID userId, String email, String code);
 
     AuthenticatedResponse login(@Valid LoginRequest request);
 
-    void logout(Long userId);
+    void logout(UUID userId);
 
     AuthenticatedResponse forgotPassword(String email);
 
-    void resetPassword(Long userId, @Valid PasswordResetRequest request);
+    void resetPassword(UUID userId, @Valid PasswordResetRequest request);
 
-    AuthenticatedResponse changePassword(Long userId, @Valid ChangePasswordRequest request);
+    AuthenticatedResponse changePassword(UUID userId, @Valid ChangePasswordRequest request);
 
     void sendOtp(String email);
 }

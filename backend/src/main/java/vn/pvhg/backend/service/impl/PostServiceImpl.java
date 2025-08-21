@@ -38,7 +38,7 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public PostResponse createPost(UserDetailsImpl userDetails, PostRequest requestDto) {
         User user = userDetails.getUser();
-        Long userId = user.getId();
+        UUID userId = user.getId();
 
         Post post = Post.builder()
                 .content(requestDto.getContent())
@@ -61,7 +61,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponse getPostById(UserDetailsImpl userDetails, UUID postId) {
-        Long currentUserId = userDetails.getUser().getId();
+        UUID currentUserId = userDetails.getUser().getId();
 
         Post post = getPostByIdOrThrow(postId);
         return convertToResponseDto(post, currentUserId);
@@ -69,14 +69,14 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Page<PostResponse> getAllPosts(UserDetailsImpl userDetails, Pageable pageable) {
-        Long currentUserId = userDetails.getUser().getId();
+        UUID currentUserId = userDetails.getUser().getId();
         return postRepository.findAllByOrderByCreatedAtDesc(pageable)
                 .map(post -> convertToResponseDto(post, currentUserId));
     }
 
     @Override
     public Page<PostResponse> getPostsByUser(UserDetailsImpl userDetails, UUID userId, Pageable pageable) {
-        Long currentUserId = userDetails.getUser().getId();
+        UUID currentUserId = userDetails.getUser().getId();
         return postRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable)
                 .map(post -> convertToResponseDto(post, currentUserId));
     }
@@ -84,7 +84,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public PostResponse updatePost(UserDetailsImpl userDetails, UUID postId, PostUpdateRequest updateDto) {
-        Long userId = userDetails.getUser().getId();
+        UUID userId = userDetails.getUser().getId();
         Post post = getPostByIdOrThrow(postId);
 
         if (!post.getUser().getId().equals(userId)) {
@@ -101,7 +101,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public void deletePost(UserDetailsImpl userDetails, UUID postId) {
-        Long userId = userDetails.getUser().getId();
+        UUID userId = userDetails.getUser().getId();
         Post post = getPostByIdOrThrow(postId);
 
         if (!post.getUser().getId().equals(userId)) {
@@ -120,7 +120,7 @@ public class PostServiceImpl implements PostService {
     public PostResponse likePost(UserDetailsImpl userDetails, UUID postId) {
         Post post = getPostByIdOrThrow(postId);
         User user = userDetails.getUser();
-        Long userId = user.getId();
+        UUID userId = user.getId();
 
         boolean alreadyLiked = likeRepository.existsByUserIdAndPostId(userId, postId);
         if (alreadyLiked) {
@@ -139,7 +139,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public PostResponse unlikePost(UserDetailsImpl userDetails, UUID postId) {
-        Long userId = userDetails.getUser().getId();
+        UUID userId = userDetails.getUser().getId();
         Post post = getPostByIdOrThrow(postId);
 
         Like like = likeRepository.findByUserIdAndPostId(userId, postId)
@@ -156,12 +156,12 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
     }
 
-    private User getUserById(Long userId) {
+    private User getUserById(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
     }
 
-    private PostResponse convertToResponseDto(Post post, Long currentUserId) {
+    private PostResponse convertToResponseDto(Post post, UUID currentUserId) {
         boolean isLiked = currentUserId != null &&
                 likeRepository.existsByUserIdAndPostId(currentUserId, post.getId());
 

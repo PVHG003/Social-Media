@@ -10,6 +10,7 @@ import vn.pvhg.backend.model.Post;
 import vn.pvhg.backend.model.User;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -19,9 +20,9 @@ import java.time.LocalDateTime;
 @Table(name = "likes", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "post_id"}))
 public class Like {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
-    private Long id;
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

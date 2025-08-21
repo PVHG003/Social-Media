@@ -17,6 +17,7 @@ import vn.pvhg.backend.response.ApiResponse;
 import vn.pvhg.backend.service.UserService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
@@ -70,7 +71,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserResponse>> getUserProfile(
-            @PathVariable Long userId) {
+            @PathVariable UUID userId) {
         UserResponse data = userService.getUserProfile(userId);
         ApiResponse<UserResponse> response = new ApiResponse<>(
                 HttpStatus.OK, "", true, data
@@ -80,7 +81,7 @@ public class UserController {
 
     @GetMapping("/{userId}/followers")
     public ResponseEntity<ApiPaginatedResponse<List<UserResponse>>> getFollowers(
-            @PathVariable Long userId,
+            @PathVariable UUID userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -94,7 +95,7 @@ public class UserController {
 
     @GetMapping("/{userId}/following")
     public ResponseEntity<ApiPaginatedResponse<List<UserResponse>>> getFollowing(
-            @PathVariable Long userId,
+            @PathVariable UUID userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -109,7 +110,7 @@ public class UserController {
 
     @PostMapping("/{userId}/follow")
     public ResponseEntity<ApiResponse<Void>> followUser(
-            @PathVariable Long userId
+            @PathVariable UUID userId
     ) {
         userService.followUser(userId);
         ApiResponse<Void> response = new ApiResponse<>(
@@ -119,7 +120,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}/follow")
-    public ResponseEntity<ApiResponse<Void>> unfollowUser(@PathVariable Long userId) {
+    public ResponseEntity<ApiResponse<Void>> unfollowUser(@PathVariable UUID userId) {
         userService.unfollowUser(userId);
         ApiResponse<Void> response = new ApiResponse<>(
                 HttpStatus.NO_CONTENT, "Unfollowed", true, null

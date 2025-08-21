@@ -1,7 +1,9 @@
 package vn.pvhg.backend.service;
 
-public interface VerificationService {
-    boolean verifyOtp(Long id, String code);
+import java.util.UUID;
 
-    String generateAndSaveOtp(Long id);
+public interface VerificationService {
+    boolean verifyOtp(UUID id, String code);
+
+    String generateAndSaveOtp(UUID id);
 }

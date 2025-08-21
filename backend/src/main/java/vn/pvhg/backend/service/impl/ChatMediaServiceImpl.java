@@ -42,7 +42,7 @@ public class ChatMediaServiceImpl implements ChatMediaService {
 
     @Override
     public List<AttachmentResponse> uploadAttachments(UserDetailsImpl userDetails, UUID chatId, List<MultipartFile> files) {
-        Long currentUserId = userDetails.getUser().getId();
+        UUID currentUserId = userDetails.getUser().getId();
 
         if (files == null || files.isEmpty()) {
             throw new InvalidFileException("File is empty or missing");
@@ -82,7 +82,7 @@ public class ChatMediaServiceImpl implements ChatMediaService {
 
     @Override
     public ChatDetailResponse uploadGroupImage(UserDetailsImpl userDetails, UUID chatId, MultipartFile file) {
-        Long currentUserId = userDetails.getUser().getId();
+        UUID currentUserId = userDetails.getUser().getId();
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new ChatNotFoundException("Chat id " + chatId + " not found"));
 

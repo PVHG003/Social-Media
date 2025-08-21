@@ -1,9 +1,10 @@
 package vn.pvhg.backend.dto.response;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public record UserResponse(
-        Long id,
+        UUID id,
         String username,
         String firstName,
         String lastName,

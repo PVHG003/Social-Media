@@ -6,8 +6,8 @@ import vn.pvhg.backend.model.interaction.Like;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface LikeRepository extends JpaRepository<Like, Long> {
-    boolean existsByUserIdAndPostId(Long userId, UUID postId);
+public interface LikeRepository extends JpaRepository<Like, UUID> {
+    boolean existsByUserIdAndPostId(UUID userId, UUID postId);
 
-    Optional<Like> findByUserIdAndPostId(Long userId, UUID postId);
+    Optional<Like> findByUserIdAndPostId(UUID userId, UUID postId);
 }

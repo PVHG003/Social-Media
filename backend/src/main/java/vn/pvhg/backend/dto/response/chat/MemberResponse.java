@@ -1,8 +1,10 @@
 package vn.pvhg.backend.dto.response.chat;
 
 
+import java.util.UUID;
+
 public record MemberResponse(
-        Long id,
+        UUID id,
         String username,
         String profileImage
 ) {

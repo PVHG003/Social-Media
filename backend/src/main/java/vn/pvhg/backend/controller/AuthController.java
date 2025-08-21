@@ -15,6 +15,8 @@ import vn.pvhg.backend.response.ApiResponse;
 import vn.pvhg.backend.security.UserDetailsImpl;
 import vn.pvhg.backend.service.AuthService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -39,7 +41,7 @@ public class AuthController {
             @AuthenticationPrincipal UserDetailsImpl userDetails
 
     ) {
-        Long userId = userDetails.getUser().getId();
+        UUID userId = userDetails.getUser().getId();
         AuthenticatedResponse data = authService.verify(userId, email, code);
         ApiResponse<AuthenticatedResponse> response = new ApiResponse<>(
                 HttpStatus.OK, "Account verified successfully", true, data
@@ -62,7 +64,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> logout(
             @AuthenticationPrincipal UserDetailsImpl currentUser
     ) {
-        Long userId = currentUser.getUser().getId();
+        UUID userId = currentUser.getUser().getId();
         authService.logout(userId);
         ApiResponse<Void> response = new ApiResponse<>(
                 HttpStatus.OK, "Logout successful", true, null
@@ -86,7 +88,7 @@ public class AuthController {
             @Valid @RequestBody PasswordResetRequest request,
             @AuthenticationPrincipal UserDetailsImpl currentUser
     ) {
-        Long userId = currentUser.getUser().getId();
+        UUID userId = currentUser.getUser().getId();
         authService.resetPassword(userId, request);
         ApiResponse<Void> response = new ApiResponse<>(
                 HttpStatus.OK, "Password reset successful", true, null
@@ -99,7 +101,7 @@ public class AuthController {
             @Valid @RequestBody ChangePasswordRequest request,
             @AuthenticationPrincipal UserDetailsImpl currentUser
     ) {
-        Long userId = currentUser.getUser().getId();
+        UUID userId = currentUser.getUser().getId();
         AuthenticatedResponse data = authService.changePassword(userId, request);
         ApiResponse<AuthenticatedResponse> response = new ApiResponse<>(
                 HttpStatus.OK, "Password changed successfully", true, data

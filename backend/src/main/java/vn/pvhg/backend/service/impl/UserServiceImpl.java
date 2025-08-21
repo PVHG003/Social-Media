@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse getUserProfile(Long userId) {
+    public UserResponse getUserProfile(UUID userId) {
         User targetUser = findUserById(userId);
         User currentUser = getCurrentUserEntity();
 
@@ -86,7 +86,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<UserResponse> getFollowers(Long userId, Pageable pageable) {
+    public Page<UserResponse> getFollowers(UUID userId, Pageable pageable) {
         User targetUser = findUserById(userId);
         User currentUser = getCurrentUserEntity();
 
@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<UserResponse> getFollowing(Long userId, Pageable pageable) {
+    public Page<UserResponse> getFollowing(UUID userId, Pageable pageable) {
         User targetUser = findUserById(userId);
         User currentUser = getCurrentUserEntity();
 
@@ -127,7 +127,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public void followUser(Long userId) {
+    public void followUser(UUID userId) {
         User currentUser = getCurrentUserEntity();
         validateFollowRequest(currentUser.getId(), userId);
 
@@ -143,7 +143,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public void unfollowUser(Long userId) {
+    public void unfollowUser(UUID userId) {
         User currentUser = getCurrentUserEntity();
         validateFollowRequest(currentUser.getId(), userId);
 
@@ -250,12 +250,12 @@ public class UserServiceImpl implements UserService {
         return userDetails.getUser();
     }
 
-    private User findUserById(Long userId) {
+    private User findUserById(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
-    private void validateFollowRequest(Long currentUserId, Long targetUserId) {
+    private void validateFollowRequest(UUID currentUserId, UUID targetUserId) {
         if (currentUserId.equals(targetUserId)) {
             throw new BadRequestException("Cannot follow/unfollow yourself");
         }

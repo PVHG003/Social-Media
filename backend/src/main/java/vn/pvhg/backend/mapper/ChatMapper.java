@@ -13,12 +13,13 @@ import vn.pvhg.backend.model.chat.Message;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class ChatMapper {
-    public ChatListResponse toChatListResponse(Long currentUserId, Chat chat, Message latestMessage) {
+    public ChatListResponse toChatListResponse(UUID currentUserId, Chat chat, Message latestMessage) {
         // Extract latest message info
         ChatLatestMessageInfo latestMessageInfo = Optional.ofNullable(extractLatestMessageInfo(latestMessage))
                 .orElse(new ChatLatestMessageInfo(null, null, null));
@@ -50,7 +51,7 @@ public class ChatMapper {
         );
     }
 
-    public ChatDetailResponse toChatDetailResponse(Long currentUserId, Chat chat, List<ChatMember> chatMembers) {
+    public ChatDetailResponse toChatDetailResponse(UUID currentUserId, Chat chat, List<ChatMember> chatMembers) {
         ChatDisplayInfo displayInfo = extractChatDisplayInfo(chat, currentUserId);
 
         return new ChatDetailResponse(
@@ -72,7 +73,7 @@ public class ChatMapper {
     /**
      * Private helper to extract the chat display name and image for both private and group chats.
      */
-    private ChatDisplayInfo extractChatDisplayInfo(Chat chat, Long currentUserId) {
+    private ChatDisplayInfo extractChatDisplayInfo(Chat chat, UUID currentUserId) {
         String name;
         String image;
 

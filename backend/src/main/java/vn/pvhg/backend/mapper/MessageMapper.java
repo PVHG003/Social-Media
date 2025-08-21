@@ -7,12 +7,14 @@ import vn.pvhg.backend.dto.response.chat.ChatMessageResponse;
 import vn.pvhg.backend.model.User;
 import vn.pvhg.backend.model.chat.Message;
 
+import java.util.UUID;
+
 @Component
 @RequiredArgsConstructor
 public class MessageMapper {
     private final AttachmentMapper attachmentMapper;
 
-    public ChatMessageResponse toChatMessageResponse(Long currentUserId, Message message) {
+    public ChatMessageResponse toChatMessageResponse(UUID currentUserId, Message message) {
         return new ChatMessageResponse(
                 message.getId(),
                 message.getSender().getId(),

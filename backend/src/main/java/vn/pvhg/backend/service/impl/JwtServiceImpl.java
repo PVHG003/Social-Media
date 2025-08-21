@@ -18,6 +18,7 @@ import vn.pvhg.backend.service.JwtService;
 import java.text.ParseException;
 import java.time.Duration;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -71,7 +72,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public void deleteToken(Long userId) {
+    public void deleteToken(UUID userId) {
         String redisKey = JWT_PREFIX + userId;
         redisTemplate.delete(redisKey);
     }

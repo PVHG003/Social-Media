@@ -77,7 +77,7 @@ public class CommentController {
 
     @GetMapping("/users/{userId}/comments")
     public ResponseEntity<ApiResponse<Page<CommentResponseDto>>> getCommentsByUser(
-            @PathVariable Long userId,
+            @PathVariable UUID userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {

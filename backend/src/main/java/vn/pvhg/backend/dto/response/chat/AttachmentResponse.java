@@ -8,7 +8,7 @@ public record AttachmentResponse(
         UUID attachmentId,
         String filePath,
         String contentType,
-        Long uploaderId,
+        UUID uploaderId,
         LocalDateTime uploadedAt
 ) {
 }

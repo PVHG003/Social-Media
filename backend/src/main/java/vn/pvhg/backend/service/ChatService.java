@@ -23,7 +23,7 @@ public interface ChatService {
 
     ChatDetailResponse createGroupChat(UserDetailsImpl userDetails, ChatCreateRequest request);
 
-    ChatDetailResponse addMembers(UserDetailsImpl userDetails, UUID chatId, List<Long> uuids);
+    ChatDetailResponse addMembers(UserDetailsImpl userDetails, UUID chatId, List<UUID> uuids);
 
     ChatDetailResponse updateChat(UserDetailsImpl userDetails, UUID chatId, ChatUpdateRequest request);
 
