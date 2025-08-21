@@ -117,7 +117,7 @@ const { status, data } = await apiInstance.deletePost(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getAllPosts**
-> ApiResponsePagePostResponse getAllPosts()
+> ApiPaginatedResponseListPostResponse getAllPosts()
 
 
 ### Example
@@ -150,7 +150,7 @@ const { status, data } = await apiInstance.getAllPosts(
 
 ### Return type
 
-**ApiResponsePagePostResponse**
+**ApiPaginatedResponseListPostResponse**
 
 ### Authorization
 
@@ -220,7 +220,7 @@ const { status, data } = await apiInstance.getPost(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getPostsByUser**
-> ApiResponsePagePostResponse getPostsByUser()
+> ApiPaginatedResponseListPostResponse getPostsByUser()
 
 
 ### Example
@@ -256,7 +256,7 @@ const { status, data } = await apiInstance.getPostsByUser(
 
 ### Return type
 
-**ApiResponsePagePostResponse**
+**ApiPaginatedResponseListPostResponse**
 
 ### Authorization
 

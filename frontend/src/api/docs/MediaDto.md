@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **number** |  | [optional] [default to undefined]
+**id** | **string** |  | [optional] [default to undefined]
 **originalFilename** | **string** |  | [optional] [default to undefined]
 **publicUrl** | **string** |  | [optional] [default to undefined]
 **mediaType** | **string** |  | [optional] [default to undefined]

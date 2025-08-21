@@ -166,7 +166,7 @@ const { status, data } = await apiInstance.getComment(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getCommentsByPost**
-> ApiResponsePageCommentResponseDto getCommentsByPost()
+> ApiPaginatedResponseListCommentResponseDto getCommentsByPost()
 
 
 ### Example
@@ -182,7 +182,7 @@ const apiInstance = new CommentControllerApi(configuration);
 
 let postId: string; // (default to undefined)
 let page: number; // (optional) (default to 0)
-let size: number; // (optional) (default to 20)
+let size: number; // (optional) (default to 10)
 
 const { status, data } = await apiInstance.getCommentsByPost(
     postId,
@@ -197,12 +197,12 @@ const { status, data } = await apiInstance.getCommentsByPost(
 |------------- | ------------- | ------------- | -------------|
 | **postId** | [**string**] |  | defaults to undefined|
 | **page** | [**number**] |  | (optional) defaults to 0|
-| **size** | [**number**] |  | (optional) defaults to 20|
+| **size** | [**number**] |  | (optional) defaults to 10|
 
 
 ### Return type
 
-**ApiResponsePageCommentResponseDto**
+**ApiPaginatedResponseListCommentResponseDto**
 
 ### Authorization
 
@@ -222,7 +222,7 @@ const { status, data } = await apiInstance.getCommentsByPost(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getCommentsByUser**
-> ApiResponsePageCommentResponseDto getCommentsByUser()
+> ApiPaginatedResponseListCommentResponseDto getCommentsByUser()
 
 
 ### Example
@@ -236,7 +236,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new CommentControllerApi(configuration);
 
-let userId: number; // (default to undefined)
+let userId: string; // (default to undefined)
 let page: number; // (optional) (default to 0)
 let size: number; // (optional) (default to 10)
 
@@ -251,14 +251,14 @@ const { status, data } = await apiInstance.getCommentsByUser(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **userId** | [**number**] |  | defaults to undefined|
+| **userId** | [**string**] |  | defaults to undefined|
 | **page** | [**number**] |  | (optional) defaults to 0|
 | **size** | [**number**] |  | (optional) defaults to 10|
 
 
 ### Return type
 
-**ApiResponsePageCommentResponseDto**
+**ApiPaginatedResponseListCommentResponseDto**
 
 ### Authorization
 

@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**userIds** | **Array&lt;number&gt;** |  | [optional] [default to undefined]
+**userIds** | **Array&lt;string&gt;** |  | [optional] [default to undefined]
 
 ## Example
 

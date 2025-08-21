@@ -12,6 +12,8 @@ All URIs are relative to *http://localhost:8080*
 |[**searchUsers**](#searchusers) | **GET** /api/users/search | |
 |[**unfollowUser**](#unfollowuser) | **DELETE** /api/users/{userId}/follow | |
 |[**updateCurrentUser**](#updatecurrentuser) | **PUT** /api/users/me | |
+|[**uploadCoverImage**](#uploadcoverimage) | **POST** /api/users/me/cover-image | |
+|[**uploadProfileImage**](#uploadprofileimage) | **POST** /api/users/me/profile | |
 
 # **followUser**
 > ApiResponseVoid followUser()
@@ -28,7 +30,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new UserControllerApi(configuration);
 
-let userId: number; // (default to undefined)
+let userId: string; // (default to undefined)
 
 const { status, data } = await apiInstance.followUser(
     userId
@@ -39,7 +41,7 @@ const { status, data } = await apiInstance.followUser(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **userId** | [**number**] |  | defaults to undefined|
+| **userId** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
@@ -121,7 +123,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new UserControllerApi(configuration);
 
-let userId: number; // (default to undefined)
+let userId: string; // (default to undefined)
 let page: number; // (optional) (default to 0)
 let size: number; // (optional) (default to 10)
 
@@ -136,7 +138,7 @@ const { status, data } = await apiInstance.getFollowers(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **userId** | [**number**] |  | defaults to undefined|
+| **userId** | [**string**] |  | defaults to undefined|
 | **page** | [**number**] |  | (optional) defaults to 0|
 | **size** | [**number**] |  | (optional) defaults to 10|
 
@@ -177,7 +179,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new UserControllerApi(configuration);
 
-let userId: number; // (default to undefined)
+let userId: string; // (default to undefined)
 let page: number; // (optional) (default to 0)
 let size: number; // (optional) (default to 10)
 
@@ -192,7 +194,7 @@ const { status, data } = await apiInstance.getFollowing(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **userId** | [**number**] |  | defaults to undefined|
+| **userId** | [**string**] |  | defaults to undefined|
 | **page** | [**number**] |  | (optional) defaults to 0|
 | **size** | [**number**] |  | (optional) defaults to 10|
 
@@ -233,7 +235,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new UserControllerApi(configuration);
 
-let userId: number; // (default to undefined)
+let userId: string; // (default to undefined)
 
 const { status, data } = await apiInstance.getUserProfile(
     userId
@@ -244,7 +246,7 @@ const { status, data } = await apiInstance.getUserProfile(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **userId** | [**number**] |  | defaults to undefined|
+| **userId** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
@@ -339,7 +341,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new UserControllerApi(configuration);
 
-let userId: number; // (default to undefined)
+let userId: string; // (default to undefined)
 
 const { status, data } = await apiInstance.unfollowUser(
     userId
@@ -350,7 +352,7 @@ const { status, data } = await apiInstance.unfollowUser(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **userId** | [**number**] |  | defaults to undefined|
+| **userId** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
@@ -415,6 +417,106 @@ const { status, data } = await apiInstance.updateCurrentUser(
 ### HTTP request headers
 
  - **Content-Type**: application/json
+ - **Accept**: */*
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **uploadCoverImage**
+> ApiResponseUserResponse uploadCoverImage()
+
+
+### Example
+
+```typescript
+import {
+    UserControllerApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new UserControllerApi(configuration);
+
+let file: File; // (default to undefined)
+
+const { status, data } = await apiInstance.uploadCoverImage(
+    file
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **file** | [**File**] |  | defaults to undefined|
+
+
+### Return type
+
+**ApiResponseUserResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: multipart/form-data
+ - **Accept**: */*
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **uploadProfileImage**
+> ApiResponseUserResponse uploadProfileImage()
+
+
+### Example
+
+```typescript
+import {
+    UserControllerApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new UserControllerApi(configuration);
+
+let file: File; // (default to undefined)
+
+const { status, data } = await apiInstance.uploadProfileImage(
+    file
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **file** | [**File**] |  | defaults to undefined|
+
+
+### Return type
+
+**ApiResponseUserResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: multipart/form-data
  - **Accept**: */*
 
 

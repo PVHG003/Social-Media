@@ -31,10 +31,10 @@ import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerM
 export interface AddMembersRequest {
     /**
      * 
-     * @type {Array<number>}
+     * @type {Array<string>}
      * @memberof AddMembersRequest
      */
-    'userIds'?: Array<number>;
+    'userIds'?: Array<string>;
 }
 /**
  * 
@@ -295,6 +295,396 @@ export const ApiPaginatedResponseListChatMessageResponseStatusEnum = {
 } as const;
 
 export type ApiPaginatedResponseListChatMessageResponseStatusEnum = typeof ApiPaginatedResponseListChatMessageResponseStatusEnum[keyof typeof ApiPaginatedResponseListChatMessageResponseStatusEnum];
+
+/**
+ * 
+ * @export
+ * @interface ApiPaginatedResponseListCommentResponseDto
+ */
+export interface ApiPaginatedResponseListCommentResponseDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof ApiPaginatedResponseListCommentResponseDto
+     */
+    'status'?: ApiPaginatedResponseListCommentResponseDtoStatusEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof ApiPaginatedResponseListCommentResponseDto
+     */
+    'message'?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ApiPaginatedResponseListCommentResponseDto
+     */
+    'success'?: boolean;
+    /**
+     * 
+     * @type {Array<CommentResponseDto>}
+     * @memberof ApiPaginatedResponseListCommentResponseDto
+     */
+    'data'?: Array<CommentResponseDto>;
+    /**
+     * 
+     * @type {number}
+     * @memberof ApiPaginatedResponseListCommentResponseDto
+     */
+    'page'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ApiPaginatedResponseListCommentResponseDto
+     */
+    'pageSize'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ApiPaginatedResponseListCommentResponseDto
+     */
+    'totalPages'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ApiPaginatedResponseListCommentResponseDto
+     */
+    'totalElements'?: number;
+}
+
+export const ApiPaginatedResponseListCommentResponseDtoStatusEnum = {
+    _100Continue: '100 CONTINUE',
+    _101SwitchingProtocols: '101 SWITCHING_PROTOCOLS',
+    _102Processing: '102 PROCESSING',
+    _103EarlyHints: '103 EARLY_HINTS',
+    _103Checkpoint: '103 CHECKPOINT',
+    _200Ok: '200 OK',
+    _201Created: '201 CREATED',
+    _202Accepted: '202 ACCEPTED',
+    _203NonAuthoritativeInformation: '203 NON_AUTHORITATIVE_INFORMATION',
+    _204NoContent: '204 NO_CONTENT',
+    _205ResetContent: '205 RESET_CONTENT',
+    _206PartialContent: '206 PARTIAL_CONTENT',
+    _207MultiStatus: '207 MULTI_STATUS',
+    _208AlreadyReported: '208 ALREADY_REPORTED',
+    _226ImUsed: '226 IM_USED',
+    _300MultipleChoices: '300 MULTIPLE_CHOICES',
+    _301MovedPermanently: '301 MOVED_PERMANENTLY',
+    _302Found: '302 FOUND',
+    _302MovedTemporarily: '302 MOVED_TEMPORARILY',
+    _303SeeOther: '303 SEE_OTHER',
+    _304NotModified: '304 NOT_MODIFIED',
+    _305UseProxy: '305 USE_PROXY',
+    _307TemporaryRedirect: '307 TEMPORARY_REDIRECT',
+    _308PermanentRedirect: '308 PERMANENT_REDIRECT',
+    _400BadRequest: '400 BAD_REQUEST',
+    _401Unauthorized: '401 UNAUTHORIZED',
+    _402PaymentRequired: '402 PAYMENT_REQUIRED',
+    _403Forbidden: '403 FORBIDDEN',
+    _404NotFound: '404 NOT_FOUND',
+    _405MethodNotAllowed: '405 METHOD_NOT_ALLOWED',
+    _406NotAcceptable: '406 NOT_ACCEPTABLE',
+    _407ProxyAuthenticationRequired: '407 PROXY_AUTHENTICATION_REQUIRED',
+    _408RequestTimeout: '408 REQUEST_TIMEOUT',
+    _409Conflict: '409 CONFLICT',
+    _410Gone: '410 GONE',
+    _411LengthRequired: '411 LENGTH_REQUIRED',
+    _412PreconditionFailed: '412 PRECONDITION_FAILED',
+    _413PayloadTooLarge: '413 PAYLOAD_TOO_LARGE',
+    _413RequestEntityTooLarge: '413 REQUEST_ENTITY_TOO_LARGE',
+    _414UriTooLong: '414 URI_TOO_LONG',
+    _414RequestUriTooLong: '414 REQUEST_URI_TOO_LONG',
+    _415UnsupportedMediaType: '415 UNSUPPORTED_MEDIA_TYPE',
+    _416RequestedRangeNotSatisfiable: '416 REQUESTED_RANGE_NOT_SATISFIABLE',
+    _417ExpectationFailed: '417 EXPECTATION_FAILED',
+    _418IAmATeapot: '418 I_AM_A_TEAPOT',
+    _419InsufficientSpaceOnResource: '419 INSUFFICIENT_SPACE_ON_RESOURCE',
+    _420MethodFailure: '420 METHOD_FAILURE',
+    _421DestinationLocked: '421 DESTINATION_LOCKED',
+    _422UnprocessableEntity: '422 UNPROCESSABLE_ENTITY',
+    _423Locked: '423 LOCKED',
+    _424FailedDependency: '424 FAILED_DEPENDENCY',
+    _425TooEarly: '425 TOO_EARLY',
+    _426UpgradeRequired: '426 UPGRADE_REQUIRED',
+    _428PreconditionRequired: '428 PRECONDITION_REQUIRED',
+    _429TooManyRequests: '429 TOO_MANY_REQUESTS',
+    _431RequestHeaderFieldsTooLarge: '431 REQUEST_HEADER_FIELDS_TOO_LARGE',
+    _451UnavailableForLegalReasons: '451 UNAVAILABLE_FOR_LEGAL_REASONS',
+    _500InternalServerError: '500 INTERNAL_SERVER_ERROR',
+    _501NotImplemented: '501 NOT_IMPLEMENTED',
+    _502BadGateway: '502 BAD_GATEWAY',
+    _503ServiceUnavailable: '503 SERVICE_UNAVAILABLE',
+    _504GatewayTimeout: '504 GATEWAY_TIMEOUT',
+    _505HttpVersionNotSupported: '505 HTTP_VERSION_NOT_SUPPORTED',
+    _506VariantAlsoNegotiates: '506 VARIANT_ALSO_NEGOTIATES',
+    _507InsufficientStorage: '507 INSUFFICIENT_STORAGE',
+    _508LoopDetected: '508 LOOP_DETECTED',
+    _509BandwidthLimitExceeded: '509 BANDWIDTH_LIMIT_EXCEEDED',
+    _510NotExtended: '510 NOT_EXTENDED',
+    _511NetworkAuthenticationRequired: '511 NETWORK_AUTHENTICATION_REQUIRED'
+} as const;
+
+export type ApiPaginatedResponseListCommentResponseDtoStatusEnum = typeof ApiPaginatedResponseListCommentResponseDtoStatusEnum[keyof typeof ApiPaginatedResponseListCommentResponseDtoStatusEnum];
+
+/**
+ * 
+ * @export
+ * @interface ApiPaginatedResponseListNotificationResponse
+ */
+export interface ApiPaginatedResponseListNotificationResponse {
+    /**
+     * 
+     * @type {string}
+     * @memberof ApiPaginatedResponseListNotificationResponse
+     */
+    'status'?: ApiPaginatedResponseListNotificationResponseStatusEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof ApiPaginatedResponseListNotificationResponse
+     */
+    'message'?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ApiPaginatedResponseListNotificationResponse
+     */
+    'success'?: boolean;
+    /**
+     * 
+     * @type {Array<NotificationResponse>}
+     * @memberof ApiPaginatedResponseListNotificationResponse
+     */
+    'data'?: Array<NotificationResponse>;
+    /**
+     * 
+     * @type {number}
+     * @memberof ApiPaginatedResponseListNotificationResponse
+     */
+    'page'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ApiPaginatedResponseListNotificationResponse
+     */
+    'pageSize'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ApiPaginatedResponseListNotificationResponse
+     */
+    'totalPages'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ApiPaginatedResponseListNotificationResponse
+     */
+    'totalElements'?: number;
+}
+
+export const ApiPaginatedResponseListNotificationResponseStatusEnum = {
+    _100Continue: '100 CONTINUE',
+    _101SwitchingProtocols: '101 SWITCHING_PROTOCOLS',
+    _102Processing: '102 PROCESSING',
+    _103EarlyHints: '103 EARLY_HINTS',
+    _103Checkpoint: '103 CHECKPOINT',
+    _200Ok: '200 OK',
+    _201Created: '201 CREATED',
+    _202Accepted: '202 ACCEPTED',
+    _203NonAuthoritativeInformation: '203 NON_AUTHORITATIVE_INFORMATION',
+    _204NoContent: '204 NO_CONTENT',
+    _205ResetContent: '205 RESET_CONTENT',
+    _206PartialContent: '206 PARTIAL_CONTENT',
+    _207MultiStatus: '207 MULTI_STATUS',
+    _208AlreadyReported: '208 ALREADY_REPORTED',
+    _226ImUsed: '226 IM_USED',
+    _300MultipleChoices: '300 MULTIPLE_CHOICES',
+    _301MovedPermanently: '301 MOVED_PERMANENTLY',
+    _302Found: '302 FOUND',
+    _302MovedTemporarily: '302 MOVED_TEMPORARILY',
+    _303SeeOther: '303 SEE_OTHER',
+    _304NotModified: '304 NOT_MODIFIED',
+    _305UseProxy: '305 USE_PROXY',
+    _307TemporaryRedirect: '307 TEMPORARY_REDIRECT',
+    _308PermanentRedirect: '308 PERMANENT_REDIRECT',
+    _400BadRequest: '400 BAD_REQUEST',
+    _401Unauthorized: '401 UNAUTHORIZED',
+    _402PaymentRequired: '402 PAYMENT_REQUIRED',
+    _403Forbidden: '403 FORBIDDEN',
+    _404NotFound: '404 NOT_FOUND',
+    _405MethodNotAllowed: '405 METHOD_NOT_ALLOWED',
+    _406NotAcceptable: '406 NOT_ACCEPTABLE',
+    _407ProxyAuthenticationRequired: '407 PROXY_AUTHENTICATION_REQUIRED',
+    _408RequestTimeout: '408 REQUEST_TIMEOUT',
+    _409Conflict: '409 CONFLICT',
+    _410Gone: '410 GONE',
+    _411LengthRequired: '411 LENGTH_REQUIRED',
+    _412PreconditionFailed: '412 PRECONDITION_FAILED',
+    _413PayloadTooLarge: '413 PAYLOAD_TOO_LARGE',
+    _413RequestEntityTooLarge: '413 REQUEST_ENTITY_TOO_LARGE',
+    _414UriTooLong: '414 URI_TOO_LONG',
+    _414RequestUriTooLong: '414 REQUEST_URI_TOO_LONG',
+    _415UnsupportedMediaType: '415 UNSUPPORTED_MEDIA_TYPE',
+    _416RequestedRangeNotSatisfiable: '416 REQUESTED_RANGE_NOT_SATISFIABLE',
+    _417ExpectationFailed: '417 EXPECTATION_FAILED',
+    _418IAmATeapot: '418 I_AM_A_TEAPOT',
+    _419InsufficientSpaceOnResource: '419 INSUFFICIENT_SPACE_ON_RESOURCE',
+    _420MethodFailure: '420 METHOD_FAILURE',
+    _421DestinationLocked: '421 DESTINATION_LOCKED',
+    _422UnprocessableEntity: '422 UNPROCESSABLE_ENTITY',
+    _423Locked: '423 LOCKED',
+    _424FailedDependency: '424 FAILED_DEPENDENCY',
+    _425TooEarly: '425 TOO_EARLY',
+    _426UpgradeRequired: '426 UPGRADE_REQUIRED',
+    _428PreconditionRequired: '428 PRECONDITION_REQUIRED',
+    _429TooManyRequests: '429 TOO_MANY_REQUESTS',
+    _431RequestHeaderFieldsTooLarge: '431 REQUEST_HEADER_FIELDS_TOO_LARGE',
+    _451UnavailableForLegalReasons: '451 UNAVAILABLE_FOR_LEGAL_REASONS',
+    _500InternalServerError: '500 INTERNAL_SERVER_ERROR',
+    _501NotImplemented: '501 NOT_IMPLEMENTED',
+    _502BadGateway: '502 BAD_GATEWAY',
+    _503ServiceUnavailable: '503 SERVICE_UNAVAILABLE',
+    _504GatewayTimeout: '504 GATEWAY_TIMEOUT',
+    _505HttpVersionNotSupported: '505 HTTP_VERSION_NOT_SUPPORTED',
+    _506VariantAlsoNegotiates: '506 VARIANT_ALSO_NEGOTIATES',
+    _507InsufficientStorage: '507 INSUFFICIENT_STORAGE',
+    _508LoopDetected: '508 LOOP_DETECTED',
+    _509BandwidthLimitExceeded: '509 BANDWIDTH_LIMIT_EXCEEDED',
+    _510NotExtended: '510 NOT_EXTENDED',
+    _511NetworkAuthenticationRequired: '511 NETWORK_AUTHENTICATION_REQUIRED'
+} as const;
+
+export type ApiPaginatedResponseListNotificationResponseStatusEnum = typeof ApiPaginatedResponseListNotificationResponseStatusEnum[keyof typeof ApiPaginatedResponseListNotificationResponseStatusEnum];
+
+/**
+ * 
+ * @export
+ * @interface ApiPaginatedResponseListPostResponse
+ */
+export interface ApiPaginatedResponseListPostResponse {
+    /**
+     * 
+     * @type {string}
+     * @memberof ApiPaginatedResponseListPostResponse
+     */
+    'status'?: ApiPaginatedResponseListPostResponseStatusEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof ApiPaginatedResponseListPostResponse
+     */
+    'message'?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ApiPaginatedResponseListPostResponse
+     */
+    'success'?: boolean;
+    /**
+     * 
+     * @type {Array<PostResponse>}
+     * @memberof ApiPaginatedResponseListPostResponse
+     */
+    'data'?: Array<PostResponse>;
+    /**
+     * 
+     * @type {number}
+     * @memberof ApiPaginatedResponseListPostResponse
+     */
+    'page'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ApiPaginatedResponseListPostResponse
+     */
+    'pageSize'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ApiPaginatedResponseListPostResponse
+     */
+    'totalPages'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ApiPaginatedResponseListPostResponse
+     */
+    'totalElements'?: number;
+}
+
+export const ApiPaginatedResponseListPostResponseStatusEnum = {
+    _100Continue: '100 CONTINUE',
+    _101SwitchingProtocols: '101 SWITCHING_PROTOCOLS',
+    _102Processing: '102 PROCESSING',
+    _103EarlyHints: '103 EARLY_HINTS',
+    _103Checkpoint: '103 CHECKPOINT',
+    _200Ok: '200 OK',
+    _201Created: '201 CREATED',
+    _202Accepted: '202 ACCEPTED',
+    _203NonAuthoritativeInformation: '203 NON_AUTHORITATIVE_INFORMATION',
+    _204NoContent: '204 NO_CONTENT',
+    _205ResetContent: '205 RESET_CONTENT',
+    _206PartialContent: '206 PARTIAL_CONTENT',
+    _207MultiStatus: '207 MULTI_STATUS',
+    _208AlreadyReported: '208 ALREADY_REPORTED',
+    _226ImUsed: '226 IM_USED',
+    _300MultipleChoices: '300 MULTIPLE_CHOICES',
+    _301MovedPermanently: '301 MOVED_PERMANENTLY',
+    _302Found: '302 FOUND',
+    _302MovedTemporarily: '302 MOVED_TEMPORARILY',
+    _303SeeOther: '303 SEE_OTHER',
+    _304NotModified: '304 NOT_MODIFIED',
+    _305UseProxy: '305 USE_PROXY',
+    _307TemporaryRedirect: '307 TEMPORARY_REDIRECT',
+    _308PermanentRedirect: '308 PERMANENT_REDIRECT',
+    _400BadRequest: '400 BAD_REQUEST',
+    _401Unauthorized: '401 UNAUTHORIZED',
+    _402PaymentRequired: '402 PAYMENT_REQUIRED',
+    _403Forbidden: '403 FORBIDDEN',
+    _404NotFound: '404 NOT_FOUND',
+    _405MethodNotAllowed: '405 METHOD_NOT_ALLOWED',
+    _406NotAcceptable: '406 NOT_ACCEPTABLE',
+    _407ProxyAuthenticationRequired: '407 PROXY_AUTHENTICATION_REQUIRED',
+    _408RequestTimeout: '408 REQUEST_TIMEOUT',
+    _409Conflict: '409 CONFLICT',
+    _410Gone: '410 GONE',
+    _411LengthRequired: '411 LENGTH_REQUIRED',
+    _412PreconditionFailed: '412 PRECONDITION_FAILED',
+    _413PayloadTooLarge: '413 PAYLOAD_TOO_LARGE',
+    _413RequestEntityTooLarge: '413 REQUEST_ENTITY_TOO_LARGE',
+    _414UriTooLong: '414 URI_TOO_LONG',
+    _414RequestUriTooLong: '414 REQUEST_URI_TOO_LONG',
+    _415UnsupportedMediaType: '415 UNSUPPORTED_MEDIA_TYPE',
+    _416RequestedRangeNotSatisfiable: '416 REQUESTED_RANGE_NOT_SATISFIABLE',
+    _417ExpectationFailed: '417 EXPECTATION_FAILED',
+    _418IAmATeapot: '418 I_AM_A_TEAPOT',
+    _419InsufficientSpaceOnResource: '419 INSUFFICIENT_SPACE_ON_RESOURCE',
+    _420MethodFailure: '420 METHOD_FAILURE',
+    _421DestinationLocked: '421 DESTINATION_LOCKED',
+    _422UnprocessableEntity: '422 UNPROCESSABLE_ENTITY',
+    _423Locked: '423 LOCKED',
+    _424FailedDependency: '424 FAILED_DEPENDENCY',
+    _425TooEarly: '425 TOO_EARLY',
+    _426UpgradeRequired: '426 UPGRADE_REQUIRED',
+    _428PreconditionRequired: '428 PRECONDITION_REQUIRED',
+    _429TooManyRequests: '429 TOO_MANY_REQUESTS',
+    _431RequestHeaderFieldsTooLarge: '431 REQUEST_HEADER_FIELDS_TOO_LARGE',
+    _451UnavailableForLegalReasons: '451 UNAVAILABLE_FOR_LEGAL_REASONS',
+    _500InternalServerError: '500 INTERNAL_SERVER_ERROR',
+    _501NotImplemented: '501 NOT_IMPLEMENTED',
+    _502BadGateway: '502 BAD_GATEWAY',
+    _503ServiceUnavailable: '503 SERVICE_UNAVAILABLE',
+    _504GatewayTimeout: '504 GATEWAY_TIMEOUT',
+    _505HttpVersionNotSupported: '505 HTTP_VERSION_NOT_SUPPORTED',
+    _506VariantAlsoNegotiates: '506 VARIANT_ALSO_NEGOTIATES',
+    _507InsufficientStorage: '507 INSUFFICIENT_STORAGE',
+    _508LoopDetected: '508 LOOP_DETECTED',
+    _509BandwidthLimitExceeded: '509 BANDWIDTH_LIMIT_EXCEEDED',
+    _510NotExtended: '510 NOT_EXTENDED',
+    _511NetworkAuthenticationRequired: '511 NETWORK_AUTHENTICATION_REQUIRED'
+} as const;
+
+export type ApiPaginatedResponseListPostResponseStatusEnum = typeof ApiPaginatedResponseListPostResponseStatusEnum[keyof typeof ApiPaginatedResponseListPostResponseStatusEnum];
 
 /**
  * 
@@ -853,218 +1243,6 @@ export type ApiResponseListAttachmentResponseStatusEnum = typeof ApiResponseList
 /**
  * 
  * @export
- * @interface ApiResponsePageCommentResponseDto
- */
-export interface ApiResponsePageCommentResponseDto {
-    /**
-     * 
-     * @type {string}
-     * @memberof ApiResponsePageCommentResponseDto
-     */
-    'status'?: ApiResponsePageCommentResponseDtoStatusEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof ApiResponsePageCommentResponseDto
-     */
-    'message'?: string;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof ApiResponsePageCommentResponseDto
-     */
-    'success'?: boolean;
-    /**
-     * 
-     * @type {PageCommentResponseDto}
-     * @memberof ApiResponsePageCommentResponseDto
-     */
-    'data'?: PageCommentResponseDto;
-}
-
-export const ApiResponsePageCommentResponseDtoStatusEnum = {
-    _100Continue: '100 CONTINUE',
-    _101SwitchingProtocols: '101 SWITCHING_PROTOCOLS',
-    _102Processing: '102 PROCESSING',
-    _103EarlyHints: '103 EARLY_HINTS',
-    _103Checkpoint: '103 CHECKPOINT',
-    _200Ok: '200 OK',
-    _201Created: '201 CREATED',
-    _202Accepted: '202 ACCEPTED',
-    _203NonAuthoritativeInformation: '203 NON_AUTHORITATIVE_INFORMATION',
-    _204NoContent: '204 NO_CONTENT',
-    _205ResetContent: '205 RESET_CONTENT',
-    _206PartialContent: '206 PARTIAL_CONTENT',
-    _207MultiStatus: '207 MULTI_STATUS',
-    _208AlreadyReported: '208 ALREADY_REPORTED',
-    _226ImUsed: '226 IM_USED',
-    _300MultipleChoices: '300 MULTIPLE_CHOICES',
-    _301MovedPermanently: '301 MOVED_PERMANENTLY',
-    _302Found: '302 FOUND',
-    _302MovedTemporarily: '302 MOVED_TEMPORARILY',
-    _303SeeOther: '303 SEE_OTHER',
-    _304NotModified: '304 NOT_MODIFIED',
-    _305UseProxy: '305 USE_PROXY',
-    _307TemporaryRedirect: '307 TEMPORARY_REDIRECT',
-    _308PermanentRedirect: '308 PERMANENT_REDIRECT',
-    _400BadRequest: '400 BAD_REQUEST',
-    _401Unauthorized: '401 UNAUTHORIZED',
-    _402PaymentRequired: '402 PAYMENT_REQUIRED',
-    _403Forbidden: '403 FORBIDDEN',
-    _404NotFound: '404 NOT_FOUND',
-    _405MethodNotAllowed: '405 METHOD_NOT_ALLOWED',
-    _406NotAcceptable: '406 NOT_ACCEPTABLE',
-    _407ProxyAuthenticationRequired: '407 PROXY_AUTHENTICATION_REQUIRED',
-    _408RequestTimeout: '408 REQUEST_TIMEOUT',
-    _409Conflict: '409 CONFLICT',
-    _410Gone: '410 GONE',
-    _411LengthRequired: '411 LENGTH_REQUIRED',
-    _412PreconditionFailed: '412 PRECONDITION_FAILED',
-    _413PayloadTooLarge: '413 PAYLOAD_TOO_LARGE',
-    _413RequestEntityTooLarge: '413 REQUEST_ENTITY_TOO_LARGE',
-    _414UriTooLong: '414 URI_TOO_LONG',
-    _414RequestUriTooLong: '414 REQUEST_URI_TOO_LONG',
-    _415UnsupportedMediaType: '415 UNSUPPORTED_MEDIA_TYPE',
-    _416RequestedRangeNotSatisfiable: '416 REQUESTED_RANGE_NOT_SATISFIABLE',
-    _417ExpectationFailed: '417 EXPECTATION_FAILED',
-    _418IAmATeapot: '418 I_AM_A_TEAPOT',
-    _419InsufficientSpaceOnResource: '419 INSUFFICIENT_SPACE_ON_RESOURCE',
-    _420MethodFailure: '420 METHOD_FAILURE',
-    _421DestinationLocked: '421 DESTINATION_LOCKED',
-    _422UnprocessableEntity: '422 UNPROCESSABLE_ENTITY',
-    _423Locked: '423 LOCKED',
-    _424FailedDependency: '424 FAILED_DEPENDENCY',
-    _425TooEarly: '425 TOO_EARLY',
-    _426UpgradeRequired: '426 UPGRADE_REQUIRED',
-    _428PreconditionRequired: '428 PRECONDITION_REQUIRED',
-    _429TooManyRequests: '429 TOO_MANY_REQUESTS',
-    _431RequestHeaderFieldsTooLarge: '431 REQUEST_HEADER_FIELDS_TOO_LARGE',
-    _451UnavailableForLegalReasons: '451 UNAVAILABLE_FOR_LEGAL_REASONS',
-    _500InternalServerError: '500 INTERNAL_SERVER_ERROR',
-    _501NotImplemented: '501 NOT_IMPLEMENTED',
-    _502BadGateway: '502 BAD_GATEWAY',
-    _503ServiceUnavailable: '503 SERVICE_UNAVAILABLE',
-    _504GatewayTimeout: '504 GATEWAY_TIMEOUT',
-    _505HttpVersionNotSupported: '505 HTTP_VERSION_NOT_SUPPORTED',
-    _506VariantAlsoNegotiates: '506 VARIANT_ALSO_NEGOTIATES',
-    _507InsufficientStorage: '507 INSUFFICIENT_STORAGE',
-    _508LoopDetected: '508 LOOP_DETECTED',
-    _509BandwidthLimitExceeded: '509 BANDWIDTH_LIMIT_EXCEEDED',
-    _510NotExtended: '510 NOT_EXTENDED',
-    _511NetworkAuthenticationRequired: '511 NETWORK_AUTHENTICATION_REQUIRED'
-} as const;
-
-export type ApiResponsePageCommentResponseDtoStatusEnum = typeof ApiResponsePageCommentResponseDtoStatusEnum[keyof typeof ApiResponsePageCommentResponseDtoStatusEnum];
-
-/**
- * 
- * @export
- * @interface ApiResponsePagePostResponse
- */
-export interface ApiResponsePagePostResponse {
-    /**
-     * 
-     * @type {string}
-     * @memberof ApiResponsePagePostResponse
-     */
-    'status'?: ApiResponsePagePostResponseStatusEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof ApiResponsePagePostResponse
-     */
-    'message'?: string;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof ApiResponsePagePostResponse
-     */
-    'success'?: boolean;
-    /**
-     * 
-     * @type {PagePostResponse}
-     * @memberof ApiResponsePagePostResponse
-     */
-    'data'?: PagePostResponse;
-}
-
-export const ApiResponsePagePostResponseStatusEnum = {
-    _100Continue: '100 CONTINUE',
-    _101SwitchingProtocols: '101 SWITCHING_PROTOCOLS',
-    _102Processing: '102 PROCESSING',
-    _103EarlyHints: '103 EARLY_HINTS',
-    _103Checkpoint: '103 CHECKPOINT',
-    _200Ok: '200 OK',
-    _201Created: '201 CREATED',
-    _202Accepted: '202 ACCEPTED',
-    _203NonAuthoritativeInformation: '203 NON_AUTHORITATIVE_INFORMATION',
-    _204NoContent: '204 NO_CONTENT',
-    _205ResetContent: '205 RESET_CONTENT',
-    _206PartialContent: '206 PARTIAL_CONTENT',
-    _207MultiStatus: '207 MULTI_STATUS',
-    _208AlreadyReported: '208 ALREADY_REPORTED',
-    _226ImUsed: '226 IM_USED',
-    _300MultipleChoices: '300 MULTIPLE_CHOICES',
-    _301MovedPermanently: '301 MOVED_PERMANENTLY',
-    _302Found: '302 FOUND',
-    _302MovedTemporarily: '302 MOVED_TEMPORARILY',
-    _303SeeOther: '303 SEE_OTHER',
-    _304NotModified: '304 NOT_MODIFIED',
-    _305UseProxy: '305 USE_PROXY',
-    _307TemporaryRedirect: '307 TEMPORARY_REDIRECT',
-    _308PermanentRedirect: '308 PERMANENT_REDIRECT',
-    _400BadRequest: '400 BAD_REQUEST',
-    _401Unauthorized: '401 UNAUTHORIZED',
-    _402PaymentRequired: '402 PAYMENT_REQUIRED',
-    _403Forbidden: '403 FORBIDDEN',
-    _404NotFound: '404 NOT_FOUND',
-    _405MethodNotAllowed: '405 METHOD_NOT_ALLOWED',
-    _406NotAcceptable: '406 NOT_ACCEPTABLE',
-    _407ProxyAuthenticationRequired: '407 PROXY_AUTHENTICATION_REQUIRED',
-    _408RequestTimeout: '408 REQUEST_TIMEOUT',
-    _409Conflict: '409 CONFLICT',
-    _410Gone: '410 GONE',
-    _411LengthRequired: '411 LENGTH_REQUIRED',
-    _412PreconditionFailed: '412 PRECONDITION_FAILED',
-    _413PayloadTooLarge: '413 PAYLOAD_TOO_LARGE',
-    _413RequestEntityTooLarge: '413 REQUEST_ENTITY_TOO_LARGE',
-    _414UriTooLong: '414 URI_TOO_LONG',
-    _414RequestUriTooLong: '414 REQUEST_URI_TOO_LONG',
-    _415UnsupportedMediaType: '415 UNSUPPORTED_MEDIA_TYPE',
-    _416RequestedRangeNotSatisfiable: '416 REQUESTED_RANGE_NOT_SATISFIABLE',
-    _417ExpectationFailed: '417 EXPECTATION_FAILED',
-    _418IAmATeapot: '418 I_AM_A_TEAPOT',
-    _419InsufficientSpaceOnResource: '419 INSUFFICIENT_SPACE_ON_RESOURCE',
-    _420MethodFailure: '420 METHOD_FAILURE',
-    _421DestinationLocked: '421 DESTINATION_LOCKED',
-    _422UnprocessableEntity: '422 UNPROCESSABLE_ENTITY',
-    _423Locked: '423 LOCKED',
-    _424FailedDependency: '424 FAILED_DEPENDENCY',
-    _425TooEarly: '425 TOO_EARLY',
-    _426UpgradeRequired: '426 UPGRADE_REQUIRED',
-    _428PreconditionRequired: '428 PRECONDITION_REQUIRED',
-    _429TooManyRequests: '429 TOO_MANY_REQUESTS',
-    _431RequestHeaderFieldsTooLarge: '431 REQUEST_HEADER_FIELDS_TOO_LARGE',
-    _451UnavailableForLegalReasons: '451 UNAVAILABLE_FOR_LEGAL_REASONS',
-    _500InternalServerError: '500 INTERNAL_SERVER_ERROR',
-    _501NotImplemented: '501 NOT_IMPLEMENTED',
-    _502BadGateway: '502 BAD_GATEWAY',
-    _503ServiceUnavailable: '503 SERVICE_UNAVAILABLE',
-    _504GatewayTimeout: '504 GATEWAY_TIMEOUT',
-    _505HttpVersionNotSupported: '505 HTTP_VERSION_NOT_SUPPORTED',
-    _506VariantAlsoNegotiates: '506 VARIANT_ALSO_NEGOTIATES',
-    _507InsufficientStorage: '507 INSUFFICIENT_STORAGE',
-    _508LoopDetected: '508 LOOP_DETECTED',
-    _509BandwidthLimitExceeded: '509 BANDWIDTH_LIMIT_EXCEEDED',
-    _510NotExtended: '510 NOT_EXTENDED',
-    _511NetworkAuthenticationRequired: '511 NETWORK_AUTHENTICATION_REQUIRED'
-} as const;
-
-export type ApiResponsePagePostResponseStatusEnum = typeof ApiResponsePagePostResponseStatusEnum[keyof typeof ApiResponsePagePostResponseStatusEnum];
-
-/**
- * 
- * @export
  * @interface ApiResponsePostResponse
  */
 export interface ApiResponsePostResponse {
@@ -1406,10 +1584,10 @@ export interface AttachmentResponse {
     'contentType'?: string;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof AttachmentResponse
      */
-    'uploaderId'?: number;
+    'uploaderId'?: string;
     /**
      * 
      * @type {string}
@@ -1499,10 +1677,10 @@ export interface ChatCreateRequest {
     'chatType'?: ChatCreateRequestChatTypeEnum;
     /**
      * 
-     * @type {Array<number>}
+     * @type {Array<string>}
      * @memberof ChatCreateRequest
      */
-    'memberIds'?: Array<number>;
+    'memberIds'?: Array<string>;
 }
 
 export const ChatCreateRequestChatTypeEnum = {
@@ -1652,10 +1830,10 @@ export interface ChatMessageResponse {
     'messageId'?: string;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof ChatMessageResponse
      */
-    'senderId'?: number;
+    'senderId'?: string;
     /**
      * 
      * @type {string}
@@ -1795,10 +1973,10 @@ export interface LoginRequest {
 export interface MediaDto {
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof MediaDto
      */
-    'id'?: number;
+    'id'?: string;
     /**
      * 
      * @type {string}
@@ -1856,10 +2034,10 @@ export interface MediaDto {
 export interface MemberResponse {
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof MemberResponse
      */
-    'id'?: number;
+    'id'?: string;
     /**
      * 
      * @type {string}
@@ -1876,149 +2054,69 @@ export interface MemberResponse {
 /**
  * 
  * @export
- * @interface PageCommentResponseDto
+ * @interface NotificationResponse
  */
-export interface PageCommentResponseDto {
+export interface NotificationResponse {
     /**
      * 
-     * @type {number}
-     * @memberof PageCommentResponseDto
+     * @type {string}
+     * @memberof NotificationResponse
      */
-    'totalElements'?: number;
+    'id'?: string;
     /**
      * 
-     * @type {number}
-     * @memberof PageCommentResponseDto
+     * @type {string}
+     * @memberof NotificationResponse
      */
-    'totalPages'?: number;
+    'sourceId'?: string;
     /**
      * 
-     * @type {PageableObject}
-     * @memberof PageCommentResponseDto
+     * @type {string}
+     * @memberof NotificationResponse
      */
-    'pageable'?: PageableObject;
+    'type'?: NotificationResponseTypeEnum;
     /**
      * 
-     * @type {boolean}
-     * @memberof PageCommentResponseDto
+     * @type {string}
+     * @memberof NotificationResponse
      */
-    'first'?: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof PageCommentResponseDto
-     */
-    'last'?: boolean;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageCommentResponseDto
-     */
-    'size'?: number;
-    /**
-     * 
-     * @type {Array<CommentResponseDto>}
-     * @memberof PageCommentResponseDto
-     */
-    'content'?: Array<CommentResponseDto>;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageCommentResponseDto
-     */
-    'number'?: number;
-    /**
-     * 
-     * @type {SortObject}
-     * @memberof PageCommentResponseDto
-     */
-    'sort'?: SortObject;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageCommentResponseDto
-     */
-    'numberOfElements'?: number;
+    'content'?: string;
     /**
      * 
      * @type {boolean}
-     * @memberof PageCommentResponseDto
+     * @memberof NotificationResponse
      */
-    'empty'?: boolean;
+    'read'?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof NotificationResponse
+     */
+    'createdAt'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof NotificationResponse
+     */
+    'referenceId'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof NotificationResponse
+     */
+    'unreadCount'?: number;
 }
-/**
- * 
- * @export
- * @interface PagePostResponse
- */
-export interface PagePostResponse {
-    /**
-     * 
-     * @type {number}
-     * @memberof PagePostResponse
-     */
-    'totalElements'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PagePostResponse
-     */
-    'totalPages'?: number;
-    /**
-     * 
-     * @type {PageableObject}
-     * @memberof PagePostResponse
-     */
-    'pageable'?: PageableObject;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof PagePostResponse
-     */
-    'first'?: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof PagePostResponse
-     */
-    'last'?: boolean;
-    /**
-     * 
-     * @type {number}
-     * @memberof PagePostResponse
-     */
-    'size'?: number;
-    /**
-     * 
-     * @type {Array<PostResponse>}
-     * @memberof PagePostResponse
-     */
-    'content'?: Array<PostResponse>;
-    /**
-     * 
-     * @type {number}
-     * @memberof PagePostResponse
-     */
-    'number'?: number;
-    /**
-     * 
-     * @type {SortObject}
-     * @memberof PagePostResponse
-     */
-    'sort'?: SortObject;
-    /**
-     * 
-     * @type {number}
-     * @memberof PagePostResponse
-     */
-    'numberOfElements'?: number;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof PagePostResponse
-     */
-    'empty'?: boolean;
-}
+
+export const NotificationResponseTypeEnum = {
+    ChatMessage: 'CHAT_MESSAGE',
+    NewPost: 'NEW_POST',
+    PostLike: 'POST_LIKE',
+    PostComment: 'POST_COMMENT',
+    FollowRequest: 'FOLLOW_REQUEST'
+} as const;
+
+export type NotificationResponseTypeEnum = typeof NotificationResponseTypeEnum[keyof typeof NotificationResponseTypeEnum];
+
 /**
  * 
  * @export
@@ -2043,49 +2141,6 @@ export interface Pageable {
      * @memberof Pageable
      */
     'sort'?: Array<string>;
-}
-/**
- * 
- * @export
- * @interface PageableObject
- */
-export interface PageableObject {
-    /**
-     * 
-     * @type {boolean}
-     * @memberof PageableObject
-     */
-    'paged'?: boolean;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageableObject
-     */
-    'pageNumber'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageableObject
-     */
-    'pageSize'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageableObject
-     */
-    'offset'?: number;
-    /**
-     * 
-     * @type {SortObject}
-     * @memberof PageableObject
-     */
-    'sort'?: SortObject;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof PageableObject
-     */
-    'unpaged'?: boolean;
 }
 /**
  * 
@@ -2220,40 +2275,15 @@ export interface RegisterRequest {
 /**
  * 
  * @export
- * @interface SortObject
- */
-export interface SortObject {
-    /**
-     * 
-     * @type {boolean}
-     * @memberof SortObject
-     */
-    'sorted'?: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof SortObject
-     */
-    'empty'?: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof SortObject
-     */
-    'unsorted'?: boolean;
-}
-/**
- * 
- * @export
  * @interface UserDto
  */
 export interface UserDto {
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof UserDto
      */
-    'id'?: number;
+    'id'?: string;
     /**
      * 
      * @type {string}
@@ -2275,10 +2305,10 @@ export interface UserDto {
 export interface UserResponse {
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof UserResponse
      */
-    'id'?: number;
+    'id'?: string;
     /**
      * 
      * @type {string}
@@ -4072,13 +4102,13 @@ export const CommentControllerApiAxiosParamCreator = function (configuration?: C
         },
         /**
          * 
-         * @param {number} userId 
+         * @param {string} userId 
          * @param {number} [page] 
          * @param {number} [size] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getCommentsByUser: async (userId: number, page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getCommentsByUser: async (userId: string, page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'userId' is not null or undefined
             assertParamExists('getCommentsByUser', 'userId', userId)
             const localVarPath = `/api/users/{userId}/comments`
@@ -4215,7 +4245,7 @@ export const CommentControllerApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getCommentsByPost(postId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiResponsePageCommentResponseDto>> {
+        async getCommentsByPost(postId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiPaginatedResponseListCommentResponseDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getCommentsByPost(postId, page, size, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CommentControllerApi.getCommentsByPost']?.[localVarOperationServerIndex]?.url;
@@ -4223,13 +4253,13 @@ export const CommentControllerApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {number} userId 
+         * @param {string} userId 
          * @param {number} [page] 
          * @param {number} [size] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getCommentsByUser(userId: number, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiResponsePageCommentResponseDto>> {
+        async getCommentsByUser(userId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiPaginatedResponseListCommentResponseDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getCommentsByUser(userId, page, size, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CommentControllerApi.getCommentsByUser']?.[localVarOperationServerIndex]?.url;
@@ -4294,18 +4324,18 @@ export const CommentControllerApiFactory = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getCommentsByPost(postId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponsePageCommentResponseDto> {
+        getCommentsByPost(postId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListCommentResponseDto> {
             return localVarFp.getCommentsByPost(postId, page, size, options).then((request) => request(axios, basePath));
         },
         /**
          * 
-         * @param {number} userId 
+         * @param {string} userId 
          * @param {number} [page] 
          * @param {number} [size] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getCommentsByUser(userId: number, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponsePageCommentResponseDto> {
+        getCommentsByUser(userId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListCommentResponseDto> {
             return localVarFp.getCommentsByUser(userId, page, size, options).then((request) => request(axios, basePath));
         },
         /**
@@ -4377,14 +4407,14 @@ export class CommentControllerApi extends BaseAPI {
 
     /**
      * 
-     * @param {number} userId 
+     * @param {string} userId 
      * @param {number} [page] 
      * @param {number} [size] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CommentControllerApi
      */
-    public getCommentsByUser(userId: number, page?: number, size?: number, options?: RawAxiosRequestConfig) {
+    public getCommentsByUser(userId: string, page?: number, size?: number, options?: RawAxiosRequestConfig) {
         return CommentControllerApiFp(this.configuration).getCommentsByUser(userId, page, size, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -4398,6 +4428,119 @@ export class CommentControllerApi extends BaseAPI {
      */
     public updateComment(commentId: string, commentUpdateDto: CommentUpdateDto, options?: RawAxiosRequestConfig) {
         return CommentControllerApiFp(this.configuration).updateComment(commentId, commentUpdateDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * NotificationControllerApi - axios parameter creator
+ * @export
+ */
+export const NotificationControllerApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNotifications: async (pageable: Pageable, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'pageable' is not null or undefined
+            assertParamExists('getNotifications', 'pageable', pageable)
+            const localVarPath = `/api/notifications`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (pageable !== undefined) {
+                for (const [key, value] of Object.entries(pageable)) {
+                    localVarQueryParameter[key] = value;
+                }
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * NotificationControllerApi - functional programming interface
+ * @export
+ */
+export const NotificationControllerApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = NotificationControllerApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getNotifications(pageable: Pageable, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiPaginatedResponseListNotificationResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getNotifications(pageable, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['NotificationControllerApi.getNotifications']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * NotificationControllerApi - factory interface
+ * @export
+ */
+export const NotificationControllerApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = NotificationControllerApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNotifications(pageable: Pageable, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListNotificationResponse> {
+            return localVarFp.getNotifications(pageable, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * NotificationControllerApi - object-oriented interface
+ * @export
+ * @class NotificationControllerApi
+ * @extends {BaseAPI}
+ */
+export class NotificationControllerApi extends BaseAPI {
+    /**
+     * 
+     * @param {Pageable} pageable 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof NotificationControllerApi
+     */
+    public getNotifications(pageable: Pageable, options?: RawAxiosRequestConfig) {
+        return NotificationControllerApiFp(this.configuration).getNotifications(pageable, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -4775,7 +4918,7 @@ export const PostControllerApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getAllPosts(page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiResponsePagePostResponse>> {
+        async getAllPosts(page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiPaginatedResponseListPostResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getAllPosts(page, size, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PostControllerApi.getAllPosts']?.[localVarOperationServerIndex]?.url;
@@ -4801,7 +4944,7 @@ export const PostControllerApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getPostsByUser(userId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiResponsePagePostResponse>> {
+        async getPostsByUser(userId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiPaginatedResponseListPostResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getPostsByUser(userId, page, size, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PostControllerApi.getPostsByUser']?.[localVarOperationServerIndex]?.url;
@@ -4880,7 +5023,7 @@ export const PostControllerApiFactory = function (configuration?: Configuration,
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAllPosts(page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponsePagePostResponse> {
+        getAllPosts(page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListPostResponse> {
             return localVarFp.getAllPosts(page, size, options).then((request) => request(axios, basePath));
         },
         /**
@@ -4900,7 +5043,7 @@ export const PostControllerApiFactory = function (configuration?: Configuration,
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getPostsByUser(userId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponsePagePostResponse> {
+        getPostsByUser(userId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListPostResponse> {
             return localVarFp.getPostsByUser(userId, page, size, options).then((request) => request(axios, basePath));
         },
         /**
@@ -5146,11 +5289,11 @@ export const UserControllerApiAxiosParamCreator = function (configuration?: Conf
     return {
         /**
          * 
-         * @param {number} userId 
+         * @param {string} userId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        followUser: async (userId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        followUser: async (userId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'userId' is not null or undefined
             assertParamExists('followUser', 'userId', userId)
             const localVarPath = `/api/users/{userId}/follow`
@@ -5216,13 +5359,13 @@ export const UserControllerApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 
-         * @param {number} userId 
+         * @param {string} userId 
          * @param {number} [page] 
          * @param {number} [size] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFollowers: async (userId: number, page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getFollowers: async (userId: string, page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'userId' is not null or undefined
             assertParamExists('getFollowers', 'userId', userId)
             const localVarPath = `/api/users/{userId}/followers`
@@ -5263,13 +5406,13 @@ export const UserControllerApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 
-         * @param {number} userId 
+         * @param {string} userId 
          * @param {number} [page] 
          * @param {number} [size] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFollowing: async (userId: number, page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getFollowing: async (userId: string, page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'userId' is not null or undefined
             assertParamExists('getFollowing', 'userId', userId)
             const localVarPath = `/api/users/{userId}/following`
@@ -5310,11 +5453,11 @@ export const UserControllerApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 
-         * @param {number} userId 
+         * @param {string} userId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUserProfile: async (userId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getUserProfile: async (userId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'userId' is not null or undefined
             assertParamExists('getUserProfile', 'userId', userId)
             const localVarPath = `/api/users/{userId}`
@@ -5397,11 +5540,11 @@ export const UserControllerApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 
-         * @param {number} userId 
+         * @param {string} userId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        unfollowUser: async (userId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        unfollowUser: async (userId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'userId' is not null or undefined
             assertParamExists('unfollowUser', 'userId', userId)
             const localVarPath = `/api/users/{userId}/follow`
@@ -5471,6 +5614,94 @@ export const UserControllerApiAxiosParamCreator = function (configuration?: Conf
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @param {File} file 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        uploadCoverImage: async (file: File, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'file' is not null or undefined
+            assertParamExists('uploadCoverImage', 'file', file)
+            const localVarPath = `/api/users/me/cover-image`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+            const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            if (file !== undefined) { 
+                localVarFormParams.append('file', file as any);
+            }
+    
+    
+            localVarHeaderParameter['Content-Type'] = 'multipart/form-data';
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = localVarFormParams;
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {File} file 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        uploadProfileImage: async (file: File, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'file' is not null or undefined
+            assertParamExists('uploadProfileImage', 'file', file)
+            const localVarPath = `/api/users/me/profile`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+            const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            if (file !== undefined) { 
+                localVarFormParams.append('file', file as any);
+            }
+    
+    
+            localVarHeaderParameter['Content-Type'] = 'multipart/form-data';
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = localVarFormParams;
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -5483,11 +5714,11 @@ export const UserControllerApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
-         * @param {number} userId 
+         * @param {string} userId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async followUser(userId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiResponseVoid>> {
+        async followUser(userId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiResponseVoid>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.followUser(userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UserControllerApi.followUser']?.[localVarOperationServerIndex]?.url;
@@ -5506,13 +5737,13 @@ export const UserControllerApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {number} userId 
+         * @param {string} userId 
          * @param {number} [page] 
          * @param {number} [size] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getFollowers(userId: number, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiPaginatedResponseListUserResponse>> {
+        async getFollowers(userId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiPaginatedResponseListUserResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getFollowers(userId, page, size, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UserControllerApi.getFollowers']?.[localVarOperationServerIndex]?.url;
@@ -5520,13 +5751,13 @@ export const UserControllerApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {number} userId 
+         * @param {string} userId 
          * @param {number} [page] 
          * @param {number} [size] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getFollowing(userId: number, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiPaginatedResponseListUserResponse>> {
+        async getFollowing(userId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiPaginatedResponseListUserResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getFollowing(userId, page, size, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UserControllerApi.getFollowing']?.[localVarOperationServerIndex]?.url;
@@ -5534,11 +5765,11 @@ export const UserControllerApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {number} userId 
+         * @param {string} userId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getUserProfile(userId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiResponseUserResponse>> {
+        async getUserProfile(userId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiResponseUserResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getUserProfile(userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UserControllerApi.getUserProfile']?.[localVarOperationServerIndex]?.url;
@@ -5560,11 +5791,11 @@ export const UserControllerApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {number} userId 
+         * @param {string} userId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async unfollowUser(userId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiResponseVoid>> {
+        async unfollowUser(userId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiResponseVoid>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.unfollowUser(userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UserControllerApi.unfollowUser']?.[localVarOperationServerIndex]?.url;
@@ -5582,6 +5813,30 @@ export const UserControllerApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['UserControllerApi.updateCurrentUser']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * 
+         * @param {File} file 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async uploadCoverImage(file: File, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiResponseUserResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.uploadCoverImage(file, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserControllerApi.uploadCoverImage']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {File} file 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async uploadProfileImage(file: File, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiResponseUserResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.uploadProfileImage(file, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserControllerApi.uploadProfileImage']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -5594,11 +5849,11 @@ export const UserControllerApiFactory = function (configuration?: Configuration,
     return {
         /**
          * 
-         * @param {number} userId 
+         * @param {string} userId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        followUser(userId: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseVoid> {
+        followUser(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseVoid> {
             return localVarFp.followUser(userId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -5611,33 +5866,33 @@ export const UserControllerApiFactory = function (configuration?: Configuration,
         },
         /**
          * 
-         * @param {number} userId 
+         * @param {string} userId 
          * @param {number} [page] 
          * @param {number} [size] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFollowers(userId: number, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListUserResponse> {
+        getFollowers(userId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListUserResponse> {
             return localVarFp.getFollowers(userId, page, size, options).then((request) => request(axios, basePath));
         },
         /**
          * 
-         * @param {number} userId 
+         * @param {string} userId 
          * @param {number} [page] 
          * @param {number} [size] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFollowing(userId: number, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListUserResponse> {
+        getFollowing(userId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListUserResponse> {
             return localVarFp.getFollowing(userId, page, size, options).then((request) => request(axios, basePath));
         },
         /**
          * 
-         * @param {number} userId 
+         * @param {string} userId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUserProfile(userId: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseUserResponse> {
+        getUserProfile(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseUserResponse> {
             return localVarFp.getUserProfile(userId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -5653,11 +5908,11 @@ export const UserControllerApiFactory = function (configuration?: Configuration,
         },
         /**
          * 
-         * @param {number} userId 
+         * @param {string} userId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        unfollowUser(userId: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseVoid> {
+        unfollowUser(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseVoid> {
             return localVarFp.unfollowUser(userId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -5668,6 +5923,24 @@ export const UserControllerApiFactory = function (configuration?: Configuration,
          */
         updateCurrentUser(userUpdateRequest: UserUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseUserResponse> {
             return localVarFp.updateCurrentUser(userUpdateRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {File} file 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        uploadCoverImage(file: File, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseUserResponse> {
+            return localVarFp.uploadCoverImage(file, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {File} file 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        uploadProfileImage(file: File, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseUserResponse> {
+            return localVarFp.uploadProfileImage(file, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -5681,12 +5954,12 @@ export const UserControllerApiFactory = function (configuration?: Configuration,
 export class UserControllerApi extends BaseAPI {
     /**
      * 
-     * @param {number} userId 
+     * @param {string} userId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserControllerApi
      */
-    public followUser(userId: number, options?: RawAxiosRequestConfig) {
+    public followUser(userId: string, options?: RawAxiosRequestConfig) {
         return UserControllerApiFp(this.configuration).followUser(userId, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -5702,38 +5975,38 @@ export class UserControllerApi extends BaseAPI {
 
     /**
      * 
-     * @param {number} userId 
+     * @param {string} userId 
      * @param {number} [page] 
      * @param {number} [size] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserControllerApi
      */
-    public getFollowers(userId: number, page?: number, size?: number, options?: RawAxiosRequestConfig) {
+    public getFollowers(userId: string, page?: number, size?: number, options?: RawAxiosRequestConfig) {
         return UserControllerApiFp(this.configuration).getFollowers(userId, page, size, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
-     * @param {number} userId 
+     * @param {string} userId 
      * @param {number} [page] 
      * @param {number} [size] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserControllerApi
      */
-    public getFollowing(userId: number, page?: number, size?: number, options?: RawAxiosRequestConfig) {
+    public getFollowing(userId: string, page?: number, size?: number, options?: RawAxiosRequestConfig) {
         return UserControllerApiFp(this.configuration).getFollowing(userId, page, size, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
-     * @param {number} userId 
+     * @param {string} userId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserControllerApi
      */
-    public getUserProfile(userId: number, options?: RawAxiosRequestConfig) {
+    public getUserProfile(userId: string, options?: RawAxiosRequestConfig) {
         return UserControllerApiFp(this.configuration).getUserProfile(userId, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -5752,12 +6025,12 @@ export class UserControllerApi extends BaseAPI {
 
     /**
      * 
-     * @param {number} userId 
+     * @param {string} userId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserControllerApi
      */
-    public unfollowUser(userId: number, options?: RawAxiosRequestConfig) {
+    public unfollowUser(userId: string, options?: RawAxiosRequestConfig) {
         return UserControllerApiFp(this.configuration).unfollowUser(userId, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -5770,6 +6043,28 @@ export class UserControllerApi extends BaseAPI {
      */
     public updateCurrentUser(userUpdateRequest: UserUpdateRequest, options?: RawAxiosRequestConfig) {
         return UserControllerApiFp(this.configuration).updateCurrentUser(userUpdateRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {File} file 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserControllerApi
+     */
+    public uploadCoverImage(file: File, options?: RawAxiosRequestConfig) {
+        return UserControllerApiFp(this.configuration).uploadCoverImage(file, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {File} file 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserControllerApi
+     */
+    public uploadProfileImage(file: File, options?: RawAxiosRequestConfig) {
+        return UserControllerApiFp(this.configuration).uploadProfileImage(file, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

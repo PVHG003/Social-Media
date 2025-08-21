@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **messageId** | **string** |  | [optional] [default to undefined]
-**senderId** | **number** |  | [optional] [default to undefined]
+**senderId** | **string** |  | [optional] [default to undefined]
 **senderUsername** | **string** |  | [optional] [default to undefined]
 **senderProfileImage** | **string** |  | [optional] [default to undefined]
 **content** | **string** |  | [optional] [default to undefined]

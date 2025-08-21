@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 **groupName** | **string** |  | [optional] [default to undefined]
 **groupImage** | **string** |  | [optional] [default to undefined]
 **chatType** | **string** |  | [optional] [default to undefined]
-**memberIds** | **Array&lt;number&gt;** |  | [optional] [default to undefined]
+**memberIds** | **Array&lt;string&gt;** |  | [optional] [default to undefined]
 
 ## Example
 

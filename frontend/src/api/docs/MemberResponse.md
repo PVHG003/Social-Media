@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **number** |  | [optional] [default to undefined]
+**id** | **string** |  | [optional] [default to undefined]
 **username** | **string** |  | [optional] [default to undefined]
 **profileImage** | **string** |  | [optional] [default to undefined]
 

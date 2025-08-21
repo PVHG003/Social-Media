@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 **attachmentId** | **string** |  | [optional] [default to undefined]
 **filePath** | **string** |  | [optional] [default to undefined]
 **contentType** | **string** |  | [optional] [default to undefined]
-**uploaderId** | **number** |  | [optional] [default to undefined]
+**uploaderId** | **string** |  | [optional] [default to undefined]
 **uploadedAt** | **string** |  | [optional] [default to undefined]
 
 ## Example
