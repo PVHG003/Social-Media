@@ -17,7 +17,7 @@ import userApi from "@/services/userApi";
 import { useEffect, useState, type FunctionComponent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { useAuth } from "@/context/test/authContext";
+import { useAuth } from "@/context/test/AuthContext";
 
 interface UserListModalProps {
   onClose: () => void;

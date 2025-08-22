@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useChat } from "@/context/chat/chatContext"; // assume we have conversations here
+import { useChat } from "@/context/chat/ChatContext"; // assume we have conversations here
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { PlusIcon } from "lucide-react";
