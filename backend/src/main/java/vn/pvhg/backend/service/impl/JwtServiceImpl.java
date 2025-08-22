@@ -103,8 +103,8 @@ public class JwtServiceImpl implements JwtService {
 
             String subject = signedJWT.getJWTClaimsSet().getSubject();
             if (TokenSubject.USER_ACCESS.getValue().equals(subject) || TokenSubject.ADMIN_ACCESS.getValue().equals(subject)) {
-                Long userId = signedJWT.getJWTClaimsSet().getLongClaim("userId");
-                String redisKey = JWT_PREFIX + userId;
+                String userIdString = signedJWT.getJWTClaimsSet().getStringClaim("userId");
+                String redisKey = JWT_PREFIX + userIdString;
                 return redisTemplate.hasKey(redisKey);
             }
             return true;
