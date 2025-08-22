@@ -3,10 +3,12 @@ services:
     image: postgres:17
     container_name: social_postgres
     restart: always
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: social_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -16,8 +18,10 @@ services:
     image: redis:7
     container_name: social_redis
     restart: always
+    env_file:
+      - .env
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:6379"
     volumes:
       - redis_data:/data
 
@@ -27,19 +31,21 @@ services:
 #    depends_on:
 #      - postgres
 #      - redis
+#    env_file:
+#      - .env
 #    environment:
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/social_db
-#      SPRING_DATASOURCE_USERNAME: postgres
-#      SPRING_DATASOURCE_PASSWORD: password
-#      SPRING_REDIS_HOST: redis
-#      SPRING_REDIS_PORT: 6379
-#      SPRING_MAIL_HOST: smtp.gmail.com
-#      SPRING_MAIL_PORT: 587
-#      SPRING_MAIL_USERNAME: huydcvt236ptit@gmail.com
-#      SPRING_MAIL_PASSWORD: urtgxgkvhggktfzx
-#      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "true"
-#      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
-#      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED: "true"
+#      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+#      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+#      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+#      SPRING_REDIS_HOST: ${SPRING_REDIS_HOST}
+#      SPRING_REDIS_PORT: ${SPRING_REDIS_PORT}
+#      SPRING_MAIL_HOST: ${SPRING_MAIL_HOST}
+#      SPRING_MAIL_PORT: ${SPRING_MAIL_PORT}
+#      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
+#      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
+#      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH}
+#      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}
+#      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED}
 #    ports:
 #      - "8080:8080"
 
