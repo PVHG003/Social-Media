@@ -1,5 +1,7 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import UserProfilePage from './pages/UserProfilePage';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import UserProfilePage from "./pages/UserProfilePage";
+import { ChatPage } from "./pages/chat/ChatPage";
+import { ChatContext, ChatProvider } from "./context/chat/chatContext";
 
 function App() {
   return (
@@ -7,9 +9,16 @@ function App() {
       <Routes>
         {/* User Profile Routes */}
         <Route path="/profile/:userId" element={<UserProfilePage />} />
-        
+
         {/* Other routes */}
         {/* ... */}
+        <Routes>
+          {/* User Profile Routes */}
+          <Route path="/profile/:userId" element={<UserProfilePage />} />
+
+          {/* Other routes */}
+          {/* ... */}
+        </Routes>
       </Routes>
     </Router>
   );
