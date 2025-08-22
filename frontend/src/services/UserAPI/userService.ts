@@ -4,8 +4,6 @@ import axios from 'axios';
 const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:8080';  
 const JWT_TOKEN = import.meta.env.VITE_JWT_TOKEN;
 
-
-
 const createApiClient = () => {
   const token = JWT_TOKEN;
 
@@ -27,15 +25,13 @@ export interface ApiResponse<T> {
   data: T;
 }
 
-// Paginated response interface
-export interface PaginatedResponse<T> {
-  content: T[];
-  totalElements: number;
+// Paginated response interface for new API structure
+export interface SearchResponse<T> {
+  data: T[];
+  page: number;
+  pageSize: number;
   totalPages: number;
-  size: number;
-  number: number;
-  first: boolean;
-  last: boolean;
+  totalElements: number;
 }
 
 // User data from API
@@ -136,14 +132,14 @@ export class UserService {
   }
 
   /**
-   * Search users by query
+   * Search users by query - Updated for new API structure
    * @param params - Search parameters
-   * @returns Promise<PaginatedResponse<UserData>>
+   * @returns Promise<SearchResponse<UserData>>
    */
-  static async searchUsers(params: SearchParams): Promise<PaginatedResponse<UserData>> {
+  static async searchUsers(params: SearchParams): Promise<SearchResponse<UserData>> {
     try {
       const apiClient = createApiClient();
-      const response = await apiClient.get<ApiResponse<PaginatedResponse<UserData>>>('/api/users/search', {
+      const response = await apiClient.get<ApiResponse<UserData[]> & SearchResponse<UserData>>('/api/users/search', {
         params: {
           q: params.q,
           page: params.page || 0,
@@ -151,11 +147,20 @@ export class UserService {
         }
       });
       
+      console.log('Search API Response:', response.data); // Debug log
+      
       if (!response.data.success) {
         throw new Error(response.data.message || 'Failed to search users');
       }
       
-      return response.data.data;
+      // Handle the new API response structure
+      return {
+        data: response.data.data || [],
+        page: response.data.page || 0,
+        pageSize: response.data.pageSize || 10,
+        totalPages: response.data.totalPages || 0,
+        totalElements: response.data.totalElements || 0
+      };
     } catch (error) {
       console.error('Error searching users:', error);
       throw error;

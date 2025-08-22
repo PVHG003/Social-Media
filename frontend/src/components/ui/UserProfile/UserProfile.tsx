@@ -591,10 +591,11 @@ const UserProfile = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <TopHeader 
-          username={username || 'Loading...'} 
+        <TopHeader
+          fullName="Loading..."
+          username=""
           userAvatar=""
-          userId={username || ''}
+          userId= ""
         />
         
         <div className="flex items-center justify-center min-h-[400px]">
@@ -610,8 +611,9 @@ const UserProfile = () => {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <TopHeader 
-          username={username || 'Error'} 
+        <TopHeader
+          fullName="Error"
+          username=""
           userAvatar=""
           userId={username || ''}
         />
@@ -635,8 +637,9 @@ const UserProfile = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <TopHeader 
-          username="Profile Not Found" 
+        <TopHeader
+          fullName="Profile Not Found"
+          username=""
           userAvatar=""
           userId=""
         />
@@ -653,10 +656,11 @@ const UserProfile = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TopHeader 
-        username={`${user.firstName} ${user.lastName}`} 
+      <TopHeader
+        fullName={`${user.firstName} ${user.lastName}`} 
+        username={user.username} 
         userAvatar={getProfileImageSrc(user.profilePicture)}
-        userId={user.username}
+        userId={user.id}
       />
       
       <div className="max-w-4xl mx-auto px-6 py-6">
