@@ -3,6 +3,8 @@ import {
   UserControllerApi,
   Configuration,
   type Pageable,
+  type ApiPaginatedResponseListUserResponse,
+  type ApiResponseVoid,
 } from "@/api";
 
 const configuration = new Configuration({
@@ -17,8 +19,7 @@ const configuration = new Configuration({
 const userControllerApi = new UserControllerApi(configuration);
 
 const followApi = {
-
-  followUser: async (userId: string) => {
+  followUser: async (userId: string): Promise<ApiResponseVoid> => {
     const { data } = await userControllerApi.followUser(userId);
     if (!data.success) {
       throw new Error(data.message || 'Failed to follow user');
@@ -26,8 +27,7 @@ const followApi = {
     return data;
   },
 
-
-  unfollowUser: async (userId: string) => {
+  unfollowUser: async (userId: string): Promise<ApiResponseVoid> => {
     const { data } = await userControllerApi.unfollowUser(userId);
     if (!data.success) {
       throw new Error(data.message || 'Failed to unfollow user');
@@ -35,26 +35,40 @@ const followApi = {
     return data;
   },
 
-
-  getUserFollowers: async (userId: string, pageable?: Pageable): Promise<any> => {
-    const { data } = await userControllerApi.getFollowers(userId, pageable?.page, pageable?.size);
+  getUserFollowers: async (
+    userId: string,
+    pageable?: Pageable
+  ): Promise<ApiPaginatedResponseListUserResponse> => {
+    const { data } = await userControllerApi.getFollowers(
+      userId, 
+      pageable?.page, 
+      pageable?.size
+    );
     if (!data.success) {
       throw new Error(data.message || 'Failed to get followers');
     }
     return data;
   },
 
-  
-  getUserFollowing: async (userId: string, pageable?: Pageable): Promise<any> => {
-    const { data } = await userControllerApi.getFollowing(userId, pageable?.page, pageable?.size);
+  getUserFollowing: async (
+    userId: string,
+    pageable?: Pageable
+  ): Promise<ApiPaginatedResponseListUserResponse> => {
+    const { data } = await userControllerApi.getFollowing(
+      userId, 
+      pageable?.page, 
+      pageable?.size
+    );
     if (!data.success) {
       throw new Error(data.message || 'Failed to get following');
     }
     return data;
   },
 
-  
-  toggleFollow: async (userId: string, currentlyFollowing: boolean): Promise<boolean> => {
+  toggleFollow: async (
+    userId: string,
+    currentlyFollowing: boolean
+  ): Promise<boolean> => {
     if (currentlyFollowing) {
       await followApi.unfollowUser(userId);
       return false;
