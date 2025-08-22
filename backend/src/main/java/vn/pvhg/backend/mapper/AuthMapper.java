@@ -4,6 +4,8 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import org.springframework.stereotype.Component;
 import vn.pvhg.backend.dto.response.AuthenticatedResponse;
 
+import java.util.UUID;
+
 @Component
 public class AuthMapper {
 
@@ -11,7 +13,7 @@ public class AuthMapper {
         try {
             return new AuthenticatedResponse(
                     claim.getSubject(),
-                    claim.getLongClaim("userId"),
+                    UUID.fromString(claim.getStringClaim("userId")),
                     claim.getStringClaim("email"),
                     claim.getStringClaim("role"),
                     token
