@@ -1,23 +1,23 @@
 package vn.pvhg.backend.controller;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.security.Principal;
+import java.util.UUID;
+
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import vn.pvhg.backend.dto.message.MessageEvent;
 import vn.pvhg.backend.dto.message.OutgoingMessage;
 import vn.pvhg.backend.dto.payload.MessagePayload;
 import vn.pvhg.backend.enums.MessageEventType;
-import vn.pvhg.backend.model.chat.Message;
 import vn.pvhg.backend.security.UserDetailsImpl;
 import vn.pvhg.backend.security.UserDetailsServiceImpl;
 import vn.pvhg.backend.service.MessageService;
-
-import java.security.Principal;
-import java.util.UUID;
 
 @Slf4j
 @Controller
@@ -70,8 +70,6 @@ public class MessageController {
             Principal principal
     ) {
         UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(principal.getName());
-
-        Message message = Message.builder().id(messageId).build();
 
         String topic = "/topic/chat/" + chatId;
 
