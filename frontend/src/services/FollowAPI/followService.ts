@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
-const JWT_TOKEN = import.meta.env.VITE_JWT_TOKEN;
-
+const JWT_TOKEN =import.meta.env.VITE_JWT_TOKEN;
 // Create axios instance with dynamic auth token
 const createApiClient = () => {
   const token = JWT_TOKEN;
@@ -102,23 +102,34 @@ export class FollowService {
    * Get user's followers
    * @param userId - ID of user to get followers for
    * @param params - Pagination parameters
-   * @returns Promise<PaginatedResponse<FollowUserData>>
+   * @returns Promise<any> (changed to any to handle different response structures)
    */
-  static async getUserFollowers(userId: string, params: PaginationParams = {}): Promise<PaginatedResponse<FollowUserData>> {
+  static async getUserFollowers(userId: string, params: PaginationParams = {}): Promise<any> {
     try {
       const apiClient = createApiClient();
-      const response = await apiClient.get<ApiResponse<PaginatedResponse<FollowUserData>>>(`/api/users/${userId}/followers`, {
+      const response = await apiClient.get(`/api/users/${userId}/followers`, {
         params: {
           page: params.page || 0,
           size: params.size || 20
         }
       });
       
-      if (!response.data.success) {
-        throw new Error(response.data.message || 'Failed to fetch followers');
+      console.log('Raw followers API response:', response.data); // Debug log
+      
+      // Handle the new API response structure
+      if (response.data && response.data.success) {
+        // Return the entire response data for UserProfile to handle
+        return {
+          data: response.data.data,
+          page: response.data.page,
+          pageSize: response.data.pageSize,
+          totalPages: response.data.totalPages,
+          totalElements: response.data.totalElements
+        };
       }
       
-      return response.data.data;
+      // Fallback for old structure
+      return response.data;
     } catch (error) {
       console.error(`Error fetching followers for user ${userId}:`, error);
       throw error;
@@ -129,23 +140,34 @@ export class FollowService {
    * Get user's following list
    * @param userId - ID of user to get following list for
    * @param params - Pagination parameters
-   * @returns Promise<PaginatedResponse<FollowUserData>>
+   * @returns Promise<any> (changed to any to handle different response structures)
    */
-  static async getUserFollowing(userId: string, params: PaginationParams = {}): Promise<PaginatedResponse<FollowUserData>> {
+  static async getUserFollowing(userId: string, params: PaginationParams = {}): Promise<any> {
     try {
       const apiClient = createApiClient();
-      const response = await apiClient.get<ApiResponse<PaginatedResponse<FollowUserData>>>(`/api/users/${userId}/following`, {
+      const response = await apiClient.get(`/api/users/${userId}/following`, {
         params: {
           page: params.page || 0,
           size: params.size || 20
         }
       });
       
-      if (!response.data.success) {
-        throw new Error(response.data.message || 'Failed to fetch following list');
+      console.log('Raw following API response:', response.data); // Debug log
+      
+      // Handle the new API response structure
+      if (response.data && response.data.success) {
+        // Return the entire response data for UserProfile to handle
+        return {
+          data: response.data.data,
+          page: response.data.page,
+          pageSize: response.data.pageSize,
+          totalPages: response.data.totalPages,
+          totalElements: response.data.totalElements
+        };
       }
       
-      return response.data.data;
+      // Fallback for old structure
+      return response.data;
     } catch (error) {
       console.error(`Error fetching following list for user ${userId}:`, error);
       throw error;

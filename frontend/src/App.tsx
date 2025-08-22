@@ -6,8 +6,7 @@ function App() {
     <Router>
       <Routes>
         {/* User Profile Routes */}
-        <Route path="/profile" element={<UserProfilePage />} />
-        <Route path="/profile/:username" element={<UserProfilePage />} />
+        <Route path="/profile/:userId" element={<UserProfilePage />} />
         
         {/* Other routes */}
         {/* ... */}
