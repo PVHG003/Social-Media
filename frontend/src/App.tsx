@@ -1,27 +1,33 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import UserProfilePage from "./pages/user/UserProfilePage";
 import { ChatPage } from "./pages/chat/ChatPage";
-import { ChatProvider } from "./context/chat/chatContext";
+import { ChatProvider } from "./context/chat/ChatContext";
 import ChatLayout from "./components/chat/ChatLayout";
-
-// Tạo component wrapper cho chat routes
-const ChatRoutes = () => {
-  return (
-    <ChatProvider>
-      <ChatLayout />
-    </ChatProvider>
-  );
-};
+import { AuthProvider } from "./context/test/AuthContext";
+import LoginPage from "./pages/chat/test/LoginPage";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/profile/:userId" element={<UserProfilePage />} />
-        
-        <Route path="/chat" element={<ChatRoutes />}>
-          <Route path=":chatId" element={<ChatPage />} />
-        </Route>
+
+        {/* Other routes */}
+        {/* ... */}
+
+        {/* Login Page for testing, can be deleted */}
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* Chat Provider for testing, can be deleted */}
+        <AuthProvider>
+          <ChatProvider>
+            <Routes>
+              <Route path="/chat" element={<ChatLayout />}>
+                <Route path=":chatId" element={<ChatPage />} />
+              </Route>
+            </Routes>
+          </ChatProvider>
+        </AuthProvider>
       </Routes>
     </Router>
   );
