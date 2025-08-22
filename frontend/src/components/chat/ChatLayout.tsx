@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useChat } from "@/context/chat/ChatContext"; // assume we have conversations here
+import { useUserModal } from "@/context/chat/userListModal";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { PlusIcon } from "lucide-react";
@@ -13,7 +14,7 @@ const ChatLayout = () => {
 
   const navigate = useNavigate();
 
-  //   const { openUserList } = useUserModal();
+  const { openUserList } = useUserModal();
 
   return (
     <div className="flex h-screen">
@@ -23,7 +24,7 @@ const ChatLayout = () => {
           <span>Conversations</span>
           <Button
             className="w-8 h-8 p-0"
-            // onClick={openUserList}
+            onClick={openUserList}
             aria-label="Start new conversation"
           >
             <PlusIcon className="w-4 h-4" />

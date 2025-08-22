@@ -1,7 +1,8 @@
 import {
   ChatCreateRequestChatTypeEnum,
   type ChatCreateRequest,
-  type UserDto,
+  type ChatListResponse,
+  type UserResponse,
 } from "@/api";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,44 +13,71 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import chatApi from "@/services/chat/apiChat";
-import userApi from "@/services/userApi";
-import { useEffect, useState, type FunctionComponent } from "react";
+import { Input } from "@/components/ui/input"; // assuming you have a UI input
+import { useAuth } from "@/context/chat/test/AuthContext";
+import apiChat from "@/services/chat/apiChat";
+import { apiUser } from "@/services/chat/test/apiAuth";
+import { useState, type FunctionComponent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { useAuth } from "@/context/test/AuthContext";
+import { useChat } from "@/context/chat/ChatContext";
 
 interface UserListModalProps {
   onClose: () => void;
 }
 
 const UserListModal: FunctionComponent<UserListModalProps> = ({ onClose }) => {
-  // Fake data for now — replace with API call later
-  const [users, setUsers] = useState<UserDto[]>([]);
+  const [users, setUsers] = useState<UserResponse[]>([]);
+  const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const { currentUser } = useAuth();
+  const { currentUser, token } = useAuth();
+  const { setConversations } = useChat();
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const response = await userApi.getAllUser();
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+
+    setLoading(true);
+    try {
+      const response = await apiUser.searchUsers(
+        query,
+        {
+          page: 0,
+          size: 10,
+        },
+        token
+      );
       setUsers(response.data ?? []);
-    };
-    fetchUsers();
-  }, []);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleStartPrivateChat = async (userId: string) => {
     const chatCreateRequest: ChatCreateRequest = {
       chatType: ChatCreateRequestChatTypeEnum.Private,
       memberIds: [userId],
     };
-    const response = await chatApi.createChat(chatCreateRequest);
+    const response = await apiChat.createChat(chatCreateRequest);
+    const data = response.data;
+
     if (!response.success) {
       throw Error(response.message ?? "Error while creating chat");
     }
-    if (response.data && response.data.chatId) {
-      navigate(`/chat/${response.data.chatId}`);
+    if (data && data.chatId) {
+      const newConversation: ChatListResponse = {
+        ...data,
+        lastMessage: "",
+        lastMessageSenderUsername: "",
+        lastMessageSentAt: "",
+        unreadMessagesCount: 0,
+        muted: false,
+      };
+      setConversations((prev) => [newConversation, ...prev]);
+      navigate(`/chat/${data.chatId}`);
       onClose();
     } else {
       throw Error("Chat ID is missing in the response.");
@@ -60,9 +88,27 @@ const UserListModal: FunctionComponent<UserListModalProps> = ({ onClose }) => {
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="w-full sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Select a user</DialogTitle>
+          <DialogTitle>Search for a user</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col gap-4 max-h-[80vh] overflow-y-auto">
+
+        {/* Search Bar */}
+        <form onSubmit={handleSearch} className="flex gap-2 mb-4">
+          <Input
+            type="text"
+            placeholder="Enter username or email"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <Button type="submit" disabled={loading}>
+            {loading ? "Searching..." : "Search"}
+          </Button>
+        </form>
+
+        {/* Results */}
+        <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
+          {users.length === 0 && !loading && (
+            <p className="text-sm text-gray-500">No users found</p>
+          )}
           {users
             .filter((user) => user.id !== currentUser?.id)
             .map((user) => (
@@ -74,7 +120,10 @@ const UserListModal: FunctionComponent<UserListModalProps> = ({ onClose }) => {
               >
                 <div className="flex items-center">
                   <Avatar className="h-10 w-10 mr-3">
-                    <AvatarImage src={user.profileImage} alt={user.username} />
+                    <AvatarImage
+                      src={user.profileImagePath}
+                      alt={user.username}
+                    />
                     <AvatarFallback>
                       {user.username?.charAt(0).toUpperCase()}
                     </AvatarFallback>
@@ -84,6 +133,7 @@ const UserListModal: FunctionComponent<UserListModalProps> = ({ onClose }) => {
               </Button>
             ))}
         </div>
+
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="secondary">Cancel</Button>
