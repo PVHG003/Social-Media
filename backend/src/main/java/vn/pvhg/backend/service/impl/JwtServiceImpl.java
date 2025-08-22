@@ -48,7 +48,7 @@ public class JwtServiceImpl implements JwtService {
                 .subject(subject.getValue())
                 .expirationTime(expirationDate)
                 .issueTime(now)
-                .claim("userId", user.getId())
+                .claim("userId", user.getId().toString())
                 .claim("email", user.getEmail())
                 .claim("role", role)
                 .build();
@@ -62,7 +62,7 @@ public class JwtServiceImpl implements JwtService {
             String token = jwsObject.serialize();
 
             if (subject == TokenSubject.USER_ACCESS || subject == TokenSubject.ADMIN_ACCESS) {
-                String redisKey = JWT_PREFIX + user.getId();
+                String redisKey = JWT_PREFIX + user.getId().toString();
                 redisTemplate.opsForValue().set(redisKey, token, expirationTime);
             }
             return token;
@@ -73,7 +73,7 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public void deleteToken(UUID userId) {
-        String redisKey = JWT_PREFIX + userId;
+        String redisKey = JWT_PREFIX + userId.toString();
         redisTemplate.delete(redisKey);
     }
 
