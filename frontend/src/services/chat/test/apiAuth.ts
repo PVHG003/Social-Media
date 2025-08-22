@@ -1,6 +1,5 @@
 import {
   AuthControllerApi,
-  Configuration,
   UserControllerApi,
   type LoginRequest,
   type RegisterRequest,
@@ -8,10 +7,7 @@ import {
 
 const authControllerApi = new AuthControllerApi();
 
-const userConfig = new Configuration({
-  accessToken: `Bearer ${localStorage.getItem("token")}`,
-});
-const userControllerApi = new UserControllerApi(userConfig);
+const userControllerApi = new UserControllerApi();
 
 const apiAuth = {
   login: async (loginRequest: LoginRequest) => {
@@ -31,8 +27,32 @@ const apiAuth = {
 };
 
 const apiUser = {
-  getCurrentUser: async () => {
-    const { data } = await userControllerApi.getCurrentUser();
+  getCurrentUser: async (token: string) => {
+    const { data } = await userControllerApi.getCurrentUser({
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!data.success) {
+      throw new Error(data.message);
+    }
+    return data;
+  },
+  searchUsers: async (
+    query: string,
+    pageable: { page: number | 0; size: number | 10 },
+    token: string | null
+  ) => {
+    const { data } = await userControllerApi.searchUsers(
+      query,
+      pageable.page,
+      pageable.size,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     if (!data.success) {
       throw new Error(data.message);
     }
@@ -40,4 +60,4 @@ const apiUser = {
   },
 };
 
-export { apiUser, apiAuth };
+export { apiAuth, apiUser };

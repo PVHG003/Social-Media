@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useAuth } from "@/context/test/AuthContext";
+import { useAuth } from "@/context/chat/test/AuthContext";
 import type { LoginRequest } from "@/api";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -11,6 +12,8 @@ export default function LoginPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -24,7 +27,7 @@ export default function LoginPage() {
     try {
       await login(form);
       // redirect to chat page
-      window.location.href = "/chat";
+      navigate("/chat");
     } catch (err) {
       setError("Invalid email or password");
     } finally {

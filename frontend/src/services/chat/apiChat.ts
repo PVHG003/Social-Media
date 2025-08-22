@@ -11,7 +11,7 @@ import {
 } from "@/api";
 
 const configuration = new Configuration({
-  accessToken: `Bearer ${localStorage.getItem("token")}`,
+  accessToken: localStorage.getItem("token") ?? "",
   baseOptions: {
     withCredentials: true,
     Origin: "http://localhost:5173",
@@ -26,7 +26,7 @@ const chatApi = {
   ): Promise<ApiResponseChatDetailResponse> => {
     const { data } = await chatControllerApi.getChatInfo(chatId);
     if (!data.success) {
-      throw new Error();
+      throw new Error(data.message);
     }
     return data;
   },
