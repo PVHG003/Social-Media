@@ -43,7 +43,6 @@ const FollowModalComponent: React.FC<FollowModalProps> = ({
   if (!followModal.isOpen) return null;
 
   const handleUserClick = (userId: string) => {
-    // Close modal when navigating to user profile
     onClose();
   };
 
