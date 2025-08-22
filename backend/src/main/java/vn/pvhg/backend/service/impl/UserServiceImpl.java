@@ -62,6 +62,9 @@ public class UserServiceImpl implements UserService {
         if (request.firstName() != null) currentUser.setFirstName(request.firstName());
         if (request.lastName() != null) currentUser.setLastName(request.lastName());
         if (request.bio() != null) currentUser.setBio(request.bio());
+        if(request.profileImagePath() != null) {
+            currentUser.setProfileImagePath(request.profileImagePath());
+        }
 
         User updatedUser = userRepository.save(currentUser);
 

@@ -6,6 +6,7 @@ import { AiOutlineMessage } from "react-icons/ai";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+
 interface TopHeaderProps {
   username?: string;
   userAvatar?: string;
