@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { HiHome } from "react-icons/hi";
 import { GoBell } from "react-icons/go";
 import { MdAccountCircle } from "react-icons/md";
@@ -5,7 +6,7 @@ import { FaAngleDown, FaPowerOff } from "react-icons/fa";
 import { AiOutlineMessage, AiOutlineSearch, AiOutlineLogin } from "react-icons/ai";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { UserService, type UserData } from "../../../services/UserAPI/userService";
+import userApi from "../../../services/user/apiUser";
 
 interface TopHeaderProps {
   fullName?: string;
@@ -25,7 +26,7 @@ function TopHeader({
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [scroll, setScroll] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [searchResults, setSearchResults] = useState<UserData[]>([]);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
   const [searchLoading, setSearchLoading] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -96,8 +97,8 @@ function TopHeader({
 
     setSearchLoading(true);
     try {
-      const response = await UserService.searchUsers({ q: query, page: 0, size: 5 });
-      setSearchResults(response.data);
+      const response = await userApi.searchUsers(query, { page: 0, size: 5 });
+      setSearchResults(response.data || []);
       setShowSearchResults(true);
     } catch (error) {
       console.error('Search error:', error);

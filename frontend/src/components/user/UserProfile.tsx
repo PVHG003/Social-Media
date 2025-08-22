@@ -1,11 +1,10 @@
-// filepath: d:\Training_VTI\Final_Project\Social-Media\frontend\src\components\ui\UserProfile\UserProfile.tsx
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import TopHeader from '../NavBar/NavBar';
-import { UserService, type UserData, type UpdateUserRequest } from '../../../services/UserAPI/userService';
-import { FollowService } from '../../../services/FollowAPI/followService';
+import TopHeader from '../ui/NavBar/NavBar';
+import userApi from '../../services/user/apiUser';
+import followApi from '../../services/follow/apiFollow';
 import EditProfileModal from './EditProfileModal';
 import FollowModalComponent from './FollowModal';
 import PostCard from './PostCard';
@@ -46,7 +45,7 @@ interface MockPost {
   isLiked: boolean;
 }
 
-// Follow user interface for modal - simplified version
+// Follow user interface for modal
 interface FollowUser {
   id: string;
   username: string;
@@ -153,15 +152,15 @@ const UserProfile = () => {
   };
 
   // Transform API UserData to component User interface
-  const transformUserData = (apiData: UserData): User => ({
+  const transformUserData = (apiData: any): User => ({
     id: apiData.id,
-    email: '', // Not provided in current API response
+    email: apiData.email || '',
     username: apiData.username,
     firstName: apiData.firstName,
     lastName: apiData.lastName,
     bio: apiData.bio || '',
-    profilePicture: apiData.profileImagePath || '', // Safe fallback to empty string
-    role: 'USER', // Default role since not provided in API
+    profilePicture: apiData.profileImagePath || '', 
+    role: apiData.role || 'USER',
     createdAt: apiData.createdAt,
     followersCount: apiData.followersCount || 0,
     followingCount: apiData.followingCount || 0,
@@ -195,30 +194,21 @@ const UserProfile = () => {
     try {
       let response;
       if (type === 'followers') {
-        response = await FollowService.getUserFollowers(user.id, { page: 0, size: 20 });
+        response = await userApi.getFollowers(user.id, { page: 0, size: 20 });
       } else {
-        response = await FollowService.getUserFollowing(user.id, { page: 0, size: 20 });
+        response = await userApi.getFollowing(user.id, { page: 0, size: 20 });
       }
 
-      console.log('API Response:', response); // Debug log
-
-      // Handle the new API response structure
+      // Handle the API response structure
       let transformedUsers: FollowUser[] = [];
       let hasMore = false;
       let currentPage = 0;
 
       if (response && response.data && Array.isArray(response.data)) {
-        // New API structure: response.data contains the array
         transformedUsers = response.data.map(transformToFollowUser);
-        hasMore = response.page < response.totalPages - 1;
+        hasMore = (response.page !== undefined && response.totalPages !== undefined) ? response.page < response.totalPages - 1 : false;
         currentPage = response.page || 0;
-      } else if (response && response.content && Array.isArray(response.content)) {
-        // Old structure fallback
-        transformedUsers = response.content.map(transformToFollowUser);
-        hasMore = response.number < response.totalPages - 1;
-        currentPage = response.number || 0;
       } else if (Array.isArray(response)) {
-        // Direct array response
         transformedUsers = response.map(transformToFollowUser);
         hasMore = false;
         currentPage = 0;
@@ -239,7 +229,7 @@ const UserProfile = () => {
       setFollowModal(prev => ({
         ...prev,
         loading: false,
-        users: [], // Ensure users is empty array on error
+        users: [],
       }));
     }
   };
@@ -255,27 +245,18 @@ const UserProfile = () => {
       let response;
       
       if (followModal.type === 'followers') {
-        response = await FollowService.getUserFollowers(user.id, { page: nextPage, size: 20 });
+        response = await userApi.getFollowers(user.id, { page: nextPage, size: 20 });
       } else {
-        response = await FollowService.getUserFollowing(user.id, { page: nextPage, size: 20 });
+        response = await userApi.getFollowing(user.id, { page: nextPage, size: 20 });
       }
 
-      console.log('Load More API Response:', response); // Debug log
-
-      // Handle the new API response structure
       let newUsers: FollowUser[] = [];
       let hasMore = false;
 
       if (response && response.data && Array.isArray(response.data)) {
-        // New API structure: response.data contains the array
         newUsers = response.data.map(transformToFollowUser);
-        hasMore = response.page < response.totalPages - 1;
-      } else if (response && response.content && Array.isArray(response.content)) {
-        // Old structure fallback
-        newUsers = response.content.map(transformToFollowUser);
-        hasMore = response.number < response.totalPages - 1;
+        hasMore = (response.page !== undefined && response.totalPages !== undefined) ? response.page < response.totalPages - 1 : false;
       } else if (Array.isArray(response)) {
-        // Direct array response
         newUsers = response.map(transformToFollowUser);
         hasMore = false;
       } else {
@@ -311,7 +292,7 @@ const UserProfile = () => {
   // Handle follow/unfollow in modal
   const handleModalFollow = async (targetUserId: string, currentlyFollowing: boolean) => {
     try {
-      const newStatus = await FollowService.toggleFollow(targetUserId, currentlyFollowing);
+      const newStatus = await followApi.toggleFollow(targetUserId, currentlyFollowing);
       
       // Update the user in modal list
       setFollowModal(prev => ({
@@ -323,7 +304,7 @@ const UserProfile = () => {
         )
       }));
 
-      // Update main user counts if needed
+      // Update main user counts
       if (user && followModal.type === 'following') {
         setUser(prev => prev ? {
           ...prev,
@@ -344,23 +325,25 @@ const UserProfile = () => {
         setLoading(true);
         setError(null);
         
-        let userData: UserData;
+        let userData: any;
         
-        if (username || userId) {
-          // Fetch specific user by username or userId
-          const identifier = username || userId;
-          userData = await UserService.getUserById(identifier!);
+        if (userId) {
+          // Fetch specific user by userId
+          const identifier = userId;
+          const response = await userApi.getUserById(identifier!);
+          userData = response.data;
           setIsCurrentUser(false);
         } else {
           // Fetch current user
-          userData = await UserService.getCurrentUser();
+          const response = await userApi.getCurrentUser();
+          userData = response.data;
           setIsCurrentUser(true);
         }
         
         const transformedUser = transformUserData(userData);
         setUser(transformedUser);
         
-        // Initialize edit form with safe values
+        // Initialize edit form
         setEditForm({
           username: transformedUser.username,
           firstName: transformedUser.firstName,
@@ -373,9 +356,9 @@ const UserProfile = () => {
       } catch (err: any) {
         console.error('Error fetching user profile:', err);
         
-        if (err.response?.status === 404) {
+        if (err.message?.includes('404')) {
           setError('User not found');
-        } else if (err.response?.status === 401) {
+        } else if (err.message?.includes('401')) {
           setError('Unauthorized - Please login again');
         } else {
           setError(err.message || 'Failed to fetch user profile');
@@ -393,7 +376,7 @@ const UserProfile = () => {
     
     setFollowLoading(true);
     try {
-      const newFollowStatus = await FollowService.toggleFollow(user.id, user.following);
+      const newFollowStatus = await followApi.toggleFollow(user.id, user.following);
       
       setUser(prev => prev ? {
         ...prev,
@@ -468,10 +451,9 @@ const UserProfile = () => {
       [name]: value
     }));
     
-    // If user types in URL field, update preview
     if (name === 'profilePicture') {
       setPreviewUrl(value);
-      setSelectedFile(null); // Clear selected file if user enters URL
+      setSelectedFile(null);
     }
   };
 
@@ -481,7 +463,6 @@ const UserProfile = () => {
     setEditForm(prev => ({ ...prev, profilePicture: '' }));
   };
 
-  // Safe image error handler
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     e.currentTarget.src = '/default-avatar.png';
   };
@@ -543,7 +524,7 @@ const UserProfile = () => {
     try {
       let profilePictureUrl = editForm.profilePicture;
       
-      // If user selected a new file, upload to Cloudinary first
+      //Upload Cloundinary
       if (selectedFile) {
         setImageUploading(true);
         try {
@@ -558,16 +539,17 @@ const UserProfile = () => {
         }
       }
       
-      // Update profile via UserService
-      const updatePayload: UpdateUserRequest = {
-        username: editForm.username,
-        firstName: editForm.firstName,
-        lastName: editForm.lastName,
-        bio: editForm.bio || null,
-        profileImagePath: profilePictureUrl || null
+
+      const updatePayload = {
+        username: editForm.username || "",
+        firstName: editForm.firstName || "",
+        lastName: editForm.lastName || "",
+        bio: editForm.bio || "",
+        profileImagePath: profilePictureUrl || ""
       };
       
-      const updatedUserData = await UserService.updateCurrentUser(updatePayload);
+      const response = await userApi.updateCurrentUser(updatePayload);
+      const updatedUserData = response.data;
       
       // Update local state with new data
       const updatedUser = transformUserData(updatedUserData);
@@ -578,7 +560,7 @@ const UserProfile = () => {
     } catch (err: any) {
       console.error('Save error:', err);
       
-      if (err.response?.status === 401) {
+      if (err.message?.includes('401')) {
         alert('Session expired. Please login again.');
       } else {
         alert('Failed to update profile. Please try again.');
@@ -596,6 +578,7 @@ const UserProfile = () => {
           username=""
           userAvatar=""
           userId= ""
+          isAuthenticated={true}
         />
         
         <div className="flex items-center justify-center min-h-[400px]">
@@ -616,6 +599,7 @@ const UserProfile = () => {
           username=""
           userAvatar=""
           userId={username || ''}
+          isAuthenticated={true}
         />
         
         <div className="flex items-center justify-center min-h-[400px]">
@@ -642,6 +626,7 @@ const UserProfile = () => {
           username=""
           userAvatar=""
           userId=""
+          isAuthenticated={true}
         />
         
         <div className="flex items-center justify-center min-h-[400px]">
@@ -661,6 +646,7 @@ const UserProfile = () => {
         username={user.username} 
         userAvatar={getProfileImageSrc(user.profilePicture)}
         userId={user.id}
+        isAuthenticated={true}
       />
       
       <div className="max-w-4xl mx-auto px-6 py-6">

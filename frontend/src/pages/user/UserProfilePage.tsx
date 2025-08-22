@@ -1,10 +1,9 @@
-import UserProfile from '../components/ui/UserProfile/UserProfile';
+import UserProfile from "@/components/user/UserProfile";
 
 const UserProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Main Content */}
       <main className="flex-1">
         <UserProfile />
       </main>
