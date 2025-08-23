@@ -36,7 +36,6 @@ const ChatLayout = () => {
           <Button
             className="w-8 h-8 p-0"
             onClick={openUserList}
-            onClick={openUserList}
             aria-label="Start new conversation"
           >
             <PlusIcon className="w-4 h-4" />
