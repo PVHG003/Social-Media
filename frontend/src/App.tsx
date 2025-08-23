@@ -6,12 +6,15 @@ import ChatLayout from "./components/chat/ChatLayout";
 import { AuthProvider } from "./context/chat/test/AuthContext";
 import LoginPage from "./pages/chat/test/LoginPage";
 import { ModalProvider } from "./context/chat/userListModal";
+import HomePage from "./pages/post/HomePage";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/profile/:userId" element={<UserProfilePage />} />
+        <Route path="/" element={<HomePage />} />
+
 
         {/* Other routes */}
         {/* ... */}

@@ -172,6 +172,7 @@ public class PostServiceImpl implements PostService {
                         .id(post.getUser().getId())
                         .username(post.getUser().getUsername())
                         .email(post.getUser().getEmail())
+                        .profileImagePath(post.getUser().getProfileImagePath())
                         .build())
                 .mediaFiles(convertMediaToDto(post.getPostMedias()))
                 .likeCount(post.getLikes() != null ? post.getLikes().size() : 0)
