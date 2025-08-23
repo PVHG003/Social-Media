@@ -6,6 +6,7 @@ import { ModalProvider } from "./context/chat/userListModal";
 import { ChatPage } from "./pages/chat/ChatPage";
 import LoginPage from "./pages/chat/test/LoginPage";
 import UserProfilePage from "./pages/user/UserProfilePage";
+import HomePage from "./pages/post/HomePage";
 
 function App() {
   return (
@@ -13,6 +14,8 @@ function App() {
       <Router>
         <Routes>
           <Route path="/profile/:userId" element={<UserProfilePage />} />
+        <Route path="/" element={<HomePage />} />
+
 
           {/* Other routes */}
           {/* ... */}
