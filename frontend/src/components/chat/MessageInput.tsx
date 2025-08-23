@@ -19,7 +19,6 @@ const MessageInput: React.FC<MessageInputProps> = ({ onMessageSent }) => {
   const [content, setContent] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [attachmentIds, setAttachmentIds] = useState<string[]>([]);
 
   // State
   const [loading, setLoading] = useState(false);
@@ -35,7 +34,6 @@ const MessageInput: React.FC<MessageInputProps> = ({ onMessageSent }) => {
   // --- Setup STOMP client ---
   useEffect(() => {
     const socket = new SockJS("http://localhost:8080/ws");
-
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
@@ -44,7 +42,6 @@ const MessageInput: React.FC<MessageInputProps> = ({ onMessageSent }) => {
 
     client.onConnect = () => {
       setConnected(true);
-
       if (currentChatId) {
         client.subscribe(`/topic/chat/${currentChatId}`, (message) => {
           const body = JSON.parse(message.body);
@@ -68,7 +65,6 @@ const MessageInput: React.FC<MessageInputProps> = ({ onMessageSent }) => {
     };
 
     client.onWebSocketClose = () => setConnected(false);
-
     client.activate();
     setStompClient(client);
 
@@ -79,55 +75,51 @@ const MessageInput: React.FC<MessageInputProps> = ({ onMessageSent }) => {
   }, [currentChatId, token]);
 
   // --- Handlers ---
-  const handleSend = () => {
-    if (!currentChatId || (!content.trim() && attachmentIds.length === 0))
-      return;
+  const handleSend = async () => {
+    if (!currentChatId || (!content.trim() && files.length === 0)) return;
     if (!stompClient || !connected) return;
 
-    const message = { content, attachments: attachmentIds };
-
-    stompClient.publish({
-      destination: `/app/chat.send.${currentChatId}`,
-      body: JSON.stringify(message),
-    });
-
-    // reset after sending
-    setContent("");
-    setFiles([]);
-    setPreviews([]);
-    setAttachmentIds([]);
-    onMessageSent?.();
-  };
-
-  const handleAttachmentChange = async (selectedFiles: Array<File>) => {
-    if (selectedFiles.length === 0) return;
-
-    setError(null);
-    setFiles(selectedFiles);
-    setPreviews(selectedFiles.map((f) => URL.createObjectURL(f)));
-
     setLoading(true);
-    try {
-      const response = await apiAttachment.upload(currentChatId, selectedFiles);
-      const uploaded = response.data || [];
+    setError(null);
 
-      // assume backend returns [{ id, filePath }]
-      setAttachmentIds(uploaded.map((att) => att.attachmentId || ""));
-    } catch (err) {
-      console.error("Upload failed", err);
-      setError("Failed to upload files");
+    try {
+      // Upload files first
+      let attachmentIds: string[] = [];
+      if (files.length > 0) {
+        const response = await apiAttachment.upload(currentChatId, files);
+        const uploaded = response.data || [];
+        attachmentIds = uploaded.map((att) => att.attachmentId || "");
+      }
+
+      // Send message via WS
+      const message = { content, attachments: attachmentIds };
+      stompClient.publish({
+        destination: `/app/chat.send.${currentChatId}`,
+        body: JSON.stringify(message),
+      });
+
+      // Reset
+      setContent("");
       setFiles([]);
       setPreviews([]);
-      setAttachmentIds([]);
+      onMessageSent?.();
+    } catch (err) {
+      console.error("Failed to send message", err);
+      setError("Failed to send message");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleAttachmentChange = (selectedFiles: File[]) => {
+    setFiles(selectedFiles);
+    setPreviews(selectedFiles.map((f) => URL.createObjectURL(f)));
+    setError(null);
+  };
+
   const removeFile = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
     setPreviews((prev) => prev.filter((_, i) => i !== index));
-    setAttachmentIds((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -178,7 +170,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onMessageSent }) => {
             }
           />
           <Button asChild variant="outline" disabled={!connected || loading}>
-            <span>{loading ? "Uploading..." : <PlusCircle />}</span>
+            <span>{loading ? "Sending..." : <PlusCircle />}</span>
           </Button>
         </Label>
 
@@ -196,9 +188,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onMessageSent }) => {
         <Button
           onClick={handleSend}
           disabled={
-            !connected ||
-            loading ||
-            (files.length > 0 && attachmentIds.length === 0)
+            !connected || loading || (files.length > 0 && !content && !files)
           }
         >
           Send
