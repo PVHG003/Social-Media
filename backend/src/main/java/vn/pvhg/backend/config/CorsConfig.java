@@ -6,22 +6,43 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 public class CorsConfig {
+
     @Bean
-    public CorsConfigurationSource corsWebFilter() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("*"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
 
-        config.addAllowedHeader("*");
-        config.setAllowCredentials(true);
+        // Allow specific origins and self
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:5173",
+                "http://localhost:3000",
+                "http://127.0.0.1:5173",
+                "http://127.0.0.1:3000",
+                "http://localhost:8080",
+                "http://127.0.0.1:8080"
+        ));
 
-        config.setMaxAge(3600L);
+        // Allow all HTTP methods
+        configuration.setAllowedMethods(Arrays.asList(
+                "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"
+        ));
+
+        // Allow all headers
+        configuration.setAllowedHeaders(List.of("*"));
+
+        // Allow credentials (cookies, authorization headers, etc.)
+        configuration.setAllowCredentials(true);
+
+        // How long the browser can cache preflight requests
+        configuration.setMaxAge(3600L);
+
+        // Apply this configuration to all endpoints
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }
