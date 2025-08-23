@@ -1,18 +1,19 @@
+import type { LoginRequest, UserResponse } from "@/api";
+import { apiAuth, apiUser } from "@/services/chat/test/apiAuth";
 import {
   createContext,
   useContext,
-  useState,
   useEffect,
+  useState,
   type ReactNode,
 } from "react";
-import type { UserDto, LoginRequest, UserResponse } from "@/api";
-import { apiAuth, apiUser } from "@/services/chat/test/apiAuth";
 
 interface AuthContextInterface {
-  currentUser: UserDto | null;
+  currentUser: UserResponse | null;
   token: string | null;
   login: (loginRequest: LoginRequest) => Promise<void>;
   logout: () => void;
+  authenticated: boolean;
 }
 
 export const AuthContext = createContext<AuthContextInterface | undefined>(
@@ -29,7 +30,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  // Load from localStorage on mount
+  const authenticated = !!currentUser;
+
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
@@ -63,6 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     token,
     login,
     logout,
+    authenticated,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

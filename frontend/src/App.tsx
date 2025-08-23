@@ -9,15 +9,15 @@ import { ModalProvider } from "./context/chat/userListModal";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/profile/:userId" element={<UserProfilePage />} />
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/profile/:userId" element={<UserProfilePage />} />
 
-        {/* Other routes */}
-        {/* ... */}
+          {/* Other routes */}
+          {/* ... */}
 
-        {/* Login Page and AuthProvider are for testing, can be deleted */}
-        <AuthProvider>
+          {/* Login Page and AuthProvider are for testing, can be deleted */}
           <Route path="/login" element={<LoginPage />} />
           <Route
             path="/chat"
@@ -31,9 +31,9 @@ function App() {
           >
             <Route path=":chatId" element={<ChatPage />} />
           </Route>
-        </AuthProvider>
-      </Routes>
-    </Router>
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

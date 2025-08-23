@@ -49,6 +49,8 @@ services:
       SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED}
     ports:
       - "8080:8080"
+    volumes:
+      - ./uploads:/app/uploads
 
 volumes:
   postgres_data:

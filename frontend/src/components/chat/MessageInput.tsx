@@ -1,52 +1,58 @@
-import { useChat } from "@/context/chat/ChatContext";
 import { useEffect, useState } from "react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { PlusCircle, X } from "lucide-react";
 import { useAuth } from "@/context/chat/test/AuthContext";
+import { useChat } from "@/context/chat/ChatContext";
+import apiAttachment from "@/services/chat/apiAttachment";
 
 interface MessageInputProps {
   onMessageSent?: () => void;
 }
 
 const MessageInput: React.FC<MessageInputProps> = ({ onMessageSent }) => {
+  // Text and files
   const [content, setContent] = useState("");
+  const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [attachmentIds, setAttachmentIds] = useState<string[]>([]);
+
+  // State
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // WS
   const [stompClient, setStompClient] = useState<Client | null>(null);
   const [connected, setConnected] = useState(false);
 
   const { token } = useAuth();
   const { currentChatId, setChatMessages, setConversations } = useChat();
 
-  // Initialize STOMP client
+  // --- Setup STOMP client ---
   useEffect(() => {
-    console.log("Initializing STOMP client...");
-    const socket = new SockJS(`http://localhost:8080/ws`);
-    
+    const socket = new SockJS("http://localhost:8080/ws");
+
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
-      connectHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
+      connectHeaders: { Authorization: `Bearer ${token}` },
     });
 
     client.onConnect = () => {
-      console.log("STOMP connected");
       setConnected(true);
 
       if (currentChatId) {
-        console.log(`Subscribing to chat topic: /topic/chat/${currentChatId}`);
         client.subscribe(`/topic/chat/${currentChatId}`, (message) => {
           const body = JSON.parse(message.body);
           const newMessage = body.data;
 
-          console.log("📩 Received message:", newMessage);
-
           setChatMessages((prev) => [...(prev ?? []), newMessage]);
-
-          setConversations((prevConversations) =>
-            prevConversations.map((conv) =>
+          setConversations((prev) =>
+            prev.map((conv) =>
               conv.chatId === currentChatId
                 ? {
                     ...conv,
@@ -61,45 +67,67 @@ const MessageInput: React.FC<MessageInputProps> = ({ onMessageSent }) => {
       }
     };
 
-    client.onStompError = (frame) => {
-      console.error("❌ STOMP protocol error:", frame);
-    };
-
-    client.onWebSocketError = (evt) => {
-      console.error("❌ WebSocket error:", evt);
-    };
-
-    client.onWebSocketClose = (evt) => {
-      console.log("⚠️ WebSocket closed:", evt);
-      setConnected(false);
-    };
+    client.onWebSocketClose = () => setConnected(false);
 
     client.activate();
     setStompClient(client);
 
     return () => {
-      console.log("Deactivating STOMP client");
       client.deactivate();
       setConnected(false);
     };
   }, [currentChatId, token]);
 
+  // --- Handlers ---
   const handleSend = () => {
-    if (!currentChatId || !content.trim() || !stompClient || !connected) {
-      console.warn("Cannot send: not connected or missing chat/content");
+    if (!currentChatId || (!content.trim() && attachmentIds.length === 0))
       return;
-    }
+    if (!stompClient || !connected) return;
 
-    const message = { content, attachments: [] };
-    console.log("📤 Sending message:", message);
+    const message = { content, attachments: attachmentIds };
 
     stompClient.publish({
       destination: `/app/chat.send.${currentChatId}`,
       body: JSON.stringify(message),
     });
 
+    // reset after sending
     setContent("");
+    setFiles([]);
+    setPreviews([]);
+    setAttachmentIds([]);
     onMessageSent?.();
+  };
+
+  const handleAttachmentChange = async (selectedFiles: Array<File>) => {
+    if (selectedFiles.length === 0) return;
+
+    setError(null);
+    setFiles(selectedFiles);
+    setPreviews(selectedFiles.map((f) => URL.createObjectURL(f)));
+
+    setLoading(true);
+    try {
+      const response = await apiAttachment.upload(currentChatId, selectedFiles);
+      const uploaded = response.data || [];
+
+      // assume backend returns [{ id, filePath }]
+      setAttachmentIds(uploaded.map((att) => att.attachmentId || ""));
+    } catch (err) {
+      console.error("Upload failed", err);
+      setError("Failed to upload files");
+      setFiles([]);
+      setPreviews([]);
+      setAttachmentIds([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviews((prev) => prev.filter((_, i) => i !== index));
+    setAttachmentIds((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -109,18 +137,73 @@ const MessageInput: React.FC<MessageInputProps> = ({ onMessageSent }) => {
     }
   };
 
+  // --- Render ---
   return (
-    <div className="flex items-center p-4 border-t">
-      <Textarea
-        className="flex-1 border rounded px-3 py-2 mr-2 resize-none"
-        placeholder="Type a message..."
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        onKeyDown={handleEnter}
-      />
-      <Button onClick={handleSend} disabled={!connected}>
-        Send
-      </Button>
+    <div className="flex flex-col border-t">
+      {/* File previews */}
+      {previews.length > 0 && (
+        <div className="flex gap-2 p-2 flex-wrap">
+          {previews.map((src, idx) => (
+            <div key={idx} className="relative">
+              <img
+                src={src}
+                alt="preview"
+                className="w-20 h-20 object-cover rounded"
+              />
+              <button
+                className="absolute top-0 right-0 bg-black/50 text-white p-1 rounded-full"
+                onClick={() => removeFile(idx)}
+              >
+                <X size={14} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {error && <p className="text-red-500 text-sm px-4">{error}</p>}
+
+      <div className="flex items-center p-4">
+        {/* File picker */}
+        <Label className="cursor-pointer">
+          <Input
+            type="file"
+            accept="image/*"
+            multiple
+            hidden
+            onChange={(e) =>
+              handleAttachmentChange(
+                e.target.files ? Array.from(e.target.files) : []
+              )
+            }
+          />
+          <Button asChild variant="outline" disabled={!connected || loading}>
+            <span>{loading ? "Uploading..." : <PlusCircle />}</span>
+          </Button>
+        </Label>
+
+        {/* Text input */}
+        <Textarea
+          className="flex-1 border rounded px-3 py-2 mx-2 resize-none"
+          placeholder="Type a message..."
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          onKeyDown={handleEnter}
+          disabled={!connected || loading}
+        />
+
+        {/* Send button */}
+        <Button
+          onClick={handleSend}
+          disabled={
+            !connected ||
+            loading ||
+            (files.length > 0 && attachmentIds.length === 0)
+          }
+        >
+          Send
+        </Button>
+      </div>
     </div>
   );
 };

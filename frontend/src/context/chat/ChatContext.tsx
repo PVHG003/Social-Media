@@ -26,6 +26,12 @@ interface ChatContextInterface {
 
   chatDetail: ChatDetailResponse | undefined;
   addConversation: (chat: ChatListResponse) => void;
+
+  fetchChatMessages: (page?: number, append?: boolean) => Promise<void>;
+
+  chatPage: number;
+
+  hasMoreMessages: boolean;
 }
 
 export const ChatContext = createContext<ChatContextInterface | undefined>(
@@ -41,6 +47,8 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [chatDetail, setChatDetail] = useState<ChatDetailResponse | undefined>(
     undefined
   );
+  const [chatPage, setChatPage] = useState(0);
+  const [hasMoreMessages, setHasMoreMessages] = useState(true);
 
   useEffect(() => {
     const fetchConversations = async () => {
@@ -52,18 +60,27 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     fetchConversations();
   }, []);
 
+  const fetchChatMessages = async (page = 0, append = false) => {
+    if (!currentChatId) return;
+    const response = await apiChat.getChatMessages(currentChatId, {
+      page,
+      size: 20,
+      sort: [],
+    });
+    console.log(
+      `[ChatProvider] Messages fetched for chatId=${currentChatId}:`,
+      response.data
+    );
+    const messages = response.data?.reverse() ?? [];
+    setChatMessages((prev) => (append ? [...messages, ...prev] : messages));
+
+    setHasMoreMessages(messages.length === 20); // if less than page size, no more
+    setChatPage(page);
+  };
+
   useEffect(() => {
     if (!currentChatId) return;
-    const fetchChatMessages = async () => {
-      const pageable: Pageable = { page: 0, size: 10, sort: [] };
-      const response = await apiChat.getChatMessages(currentChatId, pageable);
-      console.log(
-        `[ChatProvider] Messages fetched for chatId=${currentChatId}:`,
-        response.data
-      );
-      setChatMessages(response.data?.reverse() ?? []);
-    };
-    fetchChatMessages();
+    fetchChatMessages(0, false);
   }, [currentChatId]);
 
   useEffect(() => {
@@ -105,6 +122,12 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     chatDetail,
 
     addConversation,
+
+    fetchChatMessages,
+
+    chatPage,
+
+    hasMoreMessages,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

@@ -29,6 +29,8 @@ interface UserListModalProps {
 const UserListModal: FunctionComponent<UserListModalProps> = ({ onClose }) => {
   const [users, setUsers] = useState<UserResponse[]>([]);
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const { currentUser, token } = useAuth();
@@ -36,8 +38,8 @@ const UserListModal: FunctionComponent<UserListModalProps> = ({ onClose }) => {
 
   const navigate = useNavigate();
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = async (e?: React.FormEvent, nextPage?: number) => {
+    if (e) e.preventDefault();
     if (!query.trim()) return;
 
     setLoading(true);
@@ -45,12 +47,24 @@ const UserListModal: FunctionComponent<UserListModalProps> = ({ onClose }) => {
       const response = await apiUser.searchUsers(
         query,
         {
-          page: 0,
+          page: nextPage ?? 0,
           size: 10,
         },
         token
       );
-      setUsers(response.data ?? []);
+
+      const currentPage = response.page ?? 0;
+      const totalPages = response.totalPages ?? 0;
+      const fetchedUsers = response.data ?? [];
+
+      setHasMore(currentPage + 1 < totalPages);
+      setPage(currentPage);
+
+      if (nextPage && nextPage > 0) {
+        setUsers((prev) => [...prev, ...fetchedUsers]);
+      } else {
+        setUsers(fetchedUsers);
+      }
     } finally {
       setLoading(false);
     }
@@ -132,14 +146,24 @@ const UserListModal: FunctionComponent<UserListModalProps> = ({ onClose }) => {
                 </div>
               </Button>
             ))}
-        </div>
 
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="secondary">Cancel</Button>
-          </DialogClose>
-        </DialogFooter>
+          {hasMore && (
+            <Button
+              variant="outline"
+              onClick={() => handleSearch(undefined, page + 1)}
+              disabled={loading}
+            >
+              {loading ? "Loading..." : "Load More"}
+            </Button>
+          )}
+        </div>
       </DialogContent>
+
+      <DialogFooter>
+        <DialogClose asChild>
+          <Button variant="secondary">Cancel</Button>
+        </DialogClose>
+      </DialogFooter>
     </Dialog>
   );
 };
