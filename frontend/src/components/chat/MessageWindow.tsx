@@ -8,16 +8,16 @@ const MessageWindow: FunctionComponent<MessageWindowProps> = () => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "auto", block: "end" });
   };
 
   return (
     <div className="flex flex-col h-full">
       {/* Message list */}
       <div className="flex-1 overflow-y-auto">
-      </div>
         <MessageList scrollToBottom={scrollToBottom} />
         <div ref={messagesEndRef} />
+      </div>
 
       {/* Input fixed at bottom */}
       <MessageInput onMessageSent={scrollToBottom} />

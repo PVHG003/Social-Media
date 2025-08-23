@@ -27,7 +27,21 @@ const apiAttachment = {
         chatId,
         files
       );
-      return data;
+
+      const modData: ApiResponseListAttachmentResponse = {
+        success: data.success,
+        message: data.message,
+        data: data.data?.map((att) => {
+          return {
+            attachmentId: att.attachmentId,
+            filePath: `http://localhost:8080/${att.filePath}`,
+            contentType: att.contentType,
+            ...att,
+          };
+        }),
+      };
+
+      return modData;
     } catch (error) {
       console.error("Error uploading files:", error);
       throw error;

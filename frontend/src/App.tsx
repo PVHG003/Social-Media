@@ -1,15 +1,11 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import UserProfilePage from "./pages/user/UserProfilePage";
-import { ChatPage } from "./pages/chat/ChatPage";
-import { ChatProvider } from "./context/chat/ChatContext";
-import { ChatProvider } from "./context/chat/ChatContext";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import ChatLayout from "./components/chat/ChatLayout";
+import { ChatProvider } from "./context/chat/ChatContext";
 import { AuthProvider } from "./context/chat/test/AuthContext";
-import LoginPage from "./pages/chat/test/LoginPage";
 import { ModalProvider } from "./context/chat/userListModal";
-import { AuthProvider } from "./context/chat/test/AuthContext";
+import { ChatPage } from "./pages/chat/ChatPage";
 import LoginPage from "./pages/chat/test/LoginPage";
-import { ModalProvider } from "./context/chat/userListModal";
+import UserProfilePage from "./pages/user/UserProfilePage";
 
 function App() {
   return (

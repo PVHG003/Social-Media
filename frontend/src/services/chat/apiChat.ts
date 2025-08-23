@@ -9,12 +9,44 @@ import {
   type ChatCreateRequest,
   type Pageable,
 } from "@/api";
+import axios from "axios";
 
+// Create a custom axios instance
+const axiosInstance = axios.create({
+  withCredentials: true,
+  baseURL: "http://localhost:8080", // adjust if needed
+  headers: {
+    Origin: "http://localhost:5173",
+  },
+});
+
+// Add interceptor
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expired or missing → logout + go login
+      localStorage.removeItem("token");
+      window.location.href = "/login";
+    }
+    if (error.response?.status === 403) {
+      // User is authenticated but forbidden → show error page or toast
+      console.warn("Forbidden: no permission");
+      // optionally redirect to a "No Access" page
+      // navigate("/forbidden");
+    }
+    if (error.response?.status === 404) {
+      // navigate("/not-found");
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Now inject this axios instance into your generated API
 const configuration = new Configuration({
   accessToken: localStorage.getItem("token") ?? "",
   baseOptions: {
-    withCredentials: true,
-    Origin: "http://localhost:5173",
+    adapter: axiosInstance.defaults.adapter, // 👈 key part, use our axios
   },
 });
 

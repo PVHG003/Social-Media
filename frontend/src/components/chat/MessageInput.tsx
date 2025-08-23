@@ -5,7 +5,7 @@ import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { PlusCircle, X } from "lucide-react";
+import { PlusCircle, Send, X } from "lucide-react";
 import { useAuth } from "@/context/chat/test/AuthContext";
 import { useChat } from "@/context/chat/ChatContext";
 import apiAttachment from "@/services/chat/apiAttachment";
@@ -83,26 +83,28 @@ const MessageInput: React.FC<MessageInputProps> = ({ onMessageSent }) => {
     setError(null);
 
     try {
-      // Upload files first
       let attachmentIds: string[] = [];
+
       if (files.length > 0) {
         const response = await apiAttachment.upload(currentChatId, files);
         const uploaded = response.data || [];
-        attachmentIds = uploaded.map((att) => att.attachmentId || "");
+        attachmentIds = uploaded
+          .map((att) => att.attachmentId)
+          .filter((id): id is string => Boolean(id));
       }
 
-      // Send message via WS
-      const message = { content, attachments: attachmentIds };
+      const message = { content: content.trim(), attachments: attachmentIds };
+
       stompClient.publish({
         destination: `/app/chat.send.${currentChatId}`,
         body: JSON.stringify(message),
       });
 
-      // Reset
+      onMessageSent?.();
+
       setContent("");
       setFiles([]);
       setPreviews([]);
-      onMessageSent?.();
     } catch (err) {
       console.error("Failed to send message", err);
       setError("Failed to send message");
@@ -111,9 +113,22 @@ const MessageInput: React.FC<MessageInputProps> = ({ onMessageSent }) => {
     }
   };
 
+  useEffect(() => {
+    if (files.length === 0) {
+      setPreviews([]);
+      return;
+    }
+
+    const objectUrls = files.map((file) => URL.createObjectURL(file));
+    setPreviews(objectUrls);
+
+    return () => {
+      objectUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [files]);
+
   const handleAttachmentChange = (selectedFiles: File[]) => {
     setFiles(selectedFiles);
-    setPreviews(selectedFiles.map((f) => URL.createObjectURL(f)));
     setError(null);
   };
 
@@ -188,10 +203,12 @@ const MessageInput: React.FC<MessageInputProps> = ({ onMessageSent }) => {
         <Button
           onClick={handleSend}
           disabled={
-            !connected || loading || (files.length > 0 && !content && !files)
+            !connected ||
+            loading ||
+            (content.trim() === "" && files.length === 0)
           }
         >
-          Send
+          <Send />
         </Button>
       </div>
     </div>
