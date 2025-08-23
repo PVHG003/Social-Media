@@ -1,20 +1,31 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useChat } from "@/context/chat/ChatContext"; // assume we have conversations here
+import { useChat } from "@/context/chat/ChatContext";
 import { useUserModal } from "@/context/chat/userListModal";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { PlusIcon } from "lucide-react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
+import { useAuth } from "@/context/chat/test/AuthContext";
 
 const ChatLayout = () => {
   const { conversations, currentChatId, setCurrentChatId, chatDetail } =
     useChat();
+    
+  const { authenticated } = useAuth();
 
   const navigate = useNavigate();
 
   const { openUserList } = useUserModal();
+
+  if (!authenticated) {
+    return (
+      <div className="p-4">
+        <p className="text-gray-500">Please log in to view messages.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen">

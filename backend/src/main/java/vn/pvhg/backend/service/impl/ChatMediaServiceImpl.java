@@ -69,7 +69,7 @@ public class ChatMediaServiceImpl implements ChatMediaService {
                         .fileState(FileState.TEMPORARY)
                         .build();
             } catch (IOException e) {
-                throw new FileCreationException("Failed to save group image", e);
+                throw new FileCreationException("Failed to save attachments", e);
             }
         }).toList();
 
