@@ -3,6 +3,8 @@ import {
   type ChatCreateRequest,
   type ChatListResponse,
   type UserResponse,
+  type ChatListResponse,
+  type UserResponse,
 } from "@/api";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,8 +20,14 @@ import { useAuth } from "@/context/chat/test/AuthContext";
 import apiChat from "@/services/chat/apiChat";
 import { apiUser } from "@/services/chat/test/apiAuth";
 import { useState, type FunctionComponent } from "react";
+import { Input } from "@/components/ui/input"; // assuming you have a UI input
+import { useAuth } from "@/context/chat/test/AuthContext";
+import apiChat from "@/services/chat/apiChat";
+import { apiUser } from "@/services/chat/test/apiAuth";
+import { useState, type FunctionComponent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { useChat } from "@/context/chat/ChatContext";
 import { useChat } from "@/context/chat/ChatContext";
 
 interface UserListModalProps {
@@ -33,6 +41,8 @@ const UserListModal: FunctionComponent<UserListModalProps> = ({ onClose }) => {
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const { currentUser, token } = useAuth();
+  const { setConversations } = useChat();
   const { currentUser, token } = useAuth();
   const { setConversations } = useChat();
 
@@ -78,9 +88,23 @@ const UserListModal: FunctionComponent<UserListModalProps> = ({ onClose }) => {
     const response = await apiChat.createChat(chatCreateRequest);
     const data = response.data;
 
+    const response = await apiChat.createChat(chatCreateRequest);
+    const data = response.data;
+
     if (!response.success) {
       throw Error(response.message ?? "Error while creating chat");
     }
+    if (data && data.chatId) {
+      const newConversation: ChatListResponse = {
+        ...data,
+        lastMessage: "",
+        lastMessageSenderUsername: "",
+        lastMessageSentAt: "",
+        unreadMessagesCount: 0,
+        muted: false,
+      };
+      setConversations((prev) => [newConversation, ...prev]);
+      navigate(`/chat/${data.chatId}`);
     if (data && data.chatId) {
       const newConversation: ChatListResponse = {
         ...data,
@@ -103,7 +127,27 @@ const UserListModal: FunctionComponent<UserListModalProps> = ({ onClose }) => {
       <DialogContent className="w-full sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>Search for a user</DialogTitle>
+          <DialogTitle>Search for a user</DialogTitle>
         </DialogHeader>
+
+        {/* Search Bar */}
+        <form onSubmit={handleSearch} className="flex gap-2 mb-4">
+          <Input
+            type="text"
+            placeholder="Enter username or email"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <Button type="submit" disabled={loading}>
+            {loading ? "Searching..." : "Search"}
+          </Button>
+        </form>
+
+        {/* Results */}
+        <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
+          {users.length === 0 && !loading && (
+            <p className="text-sm text-gray-500">No users found</p>
+          )}
 
         {/* Search Bar */}
         <form onSubmit={handleSearch} className="flex gap-2 mb-4">
@@ -134,6 +178,10 @@ const UserListModal: FunctionComponent<UserListModalProps> = ({ onClose }) => {
               >
                 <div className="flex items-center">
                   <Avatar className="h-10 w-10 mr-3">
+                    <AvatarImage
+                      src={user.profileImagePath}
+                      alt={user.username}
+                    />
                     <AvatarImage
                       src={user.profileImagePath}
                       alt={user.username}
@@ -169,3 +217,4 @@ const UserListModal: FunctionComponent<UserListModalProps> = ({ onClose }) => {
 };
 
 export default UserListModal;
+
