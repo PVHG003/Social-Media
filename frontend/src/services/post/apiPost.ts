@@ -24,11 +24,51 @@ const postApi = {
     content?: string,
     mediaFiles?: Array<File>
   ): Promise<ApiResponsePostResponse> => {
-    const { data } = await postControllerApi.createPost(content, mediaFiles);
-    if (!data.success) {
-      throw new Error(data.message || 'Failed to create post');
+    try {
+      const formData = new FormData();
+      
+      if (content && content.trim()) {
+        formData.append('content', content.trim());
+      }
+      
+      if (mediaFiles && mediaFiles.length > 0) {
+        mediaFiles.forEach((file) => {
+          formData.append('mediaFiles', file);
+        });
+      }
+
+      const token = localStorage.getItem("token");
+      const response = await fetch('http://localhost:8080/api/posts', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        credentials: 'include',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage;
+        try {
+          const errorObj = JSON.parse(errorText);
+          errorMessage = errorObj.message || `HTTP ${response.status}`;
+        } catch {
+          errorMessage = errorText || `HTTP ${response.status}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const responseData = await response.json();
+      
+      if (!responseData.success) {
+        throw new Error(responseData.message || 'Failed to create post');
+      }
+
+      return responseData;
+    } catch (error: any) {
+      throw new Error(error.message || 'Failed to create post');
     }
-    return data;
   },
 
   getPost: async (postId: string): Promise<ApiResponsePostResponse> => {
