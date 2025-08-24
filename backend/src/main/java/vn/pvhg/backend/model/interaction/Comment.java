@@ -37,7 +37,6 @@ public class Comment {
     private String content;
 
     @CreationTimestamp
-    @Column(insertable = false)
     private Instant createdAt;
 
     @UpdateTimestamp

@@ -9,6 +9,7 @@ import MediaModal from './MediaModal';
 import EditPostModal from './EditPostModal';
 import postApi from '@/services/post/apiPost';
 import userApi from '@/services/user/apiUser';
+import { Link } from 'react-router-dom';
 
 interface PostCardProps {
   post: Post;
@@ -183,7 +184,9 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUpdate })
             <div className="flex-1">
               <div className="flex items-center space-x-2">
                 <h3 className="font-bold text-gray-900 text-lg hover:text-blue-600 cursor-pointer transition-colors">
-                  {post.author.username}
+                  <Link to={`/profile/${post.author.id}`}>
+                    {post.author.username}
+                  </Link>
                 </h3>
                 <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
                 <span className="text-sm text-gray-500 font-medium">

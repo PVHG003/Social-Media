@@ -4,23 +4,35 @@ import { IoClose } from 'react-icons/io5';
 import { AiOutlineHeart, AiFillHeart, AiOutlineSend, AiOutlineUser } from 'react-icons/ai';
 import { BiDotsHorizontalRounded } from 'react-icons/bi';
 import MediaGrid from './MediaGrid';
+import CommentItem from './CommentItem';
 import commentApi from '@/services/post/apiComment';
+import userApi from '@/services/user/apiUser';
+import { Link } from 'react-router-dom';
 
 interface PostModalProps {
   post: Post;
   isOpen: boolean;
   onClose: () => void;
   onLike?: (postId: string, isLiked: boolean) => void;
-  onCommentCountUpdate?: (postId: string, newCount: number) => void; // Thêm callback để update comment count
+  onCommentCountUpdate?: (postId: string, newCount: number) => void;
+  onLikeCountUpdate?: (postId: string, newIsLiked: boolean, newLikeCount: number) => void;
 }
 
-const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose, onLike, onCommentCountUpdate }) => {
+const PostModal: React.FC<PostModalProps> = ({ 
+  post, 
+  isOpen, 
+  onClose, 
+  onLike, 
+  onCommentCountUpdate,
+  onLikeCountUpdate 
+}) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [isLiked, setIsLiked] = useState(post.liked);
   const [likeCount, setLikeCount] = useState(post.likeCount);
   const [commentCount, setCommentCount] = useState(post.commentCount);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   
   // Pagination states
   const [commentsPage, setCommentsPage] = useState(0);
@@ -28,17 +40,33 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose, onLike, on
   const [hasMoreComments, setHasMoreComments] = useState(true);
   const modalBodyRef = useRef<HTMLDivElement>(null);
 
+  // Fetch current user
+  React.useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await userApi.getCurrentUser();
+        setCurrentUser(response.data);
+      } catch (error) {
+        console.error('Error fetching current user:', error);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
       resetAndFetchComments();
-      // Reset states khi mở modal
       setIsLiked(post.liked);
       setLikeCount(post.likeCount);
       setCommentCount(post.commentCount);
     } else {
       document.body.style.overflow = 'unset';
       resetComments();
+      
+      if (onLikeCountUpdate && (isLiked !== post.liked || likeCount !== post.likeCount)) {
+        onLikeCountUpdate(post.id, isLiked, likeCount);
+      }
     }
 
     return () => {
@@ -91,13 +119,11 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose, onLike, on
     }
   };
 
-  // Infinity scroll for entire modal content
   const handleScroll = useCallback(() => {
     if (!modalBodyRef.current || loadingComments || !hasMoreComments) return;
     
     const { scrollTop, scrollHeight, clientHeight } = modalBodyRef.current;
     
-    // Load more when scrolled to bottom (with 100px threshold)
     if (scrollTop + clientHeight >= scrollHeight - 100) {
       fetchComments(commentsPage + 1, true);
     }
@@ -120,13 +146,10 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose, onLike, on
       const response = await commentApi.createComment(post.id, { content: newComment.trim() });
       
       if (response.data) {
-        // Thêm comment mới vào đầu danh sách
         setComments(prev => [response.data!, ...prev]);
-        // Cập nhật comment count
         const newCommentCount = commentCount + 1;
         setCommentCount(newCommentCount);
         
-        // Gọi callback để cập nhật parent component
         if (onCommentCountUpdate) {
           onCommentCountUpdate(post.id, newCommentCount);
         }
@@ -141,22 +164,41 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose, onLike, on
     }
   };
 
-  const loadMoreComments = () => {
-    if (!loadingComments && hasMoreComments) {
-      fetchComments(commentsPage + 1, true);
-    }
-  };
-
   const handleLike = async () => {
     try {
       if (onLike) {
         await onLike(post.id, isLiked);
+        
+        const newIsLiked = !isLiked;
+        const newLikeCount = isLiked ? likeCount - 1 : likeCount + 1;
+        
+        setIsLiked(newIsLiked);
+        setLikeCount(newLikeCount);
+        
+        if (onLikeCountUpdate) {
+          onLikeCountUpdate(post.id, newIsLiked, newLikeCount);
+        }
       }
-      
-      setIsLiked(!isLiked);
-      setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
     } catch (error) {
       console.error('Error toggling like:', error);
+    }
+  };
+
+  // Handle comment update
+  const handleCommentUpdate = (commentId: string, updatedComment: Comment) => {
+    setComments(prev => prev.map(comment => 
+      comment.id === commentId ? updatedComment : comment
+    ));
+  };
+
+  // Handle comment delete
+  const handleCommentDelete = (commentId: string) => {
+    setComments(prev => prev.filter(comment => comment.id !== commentId));
+    const newCommentCount = commentCount - 1;
+    setCommentCount(newCommentCount);
+    
+    if (onCommentCountUpdate) {
+      onCommentCountUpdate(post.id, newCommentCount);
     }
   };
 
@@ -228,7 +270,11 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose, onLike, on
           <div className="flex items-center space-x-4">
             {renderAvatar(post.author.profileImagePath, post.author.username)}
             <div>
-              <h3 className="font-bold text-gray-900 text-lg">@{post.author.username}</h3>
+              <h3 className="font-bold text-gray-900 text-lg">
+                <Link to={`/profile/${post.author.id}`}>
+                  @{post.author.username}
+                </Link>
+              </h3>
               <p className="text-sm text-gray-500">{formatTimeAgo(post.createdAt)}</p>
             </div>
           </div>
@@ -256,10 +302,8 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose, onLike, on
           <div className="p-6">
             <p className="text-gray-800 text-lg leading-relaxed whitespace-pre-wrap mb-4">{post.content}</p>
             
-            {/* Media Grid */}
             <MediaGrid mediaFiles={post.mediaFiles} />
 
-            {/* Like and Comment Stats */}
             <div className="mt-6 pt-4 border-t border-gray-100">
               <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
                 {likeCount > 0 && (
@@ -278,7 +322,6 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose, onLike, on
                 )}
               </div>
 
-              {/* Action Buttons */}
               <div className="flex items-center justify-around py-3 border-y border-gray-100 bg-gray-50 rounded-lg mb-6">
                 <button
                   onClick={handleLike}
@@ -305,36 +348,16 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose, onLike, on
               <h4 className="font-bold text-gray-900 text-lg">Comments</h4>
             </div>
             
-            {/* Comments List */}
             <div className="space-y-4 px-6">
               {comments.length > 0 ? (
                 comments.map((comment, index) => (
-                  <div key={`${comment.id}-${index}`} className="flex space-x-3">
-                    {renderAvatar(comment.author.profileImagePath, comment.author.username, 'w-10 h-10')}
-                    <div className="flex-1">
-                      <div className="bg-gray-100 rounded-2xl px-4 py-3 max-w-lg">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <span className="font-bold text-sm text-gray-900">
-                            {comment.author.username}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            {formatTimeAgo(comment.createdAt)}
-                          </span>
-                        </div>
-                        <p className="text-gray-800 text-sm leading-relaxed">{comment.content}</p>
-                      </div>
-                      
-                      {/* Comment Actions */}
-                      <div className="flex items-center space-x-4 mt-2 ml-4">
-                        <button className="text-xs text-gray-500 hover:text-blue-600 font-medium transition-colors">
-                          Like
-                        </button>
-                        <button className="text-xs text-gray-500 hover:text-blue-600 font-medium transition-colors">
-                          Reply
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  <CommentItem
+                    key={`${comment.id}-${index}`}
+                    comment={comment}
+                    currentUserId={currentUser?.id}
+                    onUpdate={handleCommentUpdate}
+                    onDelete={handleCommentDelete}
+                  />
                 ))
               ) : (
                 <div className="text-center py-12">
@@ -344,18 +367,16 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose, onLike, on
                 </div>
               )}
               
-              {/* Loading indicator */}
               {loadingComments && (
                 <div className="flex justify-center py-6">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                 </div>
               )}
               
-              {/* Load more button */}
               {!loadingComments && hasMoreComments && comments.length > 0 && (
                 <div className="text-center py-4">
                   <button
-                    onClick={loadMoreComments}
+                    onClick={() => fetchComments(commentsPage + 1, true)}
                     className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
                   >
                     Load more comments...
@@ -363,7 +384,6 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose, onLike, on
                 </div>
               )}
               
-              {/* End message */}
               {!hasMoreComments && comments.length > 10 && (
                 <div className="text-center py-4 text-gray-500 text-sm">
                   🎉 You've reached the end of comments
@@ -376,7 +396,7 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose, onLike, on
         {/* Comment Input - Fixed at bottom */}
         <div className="border-t border-gray-200 p-6 bg-white flex-shrink-0">
           <form onSubmit={handleSubmitComment} className="flex space-x-4">
-            {renderAvatar(null, 'You', 'w-10 h-10')}
+            {renderAvatar(currentUser?.profileImagePath, currentUser?.username, 'w-10 h-10')}
             <div className="flex-1 flex space-x-3">
               <input
                 type="text"
