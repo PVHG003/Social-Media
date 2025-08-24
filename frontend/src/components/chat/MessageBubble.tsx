@@ -9,7 +9,9 @@ interface MessageBubbleProps {
 }
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
-  const isMe = message.fromMe;
+  const userString = localStorage.getItem("user");
+  const currentUserId = userString ? JSON.parse(userString).id : null;
+  const isMe = message.senderId === currentUserId;
 
   return (
     <div

@@ -1,6 +1,8 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import ChatLayout from "./components/chat/ChatLayout";
 import UserProfilePage from "./pages/user/UserProfilePage";
+import ChatPage from "./pages/chat/ChatPage";
+import { ChatProvider } from "./context/chat/ChatContext";
 
 function App() {
   return (
@@ -12,8 +14,15 @@ function App() {
         {/* ... */}
 
         {/* Login Page and AuthProvider are for testing, can be deleted */}
-        <Route path="/chat" element={<ChatLayout />}>
-          {/* <Route path=":chatId" element={<ChatPage />} /> */}
+        <Route
+          path="/chat"
+          element={
+            <ChatProvider>
+              <ChatLayout />
+            </ChatProvider>
+          }
+        >
+          <Route path=":chatId" element={<ChatPage />} />
         </Route>
       </Routes>
     </Router>

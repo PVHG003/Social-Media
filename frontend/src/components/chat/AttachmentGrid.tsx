@@ -109,6 +109,8 @@
 
 import type { AttachmentResponse } from "@/api";
 
+const BASE_URL = "http://localhost:8080/";
+
 const AttachmentGrid = ({
   attachments,
 }: {
@@ -121,7 +123,7 @@ const AttachmentGrid = ({
           return (
             <img
               key={att.attachmentId}
-              src={att.filePath}
+              src={`${BASE_URL}${att.filePath}`}
               alt="attachment"
               className="rounded-lg w-full max-w-sm"
             />
@@ -132,22 +134,24 @@ const AttachmentGrid = ({
           return (
             <video
               key={att.attachmentId}
+              src={`${BASE_URL}${att.filePath}`}
+              typeof={`${att.contentType}`}
               controls
               className="relative w-full max-w-xl rounded-lg overflow-hidden"
             >
-                <source src={att.filePath} type={att.contentType} />
-                Your browser does not support the video tag.
+              Your browser does not support the video tag.
             </video>
           );
         }
 
-        return (
+        if (att.contentType?.startsWith("application/")) {
           <a
             key={att.attachmentId}
-            href={att.filePath}
+            href={`${BASE_URL}${att.filePath}`}
             target="_blank"
             rel="noopener noreferrer"
             className="block border rounded-lg p-3 bg-gray-100 hover:bg-gray-200 transition-colors w-64"
+            title={att.filePath?.split("/").pop()} // Show full name on hover
           >
             <div className="flex items-center gap-3">
               {/* File icon */}
@@ -156,15 +160,15 @@ const AttachmentGrid = ({
               </div>
 
               {/* File info */}
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-800 truncate">
                   {att.filePath?.split("/").pop()}
                 </p>
-                <p className="text-xs text-gray-500">Click to open</p>
+                <p className="text-xs text-gray-500 truncate">Click to open</p>
               </div>
             </div>
-          </a>
-        );
+          </a>;
+        }
       })}
     </div>
   );

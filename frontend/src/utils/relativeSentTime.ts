@@ -1,4 +1,6 @@
 const formatRelativeTime = (date: string) => {
+  if (new Date(date).toString() === "Invalid Date") return "";
+
   const diffMs = Date.now() - new Date(date).getTime();
   const diffMinutes = Math.floor(diffMs / 60000);
 
