@@ -24,12 +24,12 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<AuthenticatedResponse>> register(
+    public ResponseEntity<ApiResponse<Void>> register(
             @Valid @RequestBody RegisterRequest request
     ) {
-        AuthenticatedResponse data = authService.register(request);
-        ApiResponse<AuthenticatedResponse> response = new ApiResponse<>(
-                HttpStatus.OK, "Registered success", true, data
+        authService.register(request);
+        ApiResponse<Void> response = new ApiResponse<>(
+                HttpStatus.OK, "Registered success, check your email to verify account", true, null
         );
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -37,12 +37,9 @@ public class AuthController {
     @PostMapping("/verify")
     public ResponseEntity<ApiResponse<AuthenticatedResponse>> verify(
             @RequestParam("email") String email,
-            @RequestParam("code") String code,
-            @AuthenticationPrincipal UserDetailsImpl userDetails
-
+            @RequestParam("code") String code
     ) {
-        UUID userId = userDetails.getUser().getId();
-        AuthenticatedResponse data = authService.verify(userId, email, code);
+        AuthenticatedResponse data = authService.verify(email, code);
         ApiResponse<AuthenticatedResponse> response = new ApiResponse<>(
                 HttpStatus.OK, "Account verified successfully", true, data
         );
@@ -73,23 +70,21 @@ public class AuthController {
     }
 
     @PostMapping("/forget")
-    public ResponseEntity<ApiResponse<AuthenticatedResponse>> forgotPassword(
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(
             @RequestParam("email") String email
     ) {
-        AuthenticatedResponse data = authService.forgotPassword(email);
-        ApiResponse<AuthenticatedResponse> response = new ApiResponse<>(
-                HttpStatus.OK, "Please check your email to verify your account", true, data
+        authService.sendOtp(email);
+        ApiResponse<Void> response = new ApiResponse<>(
+                HttpStatus.OK, "OTP sent successfully", true, null
         );
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/reset")
     public ResponseEntity<ApiResponse<Void>> resetPassword(
-            @Valid @RequestBody PasswordResetRequest request,
-            @AuthenticationPrincipal UserDetailsImpl currentUser
+            @Valid @RequestBody PasswordResetRequest request
     ) {
-        UUID userId = currentUser.getUser().getId();
-        authService.resetPassword(userId, request);
+        authService.resetPassword(request);
         ApiResponse<Void> response = new ApiResponse<>(
                 HttpStatus.OK, "Password reset successful", true, null
         );

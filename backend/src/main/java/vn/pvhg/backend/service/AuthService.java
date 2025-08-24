@@ -11,17 +11,17 @@ import java.util.UUID;
 
 public interface AuthService {
 
-    AuthenticatedResponse register(@Valid RegisterRequest request);
+    void register(@Valid RegisterRequest request);
 
-    AuthenticatedResponse verify(UUID userId, String email, String code);
+    AuthenticatedResponse verify(String email, String code);
 
     AuthenticatedResponse login(@Valid LoginRequest request);
 
     void logout(UUID userId);
 
-    AuthenticatedResponse forgotPassword(String email);
+//    AuthenticatedResponse forgotPassword(String email);
 
-    void resetPassword(UUID userId, @Valid PasswordResetRequest request);
+    void resetPassword(@Valid PasswordResetRequest request);
 
     AuthenticatedResponse changePassword(UUID userId, @Valid ChangePasswordRequest request);
 
