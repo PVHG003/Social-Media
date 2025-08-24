@@ -5,9 +5,11 @@ import { useParams, Link } from 'react-router-dom';
 import TopHeader from '../ui/NavBar/NavBar';
 import userApi from '../../services/user/apiUser';
 import followApi from '../../services/follow/apiFollow';
+import postApi from '../../services/post/apiPost';
 import EditProfileModal from './EditProfileModal';
 import FollowModalComponent from './FollowModal';
-import PostCard from './PostCard';
+import PostCard from '../post/PostCard';
+import type { Post } from '@/types/post';
 
 const CLOUDINARY = {
   UPLOAD_URL: import.meta.env.VITE_CLOUDINARY_UPLOAD_URL,
@@ -32,17 +34,6 @@ interface User {
   followersCount: number;
   followingCount: number;
   following: boolean;
-}
-
-// Mock post interface for demonstration
-interface MockPost {
-  id: string;
-  content: string;
-  imageUrl?: string;
-  createdAt: string;
-  likesCount: number;
-  commentsCount: number;
-  isLiked: boolean;
 }
 
 // Follow user interface for modal
@@ -86,6 +77,14 @@ const UserProfile = () => {
   const [followLoading, setFollowLoading] = useState(false);
   const [isCurrentUser, setIsCurrentUser] = useState(false);
   
+  // Posts state - Updated to match HomePage
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [postsLoading, setPostsLoading] = useState(false);
+  const [postsError, setPostsError] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  
   // New state for follow modal with correct type
   const [followModal, setFollowModal] = useState<FollowModal>({
     isOpen: false,
@@ -95,60 +94,13 @@ const UserProfile = () => {
     hasMore: false,
     page: 0
   });
-  
-  // Mock posts data - sẽ thay bằng API call thực
-  const [mockPosts] = useState<MockPost[]>([
-    {
-      id: '1',
-      content: 'Just had an amazing day at the beach! 🏖️ The weather was perfect and the sunset was breathtaking. There\'s nothing like the sound of waves to clear your mind.',
-      imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&h=300&fit=crop',
-      createdAt: '2024-01-15T10:30:00Z',
-      likesCount: 24,
-      commentsCount: 8,
-      isLiked: false
-    },
-    {
-      id: '2',
-      content: 'Working on some exciting new projects! Can\'t wait to share what I\'ve been building. The tech stack includes React, TypeScript, and Spring Boot. #coding #developer',
-      createdAt: '2024-01-14T14:20:00Z',
-      likesCount: 42,
-      commentsCount: 12,
-      isLiked: true
-    },
-    {
-      id: '3',
-      content: 'Coffee and code - the perfect combination for a productive morning ☕',
-      imageUrl: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=500&h=300&fit=crop',
-      createdAt: '2024-01-13T08:15:00Z',
-      likesCount: 18,
-      commentsCount: 5,
-      isLiked: false
-    },
-    {
-      id: '4',
-      content: 'Exploring the local farmers market today. Found some amazing organic vegetables and met some wonderful local vendors. Supporting local business feels great! 🥕🥬',
-      createdAt: '2024-01-12T16:45:00Z',
-      likesCount: 31,
-      commentsCount: 7,
-      isLiked: true
-    },
-    {
-      id: '5',
-      content: 'Just finished reading an incredible book on software architecture. The insights on microservices and system design were mind-blowing. Highly recommend it to fellow developers!',
-      imageUrl: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=500&h=300&fit=crop',
-      createdAt: '2024-01-11T20:10:00Z',
-      likesCount: 67,
-      commentsCount: 15,
-      isLiked: false
-    }
-  ]);
 
-  // Safe function to get profile image with fallback
+  // Safe function to get profile image with fallback - Updated to match HomePage
   const getProfileImageSrc = (profileImagePath?: string | null): string => {
     if (!profileImagePath || profileImagePath.trim() === '') {
       return '/default-avatar.png';
     }
-    return profileImagePath;
+    return profileImagePath.startsWith('http') ? profileImagePath : `http://localhost:8080${profileImagePath}`;
   };
 
   // Transform API UserData to component User interface
@@ -177,6 +129,83 @@ const UserProfile = () => {
     profileImagePath: apiData.profileImagePath || null,
     isFollowing: apiData.isFollowing || false
   });
+
+  // Fetch user posts - Updated to match HomePage pattern
+  const fetchUserPosts = async (targetUserId: string, pageNum: number = 0, append: boolean = false) => {
+    try {
+      if (!append) setPostsLoading(true);
+      else setLoadingMore(true);
+      setPostsError(null);
+
+      const response = await postApi.getPostsByUser(targetUserId, pageNum, 10);
+      
+      if (response.success && response.data) {
+        const validPosts = (response.data || []).filter(post => post.id) as Post[];
+        
+        if (append) {
+          setPosts(prev => [...prev, ...validPosts]);
+        } else {
+          setPosts(validPosts);
+        }
+        
+        // Check if there are more posts
+        setHasMore(pageNum < (response.totalPages || 1) - 1);
+        setPage(pageNum);
+      } else {
+        throw new Error(response.message || 'Failed to fetch posts');
+      }
+    } catch (error: any) {
+      console.error('Error fetching user posts:', error);
+      setPostsError(error.message || 'Failed to load posts');
+      if (!append) {
+        setPosts([]);
+      }
+    } finally {
+      setPostsLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  // Load more posts - Updated to match HomePage
+  const handleLoadMore = () => {
+    if (!user || loadingMore || !hasMore) return;
+    
+    fetchUserPosts(user.id, page + 1, true);
+  };
+
+  // Handle post like - Updated to match HomePage pattern
+  const handleLike = async (postId: string, isCurrentlyLiked: boolean) => {
+    try {
+      let response;
+      if (isCurrentlyLiked) {
+        response = await postApi.unlikePost(postId);
+      } else {
+        response = await postApi.likePost(postId);
+      }
+      
+      // Update posts list với data từ server
+      if (response.data && response.data.id) {
+        setPosts(prev => prev.map(post => 
+          post.id === postId ? response.data as Post : post
+        ));
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      throw error; // Re-throw để PostCard có thể handle
+    }
+  };
+
+  // Handle post deletion - Updated naming to match HomePage
+  const handleDeletePost = (postId: string) => {
+    setPosts(prev => prev.filter(post => post.id !== postId));
+  };
+
+  // Handle post update - Updated naming to match HomePage
+  const handleUpdatePost = (postId: string, updatedPost: Post) => {
+    setPosts(prev => prev.map(post => 
+      post.id === postId ? updatedPost : post
+    ));
+  };
 
   // Open followers/following modal
   const openFollowModal = async (type: 'followers' | 'following') => {
@@ -353,6 +382,9 @@ const UserProfile = () => {
         });
         setPreviewUrl(transformedUser.profilePicture);
         
+        // Fetch user posts - Updated to use new pattern
+        await fetchUserPosts(transformedUser.id, 0, false);
+        
       } catch (err: any) {
         console.error('Error fetching user profile:', err);
         
@@ -465,33 +497,6 @@ const UserProfile = () => {
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     e.currentTarget.src = '/default-avatar.png';
-  };
-
-  // Format time ago
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMs = now.getTime() - date.getTime();
-    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-    
-    if (diffInDays === 0) {
-      const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-      if (diffInHours === 0) {
-        const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-        return `${diffInMinutes}m ago`;
-      }
-      return `${diffInHours}h ago`;
-    } else if (diffInDays === 1) {
-      return '1 day ago';
-    } else if (diffInDays < 7) {
-      return `${diffInDays} days ago`;
-    } else {
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric',
-        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
-      });
-    }
   };
 
   const uploadToCloudinary = async (file: File): Promise<string> => {
@@ -702,7 +707,7 @@ const UserProfile = () => {
                     </button>
                     
                     <Link
-                      to={`/messages/${user.username}`}
+                      to={`/chat/${user.id}`}
                       className="bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-center"
                     >
                       Message
@@ -733,7 +738,7 @@ const UserProfile = () => {
           </button>
           
           <div className="bg-white rounded-lg p-4 md:p-6 shadow-md text-center hover:shadow-lg transition-shadow">
-            <div className="text-2xl md:text-3xl font-bold text-green-600 mb-2">{mockPosts.length}</div>
+            <div className="text-2xl md:text-3xl font-bold text-green-600 mb-2">{posts.length}</div>
             <div className="text-sm md:text-base text-gray-600">Posts</div>
           </div>
         </div>
@@ -776,53 +781,87 @@ const UserProfile = () => {
           </div>
         </div>
 
-        {/* User Posts Section */}
-        <div className="bg-white rounded-lg shadow-md mb-6">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-xl font-semibold text-gray-900">
+        {/* User Posts Section - Updated to match HomePage style */}
+        <div className="mb-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">
               {isCurrentUser ? 'My Posts' : `${user.firstName}'s Posts`}
             </h3>
-            <p className="text-gray-600 mt-1">{mockPosts.length} posts</p>
+            <p className="text-gray-600 text-lg">{posts.length} posts</p>
           </div>
           
-          <div className="divide-y divide-gray-200">
-            {mockPosts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                user={user}
-                getProfileImageSrc={getProfileImageSrc}
-                handleImageError={handleImageError}
-                formatTimeAgo={formatTimeAgo}
-              />
-            ))}
+          {/* Posts Loading State - Updated styling */}
+          {postsLoading && posts.length === 0 && (
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+                <p className="text-gray-600 text-lg">Loading posts...</p>
+              </div>
+            </div>
+          )}
 
-            <div className="px-6 py-4 border-t border-gray-200 text-center">
-              <button className="text-blue-600 hover:text-blue-700 font-medium transition-colors">
-                Load More Posts
+          {/* Posts Error State - Updated styling */}
+          {postsError && (
+            <div className="text-center bg-white rounded-xl border border-gray-100 p-8">
+              <h2 className="text-xl font-bold text-red-600 mb-2">Error</h2>
+              <p className="text-gray-600 mb-4 text-lg">{postsError}</p>
+              <button 
+                onClick={() => user && fetchUserPosts(user.id, 0, false)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors"
+              >
+                Try Again
               </button>
             </div>
-          </div>
-        </div>
+          )}
 
-        {/* Additional Actions for Current User */}
-        {isCurrentUser && (
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Link
-              to="/settings"
-              className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors text-center"
-            >
-              Account Settings
-            </Link>
-            
-            <Link
-              to="/privacy"
-              className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors text-center"
-            >
-              Privacy Settings
-            </Link>
-          </div>
-        )}
+          {/* Posts List - Updated to match HomePage */}
+          {posts.length > 0 && (
+            <>
+              {posts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  onLike={handleLike}
+                  onDelete={handleDeletePost}
+                  onUpdate={handleUpdatePost}
+                />
+              ))}
+
+              {/* Load More Button - Updated to match HomePage */}
+              {hasMore && (
+                <div className="text-center mt-8">
+                  <button
+                    onClick={handleLoadMore}
+                    disabled={loadingMore}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                  >
+                    {loadingMore ? (
+                      <span className="flex items-center space-x-2">
+                        <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <span>Loading...</span>
+                      </span>
+                    ) : (
+                      'Load More Posts'
+                    )}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* No Posts State - Updated to match HomePage */}
+          {!postsLoading && !postsError && posts.length === 0 && (
+            <div className="text-center py-16 bg-white rounded-xl border border-gray-100">
+              <div className="text-gray-400 text-8xl mb-6">📝</div>
+              <h3 className="text-2xl font-bold text-gray-600 mb-3">
+                {isCurrentUser ? 'No posts yet' : `${user.firstName} hasn't posted anything yet`}
+              </h3>
+              <p className="text-gray-500 text-lg">
+                {isCurrentUser ? 'Create your first post to get started!' : 'Check back later for new posts.'}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Edit Profile Modal */}
