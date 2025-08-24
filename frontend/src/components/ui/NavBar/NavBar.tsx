@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { HiHome } from "react-icons/hi";
 import { GoBell } from "react-icons/go";
@@ -121,7 +122,7 @@ function TopHeader({
   };
 
   const handleProfileNavigation = () => {
-    navigate(`/profile/${userId}`);
+    navigate(`/profile/me`);
     setShowMenu(false);
   };
 
