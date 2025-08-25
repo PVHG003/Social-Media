@@ -13,7 +13,7 @@
 
      @Override
      public void addResourceHandlers(ResourceHandlerRegistry registry) {
-         registry.addResourceHandler("/uploads/**")
+         registry.addResourceHandler("/uploads/**", "app/uploads/**")
                  .addResourceLocations("file:" + uploadPath + "/");
      }
  }
