@@ -40,7 +40,7 @@ const LoginForm = () => {
          
             if(response.data?.token) {
                 login(response.data);
-                navigate("/");
+                window.location.href = "/"; // Reload trang để cập nhật trạng thái đăng nhập
             } else{
                 form.setError("root", { message: "Phản hồi đăng nhập không hợp lệ." });
             }
@@ -88,7 +88,7 @@ const LoginForm = () => {
                     <FormItem>
                       <div className="flex items-center justify-between">
                         <FormLabel>Mật khẩu</FormLabel>
-                        <Link to="/forgot-password" className="text-sm font-medium text-primary hover:underline">
+                        <Link to="/forget" className="text-sm font-medium text-primary hover:underline">
                           Quên mật khẩu?
                         </Link>
                       </div>

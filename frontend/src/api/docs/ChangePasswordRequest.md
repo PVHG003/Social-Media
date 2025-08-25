@@ -7,6 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **current_password** | **string** |  | [default to undefined]
 **new_password** | **string** |  | [default to undefined]
+**confirm_password** | **string** |  | [default to undefined]
 
 ## Example
 
@@ -16,6 +17,7 @@ import { ChangePasswordRequest } from './api';
 const instance: ChangePasswordRequest = {
     current_password,
     new_password,
+    confirm_password,
 };
 ```
 

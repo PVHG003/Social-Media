@@ -10,6 +10,7 @@ import { AuthProvider } from "./context/authentication/AuthContext";
 import VerifyPage from "./pages/authentication/VerifyPage";
 import ForgotPasswordPage from "./pages/authentication/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/authentication/ResetPasswordPage";
+import ChangePasswordForm from "./components/authentication/ChangePasswordForm";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/verify" element={<VerifyPage />}/>
           <Route path="/forget" element={<ForgotPasswordPage />} />
           <Route path="/reset" element={<ResetPasswordPage />} />
+          <Route path="/change-password" element={<ChangePasswordForm />} />
           
           {/* Other routes */}
           {/* ... */}

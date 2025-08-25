@@ -1650,6 +1650,12 @@ export interface ChangePasswordRequest {
      * @memberof ChangePasswordRequest
      */
     'new_password': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ChangePasswordRequest
+     */
+    'confirm_password': string;
 }
 /**
  * 
@@ -2288,7 +2294,7 @@ export interface RegisterRequest {
      * @type {string}
      * @memberof RegisterRequest
      */
-    'confirmPassword': string;
+    'confirm_password': string;
 }
 /**
  * 

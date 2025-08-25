@@ -141,11 +141,15 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
-        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.current_password(), user.getPassword())) {
             throw new InvalidCredentialsException("Passwords does not match");
         }
 
-        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        if (!request.new_password().equals(request.confirm_password())) {
+            throw new PasswordMismatchException("New passwords do not match");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.new_password()));
         userRepository.save(user);
 
         jwtService.deleteToken(user.getId());
