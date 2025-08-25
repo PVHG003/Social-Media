@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **subject** | **string** |  | [optional] [default to undefined]
-**userId** | **number** |  | [optional] [default to undefined]
+**userId** | **string** |  | [optional] [default to undefined]
 **email** | **string** |  | [optional] [default to undefined]
 **role** | **string** |  | [optional] [default to undefined]
 **token** | **string** |  | [optional] [default to undefined]

@@ -1,5 +1,8 @@
 package vn.pvhg.backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +27,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
+    @SecurityRequirements
     public ResponseEntity<ApiResponse<Void>> register(
             @Valid @RequestBody RegisterRequest request
     ) {
@@ -35,6 +39,7 @@ public class AuthController {
     }
 
     @PostMapping("/verify")
+    @SecurityRequirements
     public ResponseEntity<ApiResponse<AuthenticatedResponse>> verify(
             @RequestParam("email") String email,
             @RequestParam("code") String code
@@ -47,6 +52,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @SecurityRequirements
     public ResponseEntity<ApiResponse<AuthenticatedResponse>> login(
             @Valid @RequestBody LoginRequest request
     ) {
@@ -70,6 +76,8 @@ public class AuthController {
     }
 
     @PostMapping("/forget")
+    @SecurityRequirements
+    @Operation(summary = "Request password reset", security = @SecurityRequirement(name = "bearerAuth", scopes = {}))
     public ResponseEntity<ApiResponse<Void>> forgotPassword(
             @RequestParam("email") String email
     ) {
@@ -81,6 +89,8 @@ public class AuthController {
     }
 
     @PostMapping("/reset")
+    @SecurityRequirements
+    @Operation(summary = "Reset password with OTP", security = @SecurityRequirement(name = "bearerAuth", scopes = {}))
     public ResponseEntity<ApiResponse<Void>> resetPassword(
             @Valid @RequestBody PasswordResetRequest request
     ) {
@@ -105,6 +115,7 @@ public class AuthController {
     }
 
     @PostMapping("/send-code")
+    @SecurityRequirements
     public ResponseEntity<ApiResponse<Void>> sendCode(
             @RequestParam("email") String email
     ) {

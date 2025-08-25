@@ -8,6 +8,8 @@ import LoginPage from "./pages/authentication/LoginPage";
 import RegisterPage from "./pages/authentication/RegisterPage";
 import { AuthProvider } from "./context/authentication/AuthContext";
 import VerifyPage from "./pages/authentication/VerifyPage";
+import ForgotPasswordPage from "./pages/authentication/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/authentication/ResetPasswordPage";
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/verify" element={<VerifyPage />}/>
+          <Route path="/forget" element={<ForgotPasswordPage />} />
+          <Route path="/reset" element={<ResetPasswordPage />} />
           
           {/* Other routes */}
           {/* ... */}

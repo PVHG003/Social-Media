@@ -128,11 +128,11 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidCredentialsException("OTP code is incorrect or has expired.");
         }
 
-        if(!request.newPassword().equals(request.confirmPassword())) {
+        if(!request.new_password().equals(request.confirm_password())) {
             throw new InvalidCredentialsException("Passwords do not match");
         }
 
-        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        user.setPassword(passwordEncoder.encode(request.new_password()));
         userRepository.save(user);
     }
 

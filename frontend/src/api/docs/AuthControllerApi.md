@@ -5,11 +5,11 @@ All URIs are relative to *http://localhost:8080*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**changePassword**](#changepassword) | **POST** /api/auth/change-password | |
-|[**forgotPassword**](#forgotpassword) | **POST** /api/auth/forget | |
+|[**forgotPassword**](#forgotpassword) | **POST** /api/auth/forget | Request password reset|
 |[**login**](#login) | **POST** /api/auth/login | |
 |[**logout**](#logout) | **POST** /api/auth/logout | |
 |[**register**](#register) | **POST** /api/auth/register | |
-|[**resetPassword**](#resetpassword) | **POST** /api/auth/reset | |
+|[**resetPassword**](#resetpassword) | **POST** /api/auth/reset | Reset password with OTP|
 |[**sendCode**](#sendcode) | **POST** /api/auth/send-code | |
 |[**verify**](#verify) | **POST** /api/auth/verify | |
 
@@ -65,7 +65,7 @@ const { status, data } = await apiInstance.changePassword(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **forgotPassword**
-> ApiResponseAuthenticatedResponse forgotPassword()
+> ApiResponseVoid forgotPassword()
 
 
 ### Example
@@ -95,11 +95,11 @@ const { status, data } = await apiInstance.forgotPassword(
 
 ### Return type
 
-**ApiResponseAuthenticatedResponse**
+**ApiResponseVoid**
 
 ### Authorization
 
-[bearerAuth](../README.md#bearerAuth)
+No authorization required
 
 ### HTTP request headers
 
@@ -150,7 +150,7 @@ const { status, data } = await apiInstance.login(
 
 ### Authorization
 
-[bearerAuth](../README.md#bearerAuth)
+No authorization required
 
 ### HTTP request headers
 
@@ -209,7 +209,7 @@ This endpoint does not have any parameters.
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **register**
-> ApiResponseAuthenticatedResponse register(registerRequest)
+> ApiResponseVoid register(registerRequest)
 
 
 ### Example
@@ -240,11 +240,11 @@ const { status, data } = await apiInstance.register(
 
 ### Return type
 
-**ApiResponseAuthenticatedResponse**
+**ApiResponseVoid**
 
 ### Authorization
 
-[bearerAuth](../README.md#bearerAuth)
+No authorization required
 
 ### HTTP request headers
 
@@ -294,8 +294,8 @@ const { status, data } = await apiInstance.resetPassword(
 **ApiResponseVoid**
 
 ### Authorization
-    
-[bearerAuth](../README.md#bearerAuth)
+
+No authorization required
 
 ### HTTP request headers
 
@@ -345,7 +345,7 @@ const { status, data } = await apiInstance.sendCode(
 
 ### Authorization
 
-[bearerAuth](../README.md#bearerAuth)
+No authorization required
 
 ### HTTP request headers
 
@@ -398,7 +398,7 @@ const { status, data } = await apiInstance.verify(
 
 ### Authorization
 
-[bearerAuth](../README.md#bearerAuth)
+No authorization required
 
 ### HTTP request headers
 

@@ -5,7 +5,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**email** | **string** |  | [default to undefined]
+**code** | **string** |  | [default to undefined]
 **new_password** | **string** |  | [default to undefined]
+**confirm_password** | **string** |  | [default to undefined]
 
 ## Example
 
@@ -13,7 +16,10 @@ Name | Type | Description | Notes
 import { PasswordResetRequest } from './api';
 
 const instance: PasswordResetRequest = {
+    email,
+    code,
     new_password,
+    confirm_password,
 };
 ```
 

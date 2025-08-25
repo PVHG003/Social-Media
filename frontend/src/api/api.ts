@@ -1609,10 +1609,10 @@ export interface AuthenticatedResponse {
     'subject'?: string;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof AuthenticatedResponse
      */
-    'userId'?: number;
+    'userId'?: string;
     /**
      * 
      * @type {string}
@@ -2153,7 +2153,25 @@ export interface PasswordResetRequest {
      * @type {string}
      * @memberof PasswordResetRequest
      */
+    'email': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PasswordResetRequest
+     */
+    'code': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PasswordResetRequest
+     */
     'new_password': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PasswordResetRequest
+     */
+    'confirm_password': string;
 }
 /**
  * 
@@ -2296,6 +2314,12 @@ export interface UserDto {
      * @memberof UserDto
      */
     'email'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserDto
+     */
+    'profileImagePath'?: string;
 }
 /**
  * 
@@ -2406,6 +2430,12 @@ export interface UserUpdateRequest {
      * @memberof UserUpdateRequest
      */
     'bio'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserUpdateRequest
+     */
+    'profileImagePath'?: string;
 }
 
 /**
@@ -2455,6 +2485,7 @@ export const AuthControllerApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 
+         * @summary Request password reset
          * @param {string} email 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2473,10 +2504,6 @@ export const AuthControllerApiAxiosParamCreator = function (configuration?: Conf
             const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            // authentication bearerAuth required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
             if (email !== undefined) {
                 localVarQueryParameter['email'] = email;
@@ -2513,10 +2540,6 @@ export const AuthControllerApiAxiosParamCreator = function (configuration?: Conf
             const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            // authentication bearerAuth required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
 
     
@@ -2586,10 +2609,6 @@ export const AuthControllerApiAxiosParamCreator = function (configuration?: Conf
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication bearerAuth required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
 
     
             localVarHeaderParameter['Content-Type'] = 'application/json';
@@ -2606,6 +2625,7 @@ export const AuthControllerApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 
+         * @summary Reset password with OTP
          * @param {PasswordResetRequest} passwordResetRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2624,10 +2644,6 @@ export const AuthControllerApiAxiosParamCreator = function (configuration?: Conf
             const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            // authentication bearerAuth required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
 
     
@@ -2663,10 +2679,6 @@ export const AuthControllerApiAxiosParamCreator = function (configuration?: Conf
             const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            // authentication bearerAuth required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
             if (email !== undefined) {
                 localVarQueryParameter['email'] = email;
@@ -2706,10 +2718,6 @@ export const AuthControllerApiAxiosParamCreator = function (configuration?: Conf
             const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            // authentication bearerAuth required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
             if (email !== undefined) {
                 localVarQueryParameter['email'] = email;
@@ -2754,11 +2762,12 @@ export const AuthControllerApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Request password reset
          * @param {string} email 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async forgotPassword(email: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiResponseAuthenticatedResponse>> {
+        async forgotPassword(email: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiResponseVoid>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.forgotPassword(email, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AuthControllerApi.forgotPassword']?.[localVarOperationServerIndex]?.url;
@@ -2793,7 +2802,7 @@ export const AuthControllerApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async register(registerRequest: RegisterRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiResponseAuthenticatedResponse>> {
+        async register(registerRequest: RegisterRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiResponseVoid>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.register(registerRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AuthControllerApi.register']?.[localVarOperationServerIndex]?.url;
@@ -2801,6 +2810,7 @@ export const AuthControllerApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Reset password with OTP
          * @param {PasswordResetRequest} passwordResetRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2857,11 +2867,12 @@ export const AuthControllerApiFactory = function (configuration?: Configuration,
         },
         /**
          * 
+         * @summary Request password reset
          * @param {string} email 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        forgotPassword(email: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseAuthenticatedResponse> {
+        forgotPassword(email: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseVoid> {
             return localVarFp.forgotPassword(email, options).then((request) => request(axios, basePath));
         },
         /**
@@ -2887,11 +2898,12 @@ export const AuthControllerApiFactory = function (configuration?: Configuration,
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        register(registerRequest: RegisterRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseAuthenticatedResponse> {
+        register(registerRequest: RegisterRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseVoid> {
             return localVarFp.register(registerRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
+         * @summary Reset password with OTP
          * @param {PasswordResetRequest} passwordResetRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2922,12 +2934,94 @@ export const AuthControllerApiFactory = function (configuration?: Configuration,
 };
 
 /**
+ * AuthControllerApi - interface
+ * @export
+ * @interface AuthControllerApi
+ */
+export interface AuthControllerApiInterface {
+    /**
+     * 
+     * @param {ChangePasswordRequest} changePasswordRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthControllerApiInterface
+     */
+    changePassword(changePasswordRequest: ChangePasswordRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseAuthenticatedResponse>;
+
+    /**
+     * 
+     * @summary Request password reset
+     * @param {string} email 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthControllerApiInterface
+     */
+    forgotPassword(email: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseVoid>;
+
+    /**
+     * 
+     * @param {LoginRequest} loginRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthControllerApiInterface
+     */
+    login(loginRequest: LoginRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseAuthenticatedResponse>;
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthControllerApiInterface
+     */
+    logout(options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseVoid>;
+
+    /**
+     * 
+     * @param {RegisterRequest} registerRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthControllerApiInterface
+     */
+    register(registerRequest: RegisterRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseVoid>;
+
+    /**
+     * 
+     * @summary Reset password with OTP
+     * @param {PasswordResetRequest} passwordResetRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthControllerApiInterface
+     */
+    resetPassword(passwordResetRequest: PasswordResetRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseVoid>;
+
+    /**
+     * 
+     * @param {string} email 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthControllerApiInterface
+     */
+    sendCode(email: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseVoid>;
+
+    /**
+     * 
+     * @param {string} email 
+     * @param {string} code 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthControllerApiInterface
+     */
+    verify(email: string, code: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseAuthenticatedResponse>;
+
+}
+
+/**
  * AuthControllerApi - object-oriented interface
  * @export
  * @class AuthControllerApi
  * @extends {BaseAPI}
  */
-export class AuthControllerApi extends BaseAPI {
+export class AuthControllerApi extends BaseAPI implements AuthControllerApiInterface {
     /**
      * 
      * @param {ChangePasswordRequest} changePasswordRequest 
@@ -2941,6 +3035,7 @@ export class AuthControllerApi extends BaseAPI {
 
     /**
      * 
+     * @summary Request password reset
      * @param {string} email 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -2984,6 +3079,7 @@ export class AuthControllerApi extends BaseAPI {
 
     /**
      * 
+     * @summary Reset password with OTP
      * @param {PasswordResetRequest} passwordResetRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -3553,12 +3649,96 @@ export const ChatControllerApiFactory = function (configuration?: Configuration,
 };
 
 /**
+ * ChatControllerApi - interface
+ * @export
+ * @interface ChatControllerApi
+ */
+export interface ChatControllerApiInterface {
+    /**
+     * 
+     * @param {string} chatId 
+     * @param {AddMembersRequest} addMembersRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ChatControllerApiInterface
+     */
+    addMembers(chatId: string, addMembersRequest: AddMembersRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseChatDetailResponse>;
+
+    /**
+     * 
+     * @param {ChatCreateRequest} chatCreateRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ChatControllerApiInterface
+     */
+    createChat(chatCreateRequest: ChatCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseChatDetailResponse>;
+
+    /**
+     * 
+     * @param {string} chatId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ChatControllerApiInterface
+     */
+    deleteChat(chatId: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseVoid>;
+
+    /**
+     * 
+     * @param {string} chatId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ChatControllerApiInterface
+     */
+    getChatInfo(chatId: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseChatDetailResponse>;
+
+    /**
+     * 
+     * @param {Pageable} pageable 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ChatControllerApiInterface
+     */
+    getChatList(pageable: Pageable, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListChatListResponse>;
+
+    /**
+     * 
+     * @param {string} chatId 
+     * @param {Pageable} pageable 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ChatControllerApiInterface
+     */
+    getChatMessages(chatId: string, pageable: Pageable, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListChatMessageResponse>;
+
+    /**
+     * 
+     * @param {string} chatId 
+     * @param {string} memberId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ChatControllerApiInterface
+     */
+    removeMember(chatId: string, memberId: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseChatDetailResponse>;
+
+    /**
+     * 
+     * @param {string} chatId 
+     * @param {any} body 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ChatControllerApiInterface
+     */
+    updateChat(chatId: string, body: any, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseChatDetailResponse>;
+
+}
+
+/**
  * ChatControllerApi - object-oriented interface
  * @export
  * @class ChatControllerApi
  * @extends {BaseAPI}
  */
-export class ChatControllerApi extends BaseAPI {
+export class ChatControllerApi extends BaseAPI implements ChatControllerApiInterface {
     /**
      * 
      * @param {string} chatId 
@@ -3886,12 +4066,49 @@ export const ChatMediaControllerApiFactory = function (configuration?: Configura
 };
 
 /**
+ * ChatMediaControllerApi - interface
+ * @export
+ * @interface ChatMediaControllerApi
+ */
+export interface ChatMediaControllerApiInterface {
+    /**
+     * 
+     * @param {string} fileName 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ChatMediaControllerApiInterface
+     */
+    getFile(fileName: string, options?: RawAxiosRequestConfig): AxiosPromise<object>;
+
+    /**
+     * 
+     * @param {string} chatId 
+     * @param {Array<File>} files 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ChatMediaControllerApiInterface
+     */
+    uploadAttachments(chatId: string, files: Array<File>, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseListAttachmentResponse>;
+
+    /**
+     * 
+     * @param {string} chatId 
+     * @param {File} files 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ChatMediaControllerApiInterface
+     */
+    uploadGroupImage(chatId: string, files: File, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseChatDetailResponse>;
+
+}
+
+/**
  * ChatMediaControllerApi - object-oriented interface
  * @export
  * @class ChatMediaControllerApi
  * @extends {BaseAPI}
  */
-export class ChatMediaControllerApi extends BaseAPI {
+export class ChatMediaControllerApi extends BaseAPI implements ChatMediaControllerApiInterface {
     /**
      * 
      * @param {string} fileName 
@@ -4352,12 +4569,80 @@ export const CommentControllerApiFactory = function (configuration?: Configurati
 };
 
 /**
+ * CommentControllerApi - interface
+ * @export
+ * @interface CommentControllerApi
+ */
+export interface CommentControllerApiInterface {
+    /**
+     * 
+     * @param {string} postId 
+     * @param {CommentRequestDto} commentRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CommentControllerApiInterface
+     */
+    createComment(postId: string, commentRequestDto: CommentRequestDto, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseCommentResponseDto>;
+
+    /**
+     * 
+     * @param {string} commentId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CommentControllerApiInterface
+     */
+    deleteComment(commentId: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseVoid>;
+
+    /**
+     * 
+     * @param {string} commentId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CommentControllerApiInterface
+     */
+    getComment(commentId: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseCommentResponseDto>;
+
+    /**
+     * 
+     * @param {string} postId 
+     * @param {number} [page] 
+     * @param {number} [size] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CommentControllerApiInterface
+     */
+    getCommentsByPost(postId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListCommentResponseDto>;
+
+    /**
+     * 
+     * @param {string} userId 
+     * @param {number} [page] 
+     * @param {number} [size] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CommentControllerApiInterface
+     */
+    getCommentsByUser(userId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListCommentResponseDto>;
+
+    /**
+     * 
+     * @param {string} commentId 
+     * @param {CommentUpdateDto} commentUpdateDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CommentControllerApiInterface
+     */
+    updateComment(commentId: string, commentUpdateDto: CommentUpdateDto, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseCommentResponseDto>;
+
+}
+
+/**
  * CommentControllerApi - object-oriented interface
  * @export
  * @class CommentControllerApi
  * @extends {BaseAPI}
  */
-export class CommentControllerApi extends BaseAPI {
+export class CommentControllerApi extends BaseAPI implements CommentControllerApiInterface {
     /**
      * 
      * @param {string} postId 
@@ -4526,12 +4811,29 @@ export const NotificationControllerApiFactory = function (configuration?: Config
 };
 
 /**
+ * NotificationControllerApi - interface
+ * @export
+ * @interface NotificationControllerApi
+ */
+export interface NotificationControllerApiInterface {
+    /**
+     * 
+     * @param {Pageable} pageable 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof NotificationControllerApiInterface
+     */
+    getNotifications(pageable: Pageable, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListNotificationResponse>;
+
+}
+
+/**
  * NotificationControllerApi - object-oriented interface
  * @export
  * @class NotificationControllerApi
  * @extends {BaseAPI}
  */
-export class NotificationControllerApi extends BaseAPI {
+export class NotificationControllerApi extends BaseAPI implements NotificationControllerApiInterface {
     /**
      * 
      * @param {Pageable} pageable 
@@ -5078,12 +5380,97 @@ export const PostControllerApiFactory = function (configuration?: Configuration,
 };
 
 /**
+ * PostControllerApi - interface
+ * @export
+ * @interface PostControllerApi
+ */
+export interface PostControllerApiInterface {
+    /**
+     * 
+     * @param {string} [content] 
+     * @param {Array<File>} [mediaFiles] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PostControllerApiInterface
+     */
+    createPost(content?: string, mediaFiles?: Array<File>, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponsePostResponse>;
+
+    /**
+     * 
+     * @param {string} postId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PostControllerApiInterface
+     */
+    deletePost(postId: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseVoid>;
+
+    /**
+     * 
+     * @param {number} [page] 
+     * @param {number} [size] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PostControllerApiInterface
+     */
+    getAllPosts(page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListPostResponse>;
+
+    /**
+     * 
+     * @param {string} postId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PostControllerApiInterface
+     */
+    getPost(postId: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponsePostResponse>;
+
+    /**
+     * 
+     * @param {string} userId 
+     * @param {number} [page] 
+     * @param {number} [size] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PostControllerApiInterface
+     */
+    getPostsByUser(userId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListPostResponse>;
+
+    /**
+     * 
+     * @param {string} postId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PostControllerApiInterface
+     */
+    likePost(postId: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponsePostResponse>;
+
+    /**
+     * 
+     * @param {string} postId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PostControllerApiInterface
+     */
+    unlikePost(postId: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponsePostResponse>;
+
+    /**
+     * 
+     * @param {string} postId 
+     * @param {PostUpdateRequest} postUpdateRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PostControllerApiInterface
+     */
+    updatePost(postId: string, postUpdateRequest: PostUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponsePostResponse>;
+
+}
+
+/**
  * PostControllerApi - object-oriented interface
  * @export
  * @class PostControllerApi
  * @extends {BaseAPI}
  */
-export class PostControllerApi extends BaseAPI {
+export class PostControllerApi extends BaseAPI implements PostControllerApiInterface {
     /**
      * 
      * @param {string} [content] 
@@ -5262,12 +5649,28 @@ export const TestControllerApiFactory = function (configuration?: Configuration,
 };
 
 /**
+ * TestControllerApi - interface
+ * @export
+ * @interface TestControllerApi
+ */
+export interface TestControllerApiInterface {
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TestControllerApiInterface
+     */
+    ping(options?: RawAxiosRequestConfig): AxiosPromise<string>;
+
+}
+
+/**
  * TestControllerApi - object-oriented interface
  * @export
  * @class TestControllerApi
  * @extends {BaseAPI}
  */
-export class TestControllerApi extends BaseAPI {
+export class TestControllerApi extends BaseAPI implements TestControllerApiInterface {
     /**
      * 
      * @param {*} [options] Override http request option.
@@ -5946,12 +6349,115 @@ export const UserControllerApiFactory = function (configuration?: Configuration,
 };
 
 /**
+ * UserControllerApi - interface
+ * @export
+ * @interface UserControllerApi
+ */
+export interface UserControllerApiInterface {
+    /**
+     * 
+     * @param {string} userId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserControllerApiInterface
+     */
+    followUser(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseVoid>;
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserControllerApiInterface
+     */
+    getCurrentUser(options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseUserResponse>;
+
+    /**
+     * 
+     * @param {string} userId 
+     * @param {number} [page] 
+     * @param {number} [size] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserControllerApiInterface
+     */
+    getFollowers(userId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListUserResponse>;
+
+    /**
+     * 
+     * @param {string} userId 
+     * @param {number} [page] 
+     * @param {number} [size] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserControllerApiInterface
+     */
+    getFollowing(userId: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListUserResponse>;
+
+    /**
+     * 
+     * @param {string} userId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserControllerApiInterface
+     */
+    getUserProfile(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseUserResponse>;
+
+    /**
+     * 
+     * @param {string} q 
+     * @param {number} [page] 
+     * @param {number} [size] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserControllerApiInterface
+     */
+    searchUsers(q: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<ApiPaginatedResponseListUserResponse>;
+
+    /**
+     * 
+     * @param {string} userId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserControllerApiInterface
+     */
+    unfollowUser(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseVoid>;
+
+    /**
+     * 
+     * @param {UserUpdateRequest} userUpdateRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserControllerApiInterface
+     */
+    updateCurrentUser(userUpdateRequest: UserUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseUserResponse>;
+
+    /**
+     * 
+     * @param {File} file 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserControllerApiInterface
+     */
+    uploadCoverImage(file: File, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseUserResponse>;
+
+    /**
+     * 
+     * @param {File} file 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserControllerApiInterface
+     */
+    uploadProfileImage(file: File, options?: RawAxiosRequestConfig): AxiosPromise<ApiResponseUserResponse>;
+
+}
+
+/**
  * UserControllerApi - object-oriented interface
  * @export
  * @class UserControllerApi
  * @extends {BaseAPI}
  */
-export class UserControllerApi extends BaseAPI {
+export class UserControllerApi extends BaseAPI implements UserControllerApiInterface {
     /**
      * 
      * @param {string} userId 
