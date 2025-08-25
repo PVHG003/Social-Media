@@ -10,33 +10,80 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/authentication/AuthContext";
 import userApi from "../../../services/user/apiUser";
 
-interface TopHeaderProps {
-  fullName?: string;
-  username?: string;
-  userAvatar?: string;
-  userId?: string;
-  isAuthenticated?: boolean;
-}
-
-function TopHeader({
-  fullName ,
-  username,
-  userAvatar,
-  userId,
-  isAuthenticated = true
-}: TopHeaderProps) {
+// Remove all props - NavBar is now completely independent
+function TopHeader() {
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [scroll, setScroll] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
   const [searchLoading, setSearchLoading] = useState<boolean>(false);
+  const [currentUserData, setCurrentUserData] = useState<any>(null);
+  const [userDataLoading, setUserDataLoading] = useState<boolean>(false);
+  
   const navigate = useNavigate();
-  const {logout} = useAuth()!;
-
+  const authContext = useAuth();
+  
   // Refs for click outside detection
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Authentication status based purely on AuthContext
+  const isAuthenticated = !!authContext?.token;
+  
+  // Get user data from AuthContext or fetch if needed
+  const getUserData = () => {
+    if (authContext?.user && isAuthenticated) {
+      return {
+        fullName: `${authContext.user.firstName || ''} ${authContext.user.lastName || ''}`.trim(),
+        username: authContext.user.username || '',
+        userAvatar: authContext.user.profileImagePath || '',
+        userId: authContext.user.userId || ''
+      };
+    } else if (currentUserData) {
+      return {
+        fullName: `${currentUserData.firstName || ''} ${currentUserData.lastName || ''}`.trim(),
+        username: currentUserData.username || '',
+        userAvatar: currentUserData.profileImagePath || '',
+        userId: currentUserData.id || ''
+      };
+    } else {
+      return {
+        fullName: '',
+        username: '',
+        userAvatar: '',
+        userId: ''
+      };
+    }
+  };
+
+  const { fullName, username, userAvatar, userId } = getUserData();
+
+  // Fetch current user data if we have token but no user data in context
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      if (authContext?.token && !authContext?.user && !currentUserData && !userDataLoading) {
+        setUserDataLoading(true);
+        try {
+          const response = await userApi.getCurrentUser();
+          setCurrentUserData(response.data);
+        } catch (error) {
+          console.error('Failed to fetch current user:', error);
+          // If token is invalid, logout
+          if (error && typeof error === 'object' && 'message' in error) {
+            const errorMessage = (error as any).message;
+            if (errorMessage?.includes('401') || errorMessage?.includes('Unauthorized')) {
+              authContext?.logout();
+            }
+          }
+        } finally {
+          setUserDataLoading(false);
+        }
+      }
+    };
+
+    fetchCurrentUser();
+  }, [authContext?.token, authContext?.user, currentUserData, userDataLoading, authContext]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -124,7 +171,15 @@ function TopHeader({
   };
 
   const handleProfileNavigation = () => {
-    navigate(`/profile/me`);
+    // Navigate to current user's profile
+    if (authContext?.user?.userId) {
+      navigate(`/profile/${authContext.user.userId}`);
+    } else if (currentUserData?.id) {
+      navigate(`/profile/${currentUserData.id}`);
+    } else {
+      // Fallback to /profile/me if no user ID available
+      navigate(`/profile/me`);
+    }
     setShowMenu(false);
   };
 
@@ -137,21 +192,28 @@ function TopHeader({
   };
 
   const handleLogout = async () => {
-    // Add logout logic here
     setShowMenu(false);
-    await logout();
+    // Clear local user data
+    setCurrentUserData(null);
+    
+    if (authContext?.logout) {
+      await authContext.logout();
+    }
   };
 
   const getProfileImageSrc = (profileImagePath?: string | null): string => {
     if (!profileImagePath || profileImagePath.trim() === '') {
       return '/default-avatar.png';
     }
-    return profileImagePath;
+    return profileImagePath.startsWith('http') ? profileImagePath : `http://localhost:8080${profileImagePath}`;
   };
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     e.currentTarget.src = '/default-avatar.png';
   };
+
+  // Show loading state if we're authenticated but fetching user data
+  const showUserDataLoading = isAuthenticated && !fullName && userDataLoading;
 
   return (
     <div
@@ -173,7 +235,7 @@ function TopHeader({
           ></span>
         </span>
         
-        {/* Search Container - Only show if authenticated - Made smaller */}
+        {/* Search Container - Only show if authenticated */}
         {isAuthenticated && (
           <span className="lg:mx-3 lg:flex hidden w-full relative">
             <div className="relative w-full" ref={searchContainerRef}>
@@ -242,8 +304,14 @@ function TopHeader({
         />
         {isAuthenticated && (
           <>
-            <AiOutlineMessage className="text-white cursor-pointer text-lg lg:text-xl mx-2 lg:mx-4 hover:text-blue-400 hover:scale-110 transition-all" />
-            <GoBell className="text-white cursor-pointer text-lg lg:text-xl mx-2 lg:mx-4 hover:text-blue-400 hover:scale-110 transition-all" />
+            <AiOutlineMessage 
+              className="text-white cursor-pointer text-lg lg:text-xl mx-2 lg:mx-4 hover:text-blue-400 hover:scale-110 transition-all" 
+              onClick={() => navigate("/chat")}
+            />
+            <GoBell 
+              className="text-white cursor-pointer text-lg lg:text-xl mx-2 lg:mx-4 hover:text-blue-400 hover:scale-110 transition-all"
+              onClick={() => navigate("/notifications")}
+            />
           </>
         )}
       </span>
@@ -252,63 +320,75 @@ function TopHeader({
       <span className="w-auto lg:w-1/3 flex items-center justify-start md:justify-end cursor-pointer p-1 relative z-50">
         {isAuthenticated ? (
           <div ref={userMenuRef} className="flex items-center">
-            {/* Authenticated User Menu */}
-            <div
-              className="flex items-center mr-2 cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => setShowMenu(!showMenu)}
-            >
-              <img
-                src={userAvatar}
-                alt={fullName}
-                className="w-6 h-6 lg:w-8 lg:h-8 rounded-full object-cover border-2 border-white shadow-md mr-1 lg:mr-2"
-              />
-              <span className="text-white font-medium text-xs lg:text-sm hidden md:block truncate max-w-24 lg:max-w-32">
-                {fullName}
-              </span>
-            </div>
-
-            <span
-              className="w-6 lg:w-8 h-6 lg:h-8 shadow-md bg-black/70 flex items-center justify-center rounded-md hover:bg-black/80 transition-colors"
-              onClick={() => setShowMenu(!showMenu)}
-            >
-              <FaAngleDown
-                className={`text-white text-xs lg:text-sm transition-transform ${
-                  showMenu ? "rotate-180" : ""
-                }`}
-              />
-            </span>
-
-            {/* dropdown menu */}
-            {showMenu && (
-              <div className="absolute w-full md:w-40 shadow-xl top-10 right-0 flex items-center justify-center flex-col rounded-lg overflow-hidden">
-                {/* User Info in Dropdown */}
-                <div className="w-40 h-12 bg-black/95 shadow flex items-center justify-start px-3 border-b border-gray-700">
+            {/* Show loading or user menu */}
+            {showUserDataLoading ? (
+              <div className="flex items-center">
+                <div className="w-6 h-6 lg:w-8 lg:h-8 rounded-full bg-gray-300 animate-pulse mr-2"></div>
+                <span className="text-white text-xs lg:text-sm">Loading...</span>
+              </div>
+            ) : (
+              <>
+                {/* Authenticated User Menu */}
+                <div
+                  className="flex items-center mr-2 cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => setShowMenu(!showMenu)}
+                >
                   <img
-                    src={userAvatar}
-                    alt={fullName}
-                    className="w-8 h-8 rounded-full object-cover border-2 border-gray-500 mr-2"
+                    src={getProfileImageSrc(userAvatar)}
+                    alt={fullName || 'User'}
+                    className="w-6 h-6 lg:w-8 lg:h-8 rounded-full object-cover border-2 border-white shadow-md mr-1 lg:mr-2"
+                    onError={handleImageError}
                   />
-                  <div className="flex flex-col min-w-0 flex-1">
-                    <span className="text-white text-xs font-bold truncate">{fullName}</span>
-                    <span className="text-gray-400 text-xs truncate">@{username}</span>
-                  </div>
+                  <span className="text-white font-medium text-xs lg:text-sm hidden md:block truncate max-w-24 lg:max-w-32">
+                    {fullName || 'User'}
+                  </span>
                 </div>
 
-                <li
-                  className="w-40 h-10 bg-black/90 shadow flex items-center justify-start list-none px-3 text-white text-xs font-bold hover:bg-gray-800 transition-all duration-300 cursor-pointer"
-                  onClick={handleProfileNavigation}
+                <span
+                  className="w-6 lg:w-8 h-6 lg:h-8 shadow-md bg-black/70 flex items-center justify-center rounded-md hover:bg-black/80 transition-colors"
+                  onClick={() => setShowMenu(!showMenu)}
                 >
-                  <MdAccountCircle fontSize={14} className="mr-2" />
-                  View Profile
-                </li>
-                <li
-                  className="w-40 h-10 bg-black/90 shadow flex items-center justify-start list-none px-3 text-white text-xs font-bold hover:bg-gray-800 transition-all duration-300 cursor-pointer"
-                  onClick={handleLogout}
-                >
-                  <FaPowerOff fontSize={14} className="mr-2" />
-                  Log Out
-                </li>
-              </div>
+                  <FaAngleDown
+                    className={`text-white text-xs lg:text-sm transition-transform ${
+                      showMenu ? "rotate-180" : ""
+                    }`}
+                  />
+                </span>
+
+                {/* dropdown menu */}
+                {showMenu && (
+                  <div className="absolute w-full md:w-40 shadow-xl top-10 right-0 flex items-center justify-center flex-col rounded-lg overflow-hidden">
+                    {/* User Info in Dropdown */}
+                    <div className="w-40 h-12 bg-black/95 shadow flex items-center justify-start px-3 border-b border-gray-700">
+                      <img
+                        src={getProfileImageSrc(userAvatar)}
+                        alt={fullName || 'User'}
+                        className="w-8 h-8 rounded-full object-cover border-2 border-gray-500 mr-2"
+                        onError={handleImageError}
+                      />
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <span className="text-white text-xs font-bold truncate">{fullName || 'User'}</span>
+                        <span className="text-gray-400 text-xs truncate">@{username || 'username'}</span>
+                      </div>
+                    </div>
+
+                    <li
+                      className="w-40 h-10 bg-black/90 shadow flex items-center justify-start list-none px-3 text-white text-xs font-bold hover:bg-gray-800 transition-all duration-300 cursor-pointer"
+                      onClick={handleProfileNavigation}
+                    >
+                      <MdAccountCircle fontSize={14} className="mr-2" />
+                      View Profile
+                    </li>
+                    <li
+                      className="w-40 h-10 bg-black/90 shadow flex items-center justify-start list-none px-3 text-white text-xs font-bold hover:bg-gray-800 transition-all duration-300 cursor-pointer"
+                      onClick={handleLogout}
+                    >
+                      <FaPowerOff fontSize={14} className="mr-2" />
+                      Log Out
+                    </li>
+                  </div>
+                )}
+              </>
             )}
           </div>
         ) : (

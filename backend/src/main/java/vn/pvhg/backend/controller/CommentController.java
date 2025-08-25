@@ -133,7 +133,7 @@ public class CommentController {
     ) {
         try {
             commentService.deleteComment(commentId, userDetails);
-            ApiResponse<Void> response = new ApiResponse<>(HttpStatus.NO_CONTENT, "Comment deleted", true, null);
+            ApiResponse<Void> response = new ApiResponse<>(HttpStatus.OK, "Comment deleted", true, null);
             return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
         } catch (Exception e) {
             log.error("Error deleting comment: {}", e.getMessage());

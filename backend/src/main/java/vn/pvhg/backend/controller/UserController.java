@@ -123,9 +123,9 @@ public class UserController {
     public ResponseEntity<ApiResponse<Void>> unfollowUser(@PathVariable UUID userId) {
         userService.unfollowUser(userId);
         ApiResponse<Void> response = new ApiResponse<>(
-                HttpStatus.NO_CONTENT, "Unfollowed", true, null
+                HttpStatus.OK, "Unfollowed", true, null
         );
-        return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/search")
