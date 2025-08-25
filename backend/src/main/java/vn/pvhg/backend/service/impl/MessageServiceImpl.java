@@ -61,9 +61,10 @@ public class MessageServiceImpl implements MessageService {
             });
             attachmentRepository.saveAll(attachments);
         }
+        Message reloadedMessage = messageRepository.findById(savedMessage.getId())
+                .orElseThrow(() -> new ChatNotFoundException("Message not found after save"));
 
-        return messageMapper.toOutgoingMessage(user, savedMessage);
-    }
+        return messageMapper.toOutgoingMessage(user, reloadedMessage);    }
 
     @Override
     public OutgoingMessage deleteMessage(UserDetailsImpl userDetails, UUID messageId) {

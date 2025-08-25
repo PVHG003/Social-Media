@@ -1,10 +1,3 @@
-import type {
-  ChatDetailResponse,
-  ChatListResponse,
-  ChatMessageResponse,
-  Pageable,
-} from "@/api";
-import apiChat from "@/services/chat/apiChat";
 import {
   createContext,
   useContext,
@@ -12,129 +5,218 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useParams } from "react-router-dom";
+import type {
+  ChatDetailResponse,
+  ChatListResponse,
+  ChatMessageResponse,
+} from "@/api";
+import chatApi from "@/services/chat/apiChat";
 
-interface ChatContextInterface {
-  currentChatId: string;
-  setCurrentChatId: (id: string) => void;
-
-  conversations: ChatListResponse[];
-  setConversations: React.Dispatch<React.SetStateAction<ChatListResponse[]>>;
-
-  chatMessages: ChatMessageResponse[];
-  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessageResponse[]>>;
-
-  chatDetail: ChatDetailResponse | undefined;
-  addConversation: (chat: ChatListResponse) => void;
-
-  fetchChatMessages: (page?: number, append?: boolean) => Promise<void>;
-
-  chatPage: number;
-
-  hasMoreMessages: boolean;
+interface ChatContextType {
+  currentChatId: string | null;
+  setCurrentChatId: (chatId: string | null) => void;
+  chats: ChatListResponse[];
+  chatInfo: ChatDetailResponse | null;
+  messages: ChatMessageResponse[];
+  loadingChats: boolean;
+  loadingChatInfo: boolean;
+  loadingMessages: boolean;
+  errorChats: string | null;
+  errorChatInfo: string | null;
+  errorMessages: string | null;
+  fetchChats: () => Promise<void>;
+  fetchMessages: (chatId: string) => Promise<void>;
+  fetchChatInfo: (chatId: string) => Promise<void>;
+  addMessage: (message: ChatMessageResponse) => void;
+  addChat: (payloadData: ChatMessageResponse) => void;
 }
 
-export const ChatContext = createContext<ChatContextInterface | undefined>(
+export const ChatContext = createContext<ChatContextType | undefined>(
   undefined
 );
 
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
-  const { chatId } = useParams<{ chatId: string }>();
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
+  const [chats, setChats] = useState<ChatListResponse[]>([]);
+  const [chatInfo, setChatInfo] = useState<ChatDetailResponse | null>(null);
+  const [messages, setMessages] = useState<ChatMessageResponse[]>([]);
+  const [loadingChats, setLoadingChats] = useState(false);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [loadingChatInfo, setLoadingChatInfo] = useState(false);
+  const [errorChats, setErrorChats] = useState<string | null>(null);
+  const [errorMessages, setErrorMessages] = useState<string | null>(null);
+  const [errorChatInfo, setErrorChatInfo] = useState<string | null>(null);
 
-  const [currentChatId, setCurrentChatId] = useState<string>(chatId ?? "");
-  const [conversations, setConversations] = useState<ChatListResponse[]>([]);
-  const [chatMessages, setChatMessages] = useState<ChatMessageResponse[]>([]);
-  const [chatDetail, setChatDetail] = useState<ChatDetailResponse | undefined>(
-    undefined
-  );
-  const [chatPage, setChatPage] = useState(0);
-  const [hasMoreMessages, setHasMoreMessages] = useState(true);
+  const fetchChats = async () => {
+    setLoadingChats(true);
+    setErrorChats(null);
+    try {
+      const { data } = await chatApi.getChatList({ page: 0, size: 50 });
 
+      const sortedData = data?.sort((a, b) => {
+        return (
+          new Date(b.lastMessageSentAt ?? 0).getTime() -
+          new Date(a.lastMessageSentAt ?? 0).getTime()
+        );
+      });
+
+      setChats(sortedData || []);
+      console.log("[ChatProvider] Fetched chats:", sortedData);
+    } catch (err: any) {
+      setErrorChats(err.message || "Failed to fetch chats");
+    } finally {
+      setLoadingChats(false);
+    }
+  };
+
+  const fetchMessages = async (chatId: string) => {
+    setLoadingMessages(true);
+    setErrorMessages(null);
+    try {
+      const { data } = await chatApi.getChatMessages(chatId, {
+        page: 0,
+        size: 50,
+      });
+
+      // 🔥 Replace "\n" with actual new lines
+      const cleanedMessages = (data || []).map((msg: any) => ({
+        ...msg,
+        content: msg.content ? msg.content.replace(/\\n/g, "\n") : "",
+      }));
+
+      setMessages(cleanedMessages.reverse());
+      console.log("[ChatProvider] Fetched messages:", cleanedMessages);
+    } catch (err: any) {
+      setErrorMessages(err.message || "Failed to fetch messages");
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  const fetchChatInfo = async (chatId: string) => {
+    setLoadingChatInfo(true);
+    setErrorChatInfo(null);
+    try {
+      const { data } = await chatApi.getChatInfo(chatId);
+      setChatInfo(data || null);
+      console.log("[ChatProvider] Fetched chat info:", data);
+    } catch (err: any) {
+      setErrorChatInfo(err.message || "Failed to fetch chat info");
+    } finally {
+      setLoadingChatInfo(false);
+    }
+  };
+
+  const addMessage = (message: ChatMessageResponse) => {
+    setMessages((prevMessages) => [...prevMessages, message]);
+  };
+
+  const addChat = async (payloadData: ChatMessageResponse) => {
+    if (currentChatId) {
+      try {
+        const { data: chatDetail } = await chatApi.getChatInfo(currentChatId);
+
+        if (!chatDetail) return;
+
+        const chat: ChatListResponse = {
+          chatId: chatDetail.chatId,
+          chatDisplayName: chatDetail.chatDisplayName,
+          chatDisplayImage: chatDetail.chatDisplayImage,
+          chatType: chatDetail.chatType,
+          createdAt: chatDetail.createdAt,
+          muted: false,
+          unreadMessagesCount: 0,
+          lastMessage:
+            (payloadData?.attachments?.length ?? 0) > 0
+              ? "[Attachment]"
+              : payloadData.content,
+          lastMessageSenderUsername: payloadData.senderUsername,
+          lastMessageSentAt: payloadData.sentAt,
+        };
+
+        setChats((prevChats) => {
+          const existingIndex = prevChats.findIndex(
+            (c) => c.chatId === currentChatId
+          );
+
+          if (existingIndex !== -1) {
+            // Update existing chat
+            const updatedChats = [...prevChats];
+            updatedChats[existingIndex] = {
+              ...updatedChats[existingIndex],
+              ...chat,
+            };
+
+            // Move to top
+            return [
+              updatedChats[existingIndex],
+              ...updatedChats.filter((_, idx) => idx !== existingIndex),
+            ];
+          } else {
+            // Add new chat to top
+            return [chat, ...prevChats];
+          }
+        });
+      } catch (e) {
+        console.error("Failed to fetch chat info:", e);
+      }
+    } else {
+      fetchChats();
+    }
+  };
+
+  // Fetch chat list on mount
   useEffect(() => {
-    const fetchConversations = async () => {
-      const pageable: Pageable = { page: 0, size: 10, sort: [] };
-      const response = await apiChat.getChatList(pageable);
-      console.log("[ChatProvider] Conversations fetched:", response.data);
-      setConversations(response.data?.reverse() ?? []);
-    };
-    fetchConversations();
+    fetchChats();
   }, []);
 
-  const fetchChatMessages = async (page = 0, append = false) => {
-    if (!currentChatId) return;
-    const response = await apiChat.getChatMessages(currentChatId, {
-      page,
-      size: 20,
-      sort: [],
-    });
-    console.log(
-      `[ChatProvider] Messages fetched for chatId=${currentChatId}:`,
-      response.data
-    );
-    const messages = response.data?.reverse() ?? [];
-    setChatMessages((prev) => (append ? [...messages, ...prev] : messages));
-
-    setHasMoreMessages(messages.length === 20); // if less than page size, no more
-    setChatPage(page);
-  };
-
+  // Fetch messages whenever currentChatId changes
   useEffect(() => {
-    if (!currentChatId) return;
-    fetchChatMessages(0, false);
+    if (currentChatId) {
+      fetchMessages(currentChatId);
+    } else {
+      setMessages([]);
+    }
   }, [currentChatId]);
 
   useEffect(() => {
-    if (!currentChatId) return;
-    const fetchChatDetail = async () => {
-      const response = await apiChat.getChatInfo(currentChatId);
-      console.log(
-        `[ChatProvider] Chat detail fetched for chatId=${currentChatId}:`,
-        response.data
-      );
-      setChatDetail(response.data);
-    };
-    fetchChatDetail();
+    if (currentChatId) {
+      fetchChatInfo(currentChatId);
+    } else {
+      setChatInfo(null);
+    }
   }, [currentChatId]);
 
-  useEffect(() => {
-    console.log("[ChatProvider] State updated:", {
-      currentChatId,
-      conversations,
-      chatMessages,
-      chatDetail,
-    });
-  }, [currentChatId, conversations, chatMessages, chatDetail]);
-
-  const addConversation = (chat: ChatListResponse) => {
-    setConversations((prev) => [chat, ...prev]);
-  };
-
-  const value: ChatContextInterface = {
-    currentChatId,
-    setCurrentChatId,
-
-    conversations,
-    setConversations,
-
-    chatMessages,
-    setChatMessages,
-
-    chatDetail,
-
-    addConversation,
-
-    fetchChatMessages,
-
-    chatPage,
-
-    hasMoreMessages,
-  };
-
-  return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
+  return (
+    <ChatContext.Provider
+      value={{
+        currentChatId,
+        setCurrentChatId,
+        chats,
+        messages,
+        chatInfo,
+        loadingChats,
+        loadingMessages,
+        loadingChatInfo,
+        errorChats,
+        errorMessages,
+        errorChatInfo,
+        fetchChats,
+        fetchMessages,
+        fetchChatInfo,
+        addMessage,
+        addChat,
+      }}
+    >
+      {children}
+    </ChatContext.Provider>
+  );
 };
 
 export const useChat = () => {
   const context = useContext(ChatContext);
-  if (!context) throw new Error("useChat must be used inside ChatProvider");
+  if (!context) {
+    throw new Error("useChat must be used within a ChatProvider");
+  }
   return context;
 };
