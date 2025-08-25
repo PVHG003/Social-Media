@@ -1,5 +1,8 @@
 package vn.pvhg.backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,25 +27,24 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<AuthenticatedResponse>> register(
+    @SecurityRequirements
+    public ResponseEntity<ApiResponse<Void>> register(
             @Valid @RequestBody RegisterRequest request
     ) {
-        AuthenticatedResponse data = authService.register(request);
-        ApiResponse<AuthenticatedResponse> response = new ApiResponse<>(
-                HttpStatus.OK, "Registered success", true, data
+        authService.register(request);
+        ApiResponse<Void> response = new ApiResponse<>(
+                HttpStatus.OK, "Registered success, check your email to verify account", true, null
         );
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/verify")
+    @SecurityRequirements
     public ResponseEntity<ApiResponse<AuthenticatedResponse>> verify(
             @RequestParam("email") String email,
-            @RequestParam("code") String code,
-            @AuthenticationPrincipal UserDetailsImpl userDetails
-
+            @RequestParam("code") String code
     ) {
-        UUID userId = userDetails.getUser().getId();
-        AuthenticatedResponse data = authService.verify(userId, email, code);
+        AuthenticatedResponse data = authService.verify(email, code);
         ApiResponse<AuthenticatedResponse> response = new ApiResponse<>(
                 HttpStatus.OK, "Account verified successfully", true, data
         );
@@ -50,6 +52,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @SecurityRequirements
     public ResponseEntity<ApiResponse<AuthenticatedResponse>> login(
             @Valid @RequestBody LoginRequest request
     ) {
@@ -73,23 +76,25 @@ public class AuthController {
     }
 
     @PostMapping("/forget")
-    public ResponseEntity<ApiResponse<AuthenticatedResponse>> forgotPassword(
+    @SecurityRequirements
+    @Operation(summary = "Request password reset", security = @SecurityRequirement(name = "bearerAuth", scopes = {}))
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(
             @RequestParam("email") String email
     ) {
-        AuthenticatedResponse data = authService.forgotPassword(email);
-        ApiResponse<AuthenticatedResponse> response = new ApiResponse<>(
-                HttpStatus.OK, "Please check your email to verify your account", true, data
+        authService.sendOtp(email);
+        ApiResponse<Void> response = new ApiResponse<>(
+                HttpStatus.OK, "OTP sent successfully", true, null
         );
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/reset")
+    @SecurityRequirements
+    @Operation(summary = "Reset password with OTP", security = @SecurityRequirement(name = "bearerAuth", scopes = {}))
     public ResponseEntity<ApiResponse<Void>> resetPassword(
-            @Valid @RequestBody PasswordResetRequest request,
-            @AuthenticationPrincipal UserDetailsImpl currentUser
+            @Valid @RequestBody PasswordResetRequest request
     ) {
-        UUID userId = currentUser.getUser().getId();
-        authService.resetPassword(userId, request);
+        authService.resetPassword(request);
         ApiResponse<Void> response = new ApiResponse<>(
                 HttpStatus.OK, "Password reset successful", true, null
         );
@@ -110,6 +115,7 @@ public class AuthController {
     }
 
     @PostMapping("/send-code")
+    @SecurityRequirements
     public ResponseEntity<ApiResponse<Void>> sendCode(
             @RequestParam("email") String email
     ) {

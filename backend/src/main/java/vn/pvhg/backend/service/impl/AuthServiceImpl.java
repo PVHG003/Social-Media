@@ -33,7 +33,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthenticatedResponse register(RegisterRequest request) {
+    public void register(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistsException("Email already exists");
@@ -55,20 +55,12 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
 
         sendOtp(request.email());
-
-        String token = jwtService.generateToken(user, TokenSubject.OTP_VERIFIED_ACCOUNT);
-
-        return jwtService.getToken(token);
     }
 
     @Override
-    public AuthenticatedResponse verify(UUID userId, String email, String code) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-
-        if (!user.getEmail().equals(email)) {
-            throw new ResourceNotFoundException("Email does not match the account email");
-        }
+    public AuthenticatedResponse verify(String email, String code) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
 
         if (!verificationService.verifyOtp(user.getId(), code)) {
             throw new InvalidCredentialsException("OTP code is incorrect or has expired.");
@@ -82,7 +74,6 @@ public class AuthServiceImpl implements AuthService {
 
             token = jwtService.generateToken(user, TokenSubject.USER_ACCESS);
         } else {
-//            token = jwtService.generateToken(user, TokenSubject.RESET_PASSWORD); TODO: what does this even means, its verifying an account why send a reset password
             throw new InvalidOperationException("Account already verified");
         }
 
@@ -113,27 +104,35 @@ public class AuthServiceImpl implements AuthService {
         jwtService.deleteToken(userId);
     }
 
+//    @Override
+//    public AuthenticatedResponse forgotPassword(String email) {
+//        User user = userRepository.findByEmail(email)
+//                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+//
+//        String token = jwtService.generateToken(user, TokenSubject.OTP_RESET_PASSWORD);
+//
+//        verificationService.generateAndSaveOtp(user.getId());
+//
+//        sendOtp(user.getEmail());
+//
+//        return jwtService.getToken(token);
+//    }
+
+
     @Override
-    public AuthenticatedResponse forgotPassword(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+    public void resetPassword(PasswordResetRequest request) {
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + request.email()));
 
-        String token = jwtService.generateToken(user, TokenSubject.OTP_RESET_PASSWORD);
+        if(!verificationService.verifyOtp(user.getId(), request.code())) {
+            throw new InvalidCredentialsException("OTP code is incorrect or has expired.");
+        }
 
-        verificationService.generateAndSaveOtp(user.getId());
+        if(!request.new_password().equals(request.confirm_password())) {
+            throw new InvalidCredentialsException("Passwords do not match");
+        }
 
-        sendOtp(user.getEmail());
-
-        return jwtService.getToken(token);
-    }
-
-
-    @Override
-    public void resetPassword(UUID userId, PasswordResetRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-
-        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        user.setPassword(passwordEncoder.encode(request.new_password()));
         userRepository.save(user);
     }
 
@@ -142,11 +141,15 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
-        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.current_password(), user.getPassword())) {
             throw new InvalidCredentialsException("Passwords does not match");
         }
 
-        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        if (!request.new_password().equals(request.confirm_password())) {
+            throw new PasswordMismatchException("New passwords do not match");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.new_password()));
         userRepository.save(user);
 
         jwtService.deleteToken(user.getId());

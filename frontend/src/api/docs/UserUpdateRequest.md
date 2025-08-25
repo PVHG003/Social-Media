@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **firstName** | **string** |  | [optional] [default to undefined]
 **lastName** | **string** |  | [optional] [default to undefined]
 **bio** | **string** |  | [optional] [default to undefined]
+**profileImagePath** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -20,6 +21,7 @@ const instance: UserUpdateRequest = {
     firstName,
     lastName,
     bio,
+    profileImagePath,
 };
 ```
 

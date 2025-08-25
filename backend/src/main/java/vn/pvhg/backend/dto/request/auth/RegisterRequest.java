@@ -39,7 +39,7 @@ public record RegisterRequest(
         )
         String password,
 
-        @JsonProperty("confirmPassword")
+        @JsonProperty("confirm_password")
         @NotBlank(message = "Confirm password cannot be blank")
         String confirmPassword
 ) {

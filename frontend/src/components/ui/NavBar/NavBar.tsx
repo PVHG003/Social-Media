@@ -7,6 +7,7 @@ import { FaAngleDown, FaPowerOff } from "react-icons/fa";
 import { AiOutlineMessage, AiOutlineSearch, AiOutlineLogin } from "react-icons/ai";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../context/authentication/AuthContext";
 import userApi from "../../../services/user/apiUser";
 
 interface TopHeaderProps {
@@ -31,6 +32,7 @@ function TopHeader({
   const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
   const [searchLoading, setSearchLoading] = useState<boolean>(false);
   const navigate = useNavigate();
+  const {logout} = useAuth()!;
 
   // Refs for click outside detection
   const searchContainerRef = useRef<HTMLDivElement>(null);
@@ -134,13 +136,10 @@ function TopHeader({
     navigate("/register");
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     // Add logout logic here
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    console.log("Logging out...");
     setShowMenu(false);
-    navigate("/");
+    await logout();
   };
 
   const getProfileImageSrc = (profileImagePath?: string | null): string => {

@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 **id** | **string** |  | [optional] [default to undefined]
 **username** | **string** |  | [optional] [default to undefined]
 **email** | **string** |  | [optional] [default to undefined]
+**profileImagePath** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -18,6 +19,7 @@ const instance: UserDto = {
     id,
     username,
     email,
+    profileImagePath,
 };
 ```
 
