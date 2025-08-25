@@ -5,7 +5,7 @@ import MessageHeader from "./MessageHeader";
 import { useChat } from "@/context/chat/ChatContext";
 
 const MessagingWindow = () => {
-  const { currentChatId } = useChat();
+  const { currentChatId, messages } = useChat();
   const messageEndRef = useRef<HTMLDivElement | null>(null);
 
   // Scroll to bottom on mount and whenever new messages appear
@@ -13,14 +13,13 @@ const MessagingWindow = () => {
     if (messageEndRef.current) {
       messageEndRef.current.scrollIntoView({
         behavior: "smooth",
-        block: "end",
       });
     }
   };
 
   useEffect(() => {
     scrollToBottom();
-  }, [currentChatId]);
+  }, [messages, currentChatId]);
 
   return (
     <div className="flex flex-col h-full">
@@ -31,7 +30,7 @@ const MessagingWindow = () => {
 
       {/* Message List */}
       <div className="flex-1 overflow-y-auto p-5">
-        <MessageList />
+        <MessageList scrollToBottom={scrollToBottom} />
         <div ref={messageEndRef} />
       </div>
 

@@ -1,120 +1,13 @@
-// import type { AttachmentResponse } from "@/api";
-
-// const AttachmentGrid = ({
-//   attachments,
-// }: {
-//   attachments: AttachmentResponse[];
-// }) => {
-//   const imageAttachments = attachments.filter((att) =>
-//     att.contentType?.startsWith("image/")
-//   );
-//   const otherAttachments = attachments.filter(
-//     (att) => !att.contentType?.startsWith("image/")
-//   );
-
-//   // Grid layout logic for images
-//   const renderImageGrid = () => {
-//     const count = imageAttachments.length;
-
-//     if (count === 1) {
-//       return (
-//         <img
-//           src={imageAttachments[0].filePath}
-//           alt="attachment"
-//           className="rounded-lg w-full max-w-sm"
-//         />
-//       );
-//     }
-
-//     if (count === 2) {
-//       return (
-//         <div className="grid grid-cols-2 gap-2">
-//           {imageAttachments.map((att) => (
-//             <img
-//               key={att.attachmentId}
-//               src={att.filePath}
-//               alt="attachment"
-//               className="rounded-lg w-full h-40 object-cover"
-//             />
-//           ))}
-//         </div>
-//       );
-//     }
-
-//     if (count === 3 || count === 4) {
-//       return (
-//         <div className="grid grid-cols-2 gap-2">
-//           {imageAttachments.slice(0, 4).map((att) => (
-//             <img
-//               key={att.attachmentId}
-//               src={att.filePath}
-//               alt="attachment"
-//               className="rounded-lg w-full h-40 object-cover"
-//             />
-//           ))}
-//         </div>
-//       );
-//     }
-
-//     if (count > 4) {
-//       return (
-//         <div className="grid grid-cols-2 gap-2 relative">
-//           {imageAttachments.slice(0, 4).map((att, idx) => (
-//             <div key={att.attachmentId} className="relative">
-//               <img
-//                 src={att.filePath}
-//                 alt="attachment"
-//                 className="rounded-lg w-full h-40 object-cover"
-//               />
-//               {idx === 3 && (
-//                 <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center rounded-lg text-white text-xl font-bold">
-//                   +{count - 4}
-//                 </div>
-//               )}
-//             </div>
-//           ))}
-//         </div>
-//       );
-//     }
-//   };
-
-//   return (
-//     <div className="mt-2 space-y-2">
-//       {imageAttachments.length > 0 && renderImageGrid()}
-
-//       {otherAttachments.map((att) => (
-//         <div key={att.attachmentId} className="mt-2">
-//           {att.contentType?.startsWith("video/") ? (
-//             <video controls className="rounded-lg max-w-sm">
-//               <source src={att.filePath} type={att.contentType} />
-//               Your browser does not support the video tag.
-//             </video>
-//           ) : (
-//             <a
-//               href={att.filePath}
-//               target="_blank"
-//               rel="noopener noreferrer"
-//               className="underline text-xs block"
-//             >
-//               {att.filePath?.split("/").pop()}
-//             </a>
-//           )}
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };
-
-// export default AttachmentGrid;
-
 import type { AttachmentResponse } from "@/api";
 
 const BASE_URL = "http://localhost:8080/";
 
 const AttachmentGrid = ({
   attachments,
+  onMediaLoad,
 }: {
   attachments: AttachmentResponse[];
+  onMediaLoad?: () => void; // optional callback for scroll-to-bottom
 }) => {
   return (
     <div className="mt-2 space-y-2">
@@ -126,6 +19,8 @@ const AttachmentGrid = ({
               src={`${BASE_URL}${att.filePath}`}
               alt="attachment"
               className="rounded-lg w-full max-w-sm"
+              onLoad={onMediaLoad} // ✅ trigger after image loads
+              onError={onMediaLoad}
             />
           );
         }
@@ -135,16 +30,19 @@ const AttachmentGrid = ({
             <video
               key={att.attachmentId}
               src={`${BASE_URL}${att.filePath}`}
-              typeof={`${att.contentType}`}
+              typeof={att.contentType}
               controls
               className="relative w-full max-w-xl rounded-lg overflow-hidden"
+              onLoadedMetadata={onMediaLoad} // ✅ trigger after video metadata loads
+              onError={onMediaLoad}
             >
               Your browser does not support the video tag.
             </video>
           );
         }
 
-        if (att.contentType?.startsWith("application/")) {
+        // Default (other files)
+        return (
           <a
             key={att.attachmentId}
             href={`${BASE_URL}${att.filePath}`}
@@ -152,6 +50,7 @@ const AttachmentGrid = ({
             rel="noopener noreferrer"
             className="block border rounded-lg p-3 bg-gray-100 hover:bg-gray-200 transition-colors w-64"
             title={att.filePath?.split("/").pop()} // Show full name on hover
+            onClick={onMediaLoad} // not strictly needed, but keeps behavior consistent
           >
             <div className="flex items-center gap-3">
               {/* File icon */}
@@ -167,8 +66,8 @@ const AttachmentGrid = ({
                 <p className="text-xs text-gray-500 truncate">Click to open</p>
               </div>
             </div>
-          </a>;
-        }
+          </a>
+        );
       })}
     </div>
   );

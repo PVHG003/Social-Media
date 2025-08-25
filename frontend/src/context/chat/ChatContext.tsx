@@ -27,6 +27,8 @@ interface ChatContextType {
   fetchChats: () => Promise<void>;
   fetchMessages: (chatId: string) => Promise<void>;
   fetchChatInfo: (chatId: string) => Promise<void>;
+  addMessage: (message: ChatMessageResponse) => void;
+  addChat: (payloadData: ChatMessageResponse) => void;
 }
 
 export const ChatContext = createContext<ChatContextType | undefined>(
@@ -50,8 +52,16 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     setErrorChats(null);
     try {
       const { data } = await chatApi.getChatList({ page: 0, size: 50 });
-      setChats(data || []);
-      console.log("[ChatProvider] Fetched chats:", data);
+
+      const sortedData = data?.sort((a, b) => {
+        return (
+          new Date(b.lastMessageSentAt ?? 0).getTime() -
+          new Date(a.lastMessageSentAt ?? 0).getTime()
+        );
+      });
+
+      setChats(sortedData || []);
+      console.log("[ChatProvider] Fetched chats:", sortedData);
     } catch (err: any) {
       setErrorChats(err.message || "Failed to fetch chats");
     } finally {
@@ -67,8 +77,15 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         page: 0,
         size: 50,
       });
-      setMessages(data?.reverse() || []);
-      console.log("[ChatProvider] Fetched messages:", data);
+
+      // 🔥 Replace "\n" with actual new lines
+      const cleanedMessages = (data || []).map((msg: any) => ({
+        ...msg,
+        content: msg.content ? msg.content.replace(/\\n/g, "\n") : "",
+      }));
+
+      setMessages(cleanedMessages.reverse());
+      console.log("[ChatProvider] Fetched messages:", cleanedMessages);
     } catch (err: any) {
       setErrorMessages(err.message || "Failed to fetch messages");
     } finally {
@@ -87,6 +104,64 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       setErrorChatInfo(err.message || "Failed to fetch chat info");
     } finally {
       setLoadingChatInfo(false);
+    }
+  };
+
+  const addMessage = (message: ChatMessageResponse) => {
+    setMessages((prevMessages) => [...prevMessages, message]);
+  };
+
+  const addChat = async (payloadData: ChatMessageResponse) => {
+    if (currentChatId) {
+      try {
+        const { data: chatDetail } = await chatApi.getChatInfo(currentChatId);
+
+        if (!chatDetail) return;
+
+        const chat: ChatListResponse = {
+          chatId: chatDetail.chatId,
+          chatDisplayName: chatDetail.chatDisplayName,
+          chatDisplayImage: chatDetail.chatDisplayImage,
+          chatType: chatDetail.chatType,
+          createdAt: chatDetail.createdAt,
+          muted: false,
+          unreadMessagesCount: 0,
+          lastMessage:
+            (payloadData?.attachments?.length ?? 0) > 0
+              ? "[Attachment]"
+              : payloadData.content,
+          lastMessageSenderUsername: payloadData.senderUsername,
+          lastMessageSentAt: payloadData.sentAt,
+        };
+
+        setChats((prevChats) => {
+          const existingIndex = prevChats.findIndex(
+            (c) => c.chatId === currentChatId
+          );
+
+          if (existingIndex !== -1) {
+            // Update existing chat
+            const updatedChats = [...prevChats];
+            updatedChats[existingIndex] = {
+              ...updatedChats[existingIndex],
+              ...chat,
+            };
+
+            // Move to top
+            return [
+              updatedChats[existingIndex],
+              ...updatedChats.filter((_, idx) => idx !== existingIndex),
+            ];
+          } else {
+            // Add new chat to top
+            return [chat, ...prevChats];
+          }
+        });
+      } catch (e) {
+        console.error("Failed to fetch chat info:", e);
+      }
+    } else {
+      fetchChats();
     }
   };
 
@@ -129,6 +204,8 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         fetchChats,
         fetchMessages,
         fetchChatInfo,
+        addMessage,
+        addChat,
       }}
     >
       {children}

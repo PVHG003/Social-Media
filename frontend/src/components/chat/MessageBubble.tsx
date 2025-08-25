@@ -6,9 +6,13 @@ import AttachmentGrid from "./AttachmentGrid";
 
 interface MessageBubbleProps {
   message: ChatMessageResponse;
+  scrollToBottom: () => void;
 }
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
+const MessageBubble: React.FC<MessageBubbleProps> = ({
+  message,
+  scrollToBottom,
+}) => {
   const userString = localStorage.getItem("user");
   const currentUserId = userString ? JSON.parse(userString).id : null;
   const isMe = message.senderId === currentUserId;
@@ -20,7 +24,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
         "justify-start": !isMe,
       })}
     >
-      {/* Avatar (hide on my side if you prefer) */}
       {!isMe && (
         <Avatar className="w-8 h-8">
           <AvatarImage src={message.senderProfileImage} />
@@ -36,14 +39,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
           "items-start": !isMe,
         })}
       >
-        {/* Show sender name only for recipients */}
+        {/* Sender name (only once, before bubble) */}
         {!isMe && (
           <span className="text-xs text-gray-500 mb-1">
             {message.senderUsername}
           </span>
         )}
 
-        {/* Bubble (only text content) */}
+        {/* Text bubble */}
         {message.content && (
           <div
             className={clsx(
@@ -57,21 +60,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
           </div>
         )}
 
-        {/* Attachments (outside bubble) */}
+        {/* Attachments */}
         {message.attachments && message.attachments.length > 0 && (
-          <AttachmentGrid attachments={message.attachments} />
+          <AttachmentGrid
+            attachments={message.attachments}
+            onMediaLoad={scrollToBottom}
+          />
         )}
       </div>
-
-      {/* Avatar for my side (optional, could hide if you want cleaner look) */}
-      {isMe && (
-        <Avatar className="w-8 h-8">
-          <AvatarImage src={message.senderProfileImage} />
-          <AvatarFallback>
-            {message.senderUsername && message.senderUsername.charAt(0)}
-          </AvatarFallback>
-        </Avatar>
-      )}
     </div>
   );
 };

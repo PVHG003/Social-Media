@@ -2,7 +2,7 @@ import MessageBubble from "./MessageBubble";
 import { useChat } from "@/context/chat/ChatContext";
 import { useEffect } from "react";
 
-const MessageList = () => {
+const MessageList = ({ scrollToBottom }: { scrollToBottom: () => void }) => {
   const { messages, currentChatId, fetchMessages, loadingMessages } = useChat();
 
   useEffect(() => {
@@ -17,7 +17,11 @@ const MessageList = () => {
         <p className="text-center text-gray-400 italic">Loading messages...</p>
       ) : messages.length > 0 ? (
         messages.map((msg) => (
-          <MessageBubble key={msg.messageId} message={msg} />
+          <MessageBubble
+            key={msg.messageId}
+            message={msg}
+            scrollToBottom={scrollToBottom}
+          />
         ))
       ) : (
         <p className="text-center text-gray-500 italic">

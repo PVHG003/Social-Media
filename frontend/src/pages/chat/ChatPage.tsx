@@ -5,11 +5,11 @@ import { useParams } from "react-router-dom";
 
 const ChatPage = () => {
   const { chatId } = useParams<{ chatId: string }>();
-  const { setCurrentChatId } = useChat();
+  const { setCurrentChatId, chats } = useChat();
 
   useEffect(() => {
     if (chatId) {
-      setCurrentChatId(chatId);
+      setCurrentChatId(chatId || chats[0]?.chatId || null);
     }
   }, [chatId, setCurrentChatId]);
 
