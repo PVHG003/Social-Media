@@ -150,7 +150,7 @@ public class PostController {
     ) {
         try {
             postService.deletePost(userDetails, postId);
-            ApiResponse<Void> response = new ApiResponse<>(HttpStatus.NO_CONTENT,
+            ApiResponse<Void> response = new ApiResponse<>(HttpStatus.OK,
                     "Post deleted successfully", true, null);
             return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
         } catch (Exception e) {
