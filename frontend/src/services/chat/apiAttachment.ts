@@ -27,6 +27,7 @@ const apiAttachment = {
         chatId,
         files
       );
+
       return data;
     } catch (error) {
       console.error("Error uploading files:", error);

@@ -1,18 +1,23 @@
 import React, {createContext, useState, useEffect, useContext} from "react";
 import {type AuthenticatedResponse } from "@/api";
+import authApi from "@/services/authentication/apiAuthentication";
 
 interface AuthContextType {
     user: AuthenticatedResponse | null;
     token: string | null;
     login: (authResponse : AuthenticatedResponse) => void;
-    logout: () => void;
+    logout: () => Promise<void>;
     isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
-    return useContext(AuthContext);
+    const context = useContext(AuthContext);
+    // if (context === undefined) {
+    //     throw new Error("useAuth must be used within an AuthProvider");
+    // }
+    return context;
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -28,10 +33,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
-    const logout = () => {
-        setUser(null);
-        setToken(null);
-        localStorage.removeItem("token");
+    const logout = async () => {
+        try {
+            await authApi.logout();
+        } catch (error) {
+            console.error("Logout failed:", error);
+        } finally {
+            setUser(null);
+            setToken(null);
+            localStorage.removeItem("token");
+            window.location.href = "/login"; // Redirect to login page after logout
+        }
     }
 
     useEffect(() => {

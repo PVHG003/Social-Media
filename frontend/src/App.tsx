@@ -1,12 +1,13 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import UserProfilePage from "./pages/user/UserProfilePage";
-import { ChatPage } from "./pages/chat/ChatPage";
-import { ChatProvider } from "./context/chat/ChatContext";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import ChatLayout from "./components/chat/ChatLayout";
-import { AuthProvider } from "./context/chat/test/AuthContext";
-//import LoginPage from "./pages/chat/test/LoginPage";
-import { ModalProvider } from "./context/chat/userListModal";
+import UserProfilePage from "./pages/user/UserProfilePage";
+import ChatPage from "./pages/chat/ChatPage";
+import { ChatProvider } from "./context/chat/ChatContext";
+import HomePage from "./pages/post/HomePage";
 import LoginPage from "./pages/authentication/LoginPage";
+import RegisterPage from "./pages/authentication/RegisterPage";
+import { AuthProvider } from "./context/authentication/AuthContext";
+import VerifyPage from "./pages/authentication/VerifyPage";
 
 function App() {
   return (
@@ -14,19 +15,21 @@ function App() {
       <Router>
         <Routes>
           <Route path="/profile/:userId" element={<UserProfilePage />} />
+          <Route path="/" element={<HomePage />} />
 
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/verify" element={<VerifyPage />}/>
+          
           {/* Other routes */}
           {/* ... */}
 
           {/* Login Page and AuthProvider are for testing, can be deleted */}
-          <Route path="/login" element={<LoginPage />} />
           <Route
             path="/chat"
             element={
               <ChatProvider>
-                <ModalProvider>
-                  <ChatLayout />
-                </ModalProvider>
+                <ChatLayout />
               </ChatProvider>
             }
           >
