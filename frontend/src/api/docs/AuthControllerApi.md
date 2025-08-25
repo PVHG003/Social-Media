@@ -294,7 +294,7 @@ const { status, data } = await apiInstance.resetPassword(
 **ApiResponseVoid**
 
 ### Authorization
-
+    
 [bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers

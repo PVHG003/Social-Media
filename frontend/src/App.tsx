@@ -4,8 +4,9 @@ import { ChatPage } from "./pages/chat/ChatPage";
 import { ChatProvider } from "./context/chat/ChatContext";
 import ChatLayout from "./components/chat/ChatLayout";
 import { AuthProvider } from "./context/chat/test/AuthContext";
-import LoginPage from "./pages/chat/test/LoginPage";
+//import LoginPage from "./pages/chat/test/LoginPage";
 import { ModalProvider } from "./context/chat/userListModal";
+import LoginPage from "./pages/authentication/LoginPage";
 
 function App() {
   return (
