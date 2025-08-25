@@ -7,6 +7,8 @@ import RightSidebar from '@/components/ui/Sidebar/RightSidebar';
 import CreatePostModal from '@/components/post/CreatePostModal';
 import postApi from '@/services/post/apiPost';
 import userApi from '@/services/user/apiUser';
+import { useNavigate } from 'react-router-dom';
+import { is } from 'zod/v4/locales';
 
 const HomePage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -17,11 +19,19 @@ const HomePage: React.FC = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    isLogin();
     fetchCurrentUser();
     fetchPosts();
   }, []);
+
+  const isLogin = () => {
+    if(!localStorage.getItem("token")) {
+      navigate("/login");
+    }
+  };
 
   const fetchCurrentUser = async () => {
     try {
