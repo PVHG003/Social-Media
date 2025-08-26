@@ -13,9 +13,20 @@ import ChatList from "./ChatList";
 import { useState } from "react";
 import { Separator } from "../ui/separator";
 import CreateChatModal from "./CreateChatModal";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/authentication/AuthContext";
 
 const ChatSidebar = () => {
   const [modalOpen, setModalOpen] = useState(false);
+
+  const authContext = useAuth();
+
+  const navigate = useNavigate();
+
+  if (!authContext) {
+    navigate("/login");
+    return;
+  }
 
   return (
     <SidebarProvider>
@@ -26,7 +37,10 @@ const ChatSidebar = () => {
 
       <Sidebar className="w-72">
         {/* Header */}
-        <SidebarHeader className="p-4">
+        <SidebarHeader
+          className="p-4 hover:cursor-pointer"
+          onClick={() => navigate("/")}
+        >
           <div className="flex items-center justify-between gap-4">
             {/* App Icon */}
             <div className="flex items-center gap-2">
@@ -60,22 +74,14 @@ const ChatSidebar = () => {
             <div className="flex items-center gap-3">
               <Avatar className="w-8 h-8">
                 <AvatarImage
-                  src={`http://localhost:8080/${
-                    JSON.parse(localStorage.getItem("user") ?? "")
-                      .profileImagePath
-                  }`}
+                  src={`http://localhost:8080/${authContext.user?.profileImagePath}`}
                   className="rounded-full"
                 />
-                <AvatarFallback>
-                  {" "}
-                  {JSON.parse(
-                    localStorage.getItem("user") ?? ""
-                  ).username.charAt(0)}
-                </AvatarFallback>
+                <AvatarFallback>{authContext.user?.username}</AvatarFallback>
               </Avatar>
 
               <span className="text-sm font-medium">
-                {JSON.parse(localStorage.getItem("user") ?? "").username}
+                {authContext.user?.username}
               </span>
             </div>
 

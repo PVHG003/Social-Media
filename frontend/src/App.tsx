@@ -14,7 +14,7 @@ import ChangePasswordForm from "./components/authentication/ChangePasswordForm";
 
 function App() {
   return (
-    // <AuthProvider>
+    <AuthProvider>
       <Router>
         <Routes>
           <Route path="/profile/:userId" element={<UserProfilePage />} />
@@ -22,15 +22,10 @@ function App() {
 
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/verify" element={<VerifyPage />}/>
+          <Route path="/verify" element={<VerifyPage />} />
           <Route path="/forget" element={<ForgotPasswordPage />} />
           <Route path="/reset" element={<ResetPasswordPage />} />
           <Route path="/change-password" element={<ChangePasswordForm />} />
-          
-          {/* Other routes */}
-          {/* ... */}
-
-          {/* Login Page and AuthProvider are for testing, can be deleted */}
           <Route
             path="/chat"
             element={
@@ -41,6 +36,11 @@ function App() {
           >
             <Route path=":chatId" element={<ChatPage />} />
           </Route>
+
+          {/* Other routes */}
+          {/* <Route path="/forbidden" element={<ForbiddenPage />} /> */}
+          {/* <Route path="*" element={<NotFoundPage />} /> */}
+          {/* ... */}
         </Routes>
       </Router>
     </AuthProvider>
