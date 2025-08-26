@@ -1,6 +1,6 @@
 import React from "react";
-import type { ChatMessageResponse } from "@/api";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import type {ChatMessageResponse} from "@/api";
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import clsx from "clsx";
 import AttachmentGrid from "./AttachmentGrid";
 
@@ -9,10 +9,7 @@ interface MessageBubbleProps {
   scrollToBottom: () => void;
 }
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({
-  message,
-  scrollToBottom,
-}) => {
+const MessageBubble: React.FC<MessageBubbleProps> = ({message, scrollToBottom}) => {
   const userString = localStorage.getItem("user");
   const currentUserId = userString ? JSON.parse(userString).id : null;
   const isMe = message.senderId === currentUserId;
@@ -26,7 +23,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     >
       {!isMe && (
         <Avatar className="w-8 h-8">
-          <AvatarImage src={message.senderProfileImage} />
+          <AvatarImage src={message.senderProfileImage}/>
           <AvatarFallback>
             {message.senderUsername && message.senderUsername.charAt(0)}
           </AvatarFallback>
@@ -61,12 +58,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         )}
 
         {/* Attachments */}
-        {message.attachments && message.attachments.length > 0 && (
-          <AttachmentGrid
-            attachments={message.attachments}
-            onMediaLoad={scrollToBottom}
-          />
-        )}
+        {message.attachments && message.attachments.length > 0 && message.attachments.map((attachment) => (
+          <div className="mt-2 space-y-2">
+            <AttachmentGrid
+              attachment={attachment}
+              onMediaLoad={scrollToBottom}
+            />
+          </div>
+        ))}
       </div>
     </div>
   );

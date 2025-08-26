@@ -12,6 +12,7 @@ import {
 import ChatList from "./ChatList";
 import { useState } from "react";
 import { Separator } from "../ui/separator";
+import CreateChatModal from "./CreateChatModal";
 
 const ChatSidebar = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -37,6 +38,7 @@ const ChatSidebar = () => {
             <Button
               variant="ghost"
               className="hover:bg-gray-200 rounded-full"
+              onClick={() => setModalOpen(!modalOpen)}
               size="icon"
             >
               <Plus className="h-4 w-4" />
@@ -58,20 +60,29 @@ const ChatSidebar = () => {
             <div className="flex items-center gap-3">
               <Avatar className="w-8 h-8">
                 <AvatarImage
-                  src="https://randomuser.me/api/portraits/women/68.jpg"
+                  src={`http://localhost:8080/${
+                    JSON.parse(localStorage.getItem("user") ?? "")
+                      .profileImagePath
+                  }`}
                   className="rounded-full"
                 />
-                <AvatarFallback>A</AvatarFallback>
+                <AvatarFallback>
+                  {" "}
+                  {JSON.parse(
+                    localStorage.getItem("user") ?? ""
+                  ).username.charAt(0)}
+                </AvatarFallback>
               </Avatar>
 
-              <span className="text-sm font-medium">Alice Johnson</span>
+              <span className="text-sm font-medium">
+                {JSON.parse(localStorage.getItem("user") ?? "").username}
+              </span>
             </div>
 
             {/* Chevron Button */}
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setModalOpen(!modalOpen)}
               className="transition-transform duration-300"
             >
               <ChevronDown
@@ -83,6 +94,8 @@ const ChatSidebar = () => {
           </div>
         </SidebarFooter>
       </Sidebar>
+
+      <CreateChatModal open={modalOpen} onOpenChange={setModalOpen} />
     </SidebarProvider>
   );
 };

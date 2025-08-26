@@ -1,8 +1,11 @@
-const PreviewTab = (props: {
-  previewFiles: string[];
+import type {PreviewFile} from "@/hooks/useFilePreview.ts";
+
+interface PreviewTabProps {
+  previewFiles: PreviewFile[];
   files: FileList | null;
-}) => {
-  const { previewFiles, files } = props;
+}
+
+const PreviewTab = ({ previewFiles, files }: PreviewTabProps) => {
 
   const truncateName = (name: string, maxLength = 12) => {
     if (name.length <= maxLength) return name;
@@ -14,10 +17,10 @@ const PreviewTab = (props: {
 
   return (
     <div className="flex gap-2 flex-wrap">
-      {previewFiles.map((src, idx) => {
-        const file = files?.[idx]; // match preview with File object
-        if (!file) return null;
-
+      {previewFiles.map((preview, idx) => {
+        if (!preview) return null;
+        
+        const file = preview.file;
         const type = file.type;
 
         if (type.startsWith("image/")) {
@@ -25,9 +28,9 @@ const PreviewTab = (props: {
           return (
             <img
               key={idx}
-              src={src}
-              alt={`preview-${idx}`}
-              className="w-20 h-20 object-cover rounded"
+              src={preview.url}
+              alt={file.name}
+              className="h-12 w-12 object-cover rounded-md"
             />
           );
         } else if (type === "application/pdf") {

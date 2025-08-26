@@ -14,7 +14,7 @@ import ChangePasswordForm from "./components/authentication/ChangePasswordForm";
 
 function App() {
   return (
-    <AuthProvider>
+    // <AuthProvider>
       <Router>
         <Routes>
           <Route path="/profile/:userId" element={<UserProfilePage />} />

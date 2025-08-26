@@ -3,6 +3,7 @@ package vn.pvhg.backend.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import vn.pvhg.backend.dto.response.chat.AttachmentResponse;
 import vn.pvhg.backend.dto.response.chat.ChatDetailResponse;
@@ -41,6 +42,7 @@ public class ChatMediaServiceImpl implements ChatMediaService {
     private String fileUploadPath;
 
     @Override
+    @Transactional
     public List<AttachmentResponse> uploadAttachments(UserDetailsImpl userDetails, UUID chatId, List<MultipartFile> files) {
         UUID currentUserId = userDetails.getUser().getId();
 
@@ -81,6 +83,7 @@ public class ChatMediaServiceImpl implements ChatMediaService {
     }
 
     @Override
+    @Transactional
     public ChatDetailResponse uploadGroupImage(UserDetailsImpl userDetails, UUID chatId, MultipartFile file) {
         UUID currentUserId = userDetails.getUser().getId();
         Chat chat = chatRepository.findById(chatId)
