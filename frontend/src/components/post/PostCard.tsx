@@ -145,7 +145,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDelete, onUpdate })
   const renderAvatar = () => {
     const hasAvatar = post.author.profileImagePath && 
                      post.author.profileImagePath.trim() !== '' &&
-                     post.author.profileImagePath !== '/default-avatar.png';
+                     post.author.profileImagePath !== 'http://localhost:8080/uploads/images/default-avatar.png';
 
     if (hasAvatar) {
       const imagePath = post.author.profileImagePath || '';

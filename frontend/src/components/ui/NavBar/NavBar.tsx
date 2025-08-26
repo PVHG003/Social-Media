@@ -203,13 +203,13 @@ function TopHeader() {
 
   const getProfileImageSrc = (profileImagePath?: string | null): string => {
     if (!profileImagePath || profileImagePath.trim() === '') {
-      return '/default-avatar.png';
+      return 'http://localhost:8080/uploads/images/default-avatar.png';
     }
     return profileImagePath.startsWith('http') ? profileImagePath : `http://localhost:8080${profileImagePath}`;
   };
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    e.currentTarget.src = '/default-avatar.png';
+    e.currentTarget.src = 'http://localhost:8080/uploads/images/default-avatar.png';
   };
 
   // Show loading state if we're authenticated but fetching user data
@@ -267,7 +267,7 @@ function TopHeader() {
                           <img
                             src={getProfileImageSrc(user.profileImagePath)}
                             alt={`${user.firstName} ${user.lastName}`}
-                            className="w-10 h-10 rounded-full object-cover mr-3"
+                            className="w-10 h-10 rounded-full object-cover mr-3 bg-white"
                             onError={handleImageError}
                           />
                           <div className="flex-1">
@@ -336,7 +336,7 @@ function TopHeader() {
                   <img
                     src={getProfileImageSrc(userAvatar)}
                     alt={fullName || 'User'}
-                    className="w-6 h-6 lg:w-8 lg:h-8 rounded-full object-cover border-2 border-white shadow-md mr-1 lg:mr-2"
+                    className="w-6 h-6 lg:w-8 lg:h-8 rounded-full object-cover border-2 border-white shadow-md mr-1 lg:mr-2 bg-white"
                     onError={handleImageError}
                   />
                   <span className="text-white font-medium text-xs lg:text-sm hidden md:block truncate max-w-24 lg:max-w-32">

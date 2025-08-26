@@ -65,13 +65,13 @@ const UserProfile = () => {
   // Safe function to get profile image with fallback
   const getProfileImageSrc = (profileImagePath?: string | null): string => {
     if (!profileImagePath || profileImagePath.trim() === '') {
-      return '/default-avatar.png';
+      return 'http://localhost:8080/uploads/images/default-avatar.png';
     }
     return profileImagePath.startsWith('http') ? profileImagePath : `http://localhost:8080${profileImagePath}`;
   };
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    e.currentTarget.src = '/default-avatar.png';
+    e.currentTarget.src = 'http://localhost:8080/uploads/images/default-avatar.png';
   };
 
   // Initialize edit form when user data is loaded
@@ -154,7 +154,7 @@ const UserProfile = () => {
                 <img
                   src={getProfileImageSrc(user.profilePicture)}
                   alt={`${user.firstName} ${user.lastName}`}
-                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg bg-white"
                   onError={handleImageError}
                 />
               </div>
