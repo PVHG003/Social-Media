@@ -7,9 +7,9 @@ const MessageList = ({ scrollToBottom }: { scrollToBottom: () => void }) => {
 
   useEffect(() => {
     if (currentChatId) {
-      fetchMessages(currentChatId);
+      fetchMessages(currentChatId).then(() => console.log(""));
     }
-  }, [currentChatId]);
+  }, []);
 
   return (
     <div className="p-4 flex flex-col gap-2">

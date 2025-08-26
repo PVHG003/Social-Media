@@ -7,7 +7,7 @@ import HomePage from "./pages/post/HomePage";
 
 function App() {
   return (
-    <AuthProvider>
+    // <AuthProvider>
       <Router>
         <Routes>
           <Route path="/profile/:userId" element={<UserProfilePage />} />

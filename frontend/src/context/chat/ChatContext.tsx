@@ -78,7 +78,6 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         size: 50,
       });
 
-      // 🔥 Replace "\n" with actual new lines
       const cleanedMessages = (data || []).map((msg: any) => ({
         ...msg,
         content: msg.content ? msg.content.replace(/\\n/g, "\n") : "",
@@ -108,7 +107,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addMessage = (message: ChatMessageResponse) => {
-    setMessages((prevMessages) => [...prevMessages, message]);
+    setMessages((prevMessages) => [...prevMessages ?? [], message]);
   };
 
   const addChat = async (payloadData: ChatMessageResponse) => {
