@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
+import { MdPhotoCamera, MdClose, MdDelete } from 'react-icons/md';
+import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 
 interface User {
   id: string;
@@ -63,13 +65,14 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
+          {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-900">Edit Profile</h2>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 text-2xl"
             >
-              ×
+              <MdClose />
             </button>
           </div>
           
@@ -84,23 +87,23 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               <div className="flex items-center space-x-6 mb-4">
                 <div className="relative">
                   <img
-                    src={getProfileImageSrc(previewUrl)}
+                    src={previewUrl ? previewUrl : getProfileImageSrc(user.profilePicture)}
                     alt="Profile Preview"
                     className="w-20 h-20 rounded-full object-cover border-4 border-gray-300 shadow-md"
                     onError={handleImageError}
                   />
                   {imageUploading && (
                     <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                      <AiOutlineLoading3Quarters className="animate-spin h-6 w-6 text-white" />
                     </div>
                   )}
                 </div>
                 
                 <div className="flex-1">
                   <div className="flex gap-3 mb-3">
-                    {/* Upload File Button */}
-                    <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                      📷 Upload Image
+                    <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center">
+                      <MdPhotoCamera className="w-4 h-4 mr-2" />
+                      Upload Image
                       <input
                         type="file"
                         accept="image/*"
@@ -109,12 +112,12 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                       />
                     </label>
                     
-                    {/* Remove Image Button */}
                     <button
                       type="button"
                       onClick={onRemoveImage}
-                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center"
                     >
+                      <MdDelete className="w-4 h-4 mr-2" />
                       Remove
                     </button>
                   </div>
@@ -122,6 +125,12 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                   <p className="text-xs text-gray-500">
                     Upload a photo or enter an image URL below. Recommended: Square image, at least 400x400px, max 5MB.
                   </p>
+                  
+                  {selectedFile && (
+                    <div className="mt-2 p-2 bg-blue-50 rounded text-xs">
+                      <span className="text-blue-600">Selected: {selectedFile.name}</span>
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -135,17 +144,15 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                   name="profilePicture"
                   value={editForm.profilePicture}
                   onChange={onInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   placeholder="https://example.com/image.jpg"
                 />
               </div>
             </div>
 
-            {/* Username */}
+            {/* Form Fields */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Username
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
               <input
                 type="text"
                 name="username"
@@ -157,11 +164,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               />
             </div>
 
-            {/* First Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                First Name
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
               <input
                 type="text"
                 name="firstName"
@@ -173,11 +177,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               />
             </div>
 
-            {/* Last Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Last Name
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
               <input
                 type="text"
                 name="lastName"
@@ -189,11 +190,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               />
             </div>
 
-            {/* Bio */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Bio
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
               <textarea
                 name="bio"
                 value={editForm.bio}
@@ -218,7 +216,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               >
                 {saveLoading || imageUploading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <AiOutlineLoading3Quarters className="animate-spin h-4 w-4 mr-2" />
                     {imageUploading ? 'Uploading Image...' : 'Saving...'}
                   </>
                 ) : (

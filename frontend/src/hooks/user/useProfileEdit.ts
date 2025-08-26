@@ -2,6 +2,7 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import userApi from '../../services/user/apiUser';
+import { userProfileEvents } from '../../utils/userEvents';
 
 interface EditForm {
   username: string;
@@ -39,6 +40,7 @@ const FILE_UPLOAD = {
   MAX_SIZE: 5 * 1024 * 1024 // 5MB
 };
 
+// Transform API response to component user format
 const transformUserData = (apiData: any) => ({
   id: apiData.id,
   email: apiData.email || '',
@@ -70,6 +72,7 @@ export const useProfileEdit = (): UseProfileEditReturn => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
 
+  // Initialize form with user data
   const initializeEditForm = useCallback((user: any) => {
     if (user) {
       setEditForm({
@@ -83,6 +86,7 @@ export const useProfileEdit = (): UseProfileEditReturn => {
     }
   }, []);
 
+  // Open edit modal
   const handleEditProfile = useCallback((user: any, isCurrentUser: boolean) => {
     if (!isCurrentUser) return;
     setShowEditModal(true);
@@ -94,6 +98,7 @@ export const useProfileEdit = (): UseProfileEditReturn => {
     navigate('/change-password');
   }, [navigate]);
 
+  // Close modal and reset form
   const handleCloseModal = useCallback((user: any) => {
     setShowEditModal(false);
     setSelectedFile(null);
@@ -109,6 +114,7 @@ export const useProfileEdit = (): UseProfileEditReturn => {
     }
   }, []);
 
+  // Handle form input changes
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setEditForm(prev => ({
@@ -122,6 +128,7 @@ export const useProfileEdit = (): UseProfileEditReturn => {
     }
   }, []);
 
+  // Handle file selection and preview
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -153,6 +160,7 @@ export const useProfileEdit = (): UseProfileEditReturn => {
     setEditForm(prev => ({ ...prev, profilePicture: '' }));
   }, []);
 
+  // Upload image to Cloudinary
   const uploadToCloudinary = async (file: File): Promise<string> => {
     if (!CLOUDINARY.UPLOAD_PRESET || !CLOUDINARY.UPLOAD_URL) {
       throw new Error('Cloudinary configuration is missing');
@@ -176,6 +184,7 @@ export const useProfileEdit = (): UseProfileEditReturn => {
     return data.secure_url;
   };
 
+  // Save profile changes
   const handleSaveProfile = useCallback(async (
     user: any, 
     isCurrentUser: boolean, 
@@ -192,6 +201,11 @@ export const useProfileEdit = (): UseProfileEditReturn => {
         setImageUploading(true);
         try {
           profilePictureUrl = await uploadToCloudinary(selectedFile);
+          setEditForm(prev => ({
+            ...prev,
+            profilePicture: profilePictureUrl
+          }));
+          setPreviewUrl(profilePictureUrl);
         } catch (uploadError) {
           console.error('Upload error:', uploadError);
           alert('Failed to upload image. Please try again.');
@@ -214,6 +228,10 @@ export const useProfileEdit = (): UseProfileEditReturn => {
       
       const updatedUser = transformUserData(updatedUserData);
       updateUser(updatedUser);
+      
+      // Notify other components to refresh user data
+      userProfileEvents.notify();
+      
       setShowEditModal(false);
       setSelectedFile(null);
       

@@ -5,12 +5,12 @@ import { GoBell } from "react-icons/go";
 import { MdAccountCircle } from "react-icons/md";
 import { FaAngleDown, FaPowerOff } from "react-icons/fa";
 import { AiOutlineMessage, AiOutlineSearch, AiOutlineLogin } from "react-icons/ai";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/authentication/AuthContext";
 import userApi from "../../../services/user/apiUser";
+import { userProfileEvents } from "../../../utils/userEvents";
 
-// Remove all props - NavBar is now completely independent
 function TopHeader() {
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [scroll, setScroll] = useState<boolean>(false);
@@ -20,27 +20,38 @@ function TopHeader() {
   const [searchLoading, setSearchLoading] = useState<boolean>(false);
   const [currentUserData, setCurrentUserData] = useState<any>(null);
   const [userDataLoading, setUserDataLoading] = useState<boolean>(false);
+  const [forceRefresh, setForceRefresh] = useState<number>(0);
+  const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
   
   const navigate = useNavigate();
   const authContext = useAuth();
-  
-  // Refs for click outside detection
+
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  // Authentication status based purely on AuthContext
-  const isAuthenticated = !!authContext?.token;
+  const isAuthenticated = !!authContext?.token && !isLoggingOut;
   
-  // Get user data from AuthContext or fetch if needed
+  // Listen for profile update events
+  useEffect(() => {
+    const unsubscribe = userProfileEvents.subscribe(() => {
+      if (isAuthenticated && !isLoggingOut) {
+        setForceRefresh(prev => prev + 1);
+        setCurrentUserData(null);
+      }
+    });
+    return unsubscribe;
+  }, [isAuthenticated, isLoggingOut]);
+
+  // Get user data from context or fetch
   const getUserData = () => {
-    if (authContext?.user && isAuthenticated) {
+    if (authContext?.user && isAuthenticated && !isLoggingOut) {
       return {
         fullName: `${authContext.user.firstName || ''} ${authContext.user.lastName || ''}`.trim(),
         username: authContext.user.username || '',
         userAvatar: authContext.user.profileImagePath || '',
-        userId: authContext.user.userId || ''
+        userId: authContext.user.id || ''
       };
-    } else if (currentUserData) {
+    } else if (currentUserData && isAuthenticated && !isLoggingOut) {
       return {
         fullName: `${currentUserData.firstName || ''} ${currentUserData.lastName || ''}`.trim(),
         username: currentUserData.username || '',
@@ -48,87 +59,133 @@ function TopHeader() {
         userId: currentUserData.id || ''
       };
     } else {
-      return {
-        fullName: '',
-        username: '',
-        userAvatar: '',
-        userId: ''
-      };
+      return { fullName: '', username: '', userAvatar: '', userId: '' };
     }
   };
 
   const { fullName, username, userAvatar, userId } = getUserData();
 
-  // Fetch current user data if we have token but no user data in context
+  // Memoize handleLogout to prevent recreation
+  const handleLogout = useCallback(async () => {
+    if (isLoggingOut) return;
+    
+    setIsLoggingOut(true);
+    setShowMenu(false);
+    
+    try {
+      // Clear local component state immediately
+      setCurrentUserData(null);
+      setUserDataLoading(false);
+      setSearchQuery("");
+      setSearchResults([]);
+      setShowSearchResults(false);
+      setForceRefresh(0);
+      
+      // Call AuthContext logout (this will clear localStorage and context state)
+      if (authContext?.logout) {
+        await authContext.logout();
+      }
+      
+      // Navigate to home page
+      navigate('/', { replace: true });
+      
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Even if logout fails, ensure we clear everything
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      navigate('/', { replace: true });
+    } finally {
+      // Reset logout flag
+      setIsLoggingOut(false);
+    }
+  }, [isLoggingOut, authContext, navigate]);
+
+  // Fetch current user data - FIXED dependency array
   useEffect(() => {
+    let isMounted = true; // Track if component is still mounted
+    
     const fetchCurrentUser = async () => {
-      if (authContext?.token && !authContext?.user && !currentUserData && !userDataLoading) {
-        setUserDataLoading(true);
-        try {
-          const response = await userApi.getCurrentUser();
+      // Only fetch if we need to and not already loading
+      if (
+        !authContext?.token || 
+        isLoggingOut ||
+        userDataLoading ||
+        (authContext?.user && currentUserData && forceRefresh === 0)
+      ) {
+        return;
+      }
+
+      setUserDataLoading(true);
+      try {
+        const response = await userApi.getCurrentUser();
+        if (isMounted && !isLoggingOut) {
           setCurrentUserData(response.data);
-        } catch (error) {
-          console.error('Failed to fetch current user:', error);
-          // If token is invalid, logout
-          if (error && typeof error === 'object' && 'message' in error) {
-            const errorMessage = (error as any).message;
-            if (errorMessage?.includes('401') || errorMessage?.includes('Unauthorized')) {
-              authContext?.logout();
-            }
+        }
+      } catch (error) {
+        console.error('Failed to fetch current user:', error);
+        if (isMounted && !isLoggingOut && error && typeof error === 'object' && 'message' in error) {
+          const errorMessage = (error as any).message;
+          if (errorMessage?.includes('401') || errorMessage?.includes('Unauthorized')) {
+            // Token is invalid, logout
+            handleLogout();
           }
-        } finally {
+        }
+      } finally {
+        if (isMounted && !isLoggingOut) {
           setUserDataLoading(false);
         }
       }
     };
 
     fetchCurrentUser();
-  }, [authContext?.token, authContext?.user, currentUserData, userDataLoading, authContext]);
 
+    return () => {
+      isMounted = false; // Cleanup flag
+    };
+  }, [authContext?.token, forceRefresh, isLoggingOut, handleLogout]); // Removed problematic dependencies
+
+  // Clear data when not authenticated
+  useEffect(() => {
+    if (!authContext?.token) {
+      setCurrentUserData(null);
+      setUserDataLoading(false);
+      setSearchQuery("");
+      setSearchResults([]);
+      setShowSearchResults(false);
+      setShowMenu(false);
+      setForceRefresh(0);
+      setIsLoggingOut(false); // Reset logout state when not authenticated
+    }
+  }, [authContext?.token]);
+
+  // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
       const offset = window.scrollY;
-      if (offset > 45) {
-        setScroll(true);
-      } else {
-        setScroll(false);
-      }
+      setScroll(offset > 45);
     };
-
     window.addEventListener("scroll", handleScroll);
-
-    // Cleanup function
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Handle click outside for search results and user menu
+  // Handle click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Close search results if clicking outside search container
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
         setShowSearchResults(false);
       }
-
-      // Close user menu if clicking outside user menu container
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setShowMenu(false);
       }
     };
-
-    // Add event listener
     document.addEventListener('mousedown', handleClickOutside);
-
-    // Cleanup function
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Debounced search effect - only if authenticated
+  // Debounced search
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || isLoggingOut) return;
     
     const timeoutId = setTimeout(() => {
       if (searchQuery.trim().length > 1) {
@@ -138,66 +195,68 @@ function TopHeader() {
         setShowSearchResults(false);
       }
     }, 300);
-
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, isAuthenticated]);
+  }, [searchQuery, isAuthenticated, isLoggingOut]);
 
   const handleSearch = async (query: string) => {
-    if (!query.trim() || !isAuthenticated) return;
-
+    if (!query.trim() || !isAuthenticated || isLoggingOut) return;
     setSearchLoading(true);
     try {
       const response = await userApi.searchUsers(query, { page: 0, size: 5 });
-      setSearchResults(response.data || []);
-      setShowSearchResults(true);
+      if (!isLoggingOut) {
+        setSearchResults(response.data || []);
+        setShowSearchResults(true);
+      }
     } catch (error) {
       console.error('Search error:', error);
-      setSearchResults([]);
-      setShowSearchResults(false);
+      if (!isLoggingOut) {
+        setSearchResults([]);
+        setShowSearchResults(false);
+      }
     } finally {
-      setSearchLoading(false);
+      if (!isLoggingOut) {
+        setSearchLoading(false);
+      }
     }
   };
 
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
+    if (!isLoggingOut) {
+      setSearchQuery(e.target.value);
+    }
   };
 
   const handleUserSelect = (selectedUserId: string) => {
-    navigate(`/profile/${selectedUserId}`);
-    setSearchQuery("");
-    setShowSearchResults(false);
-    setSearchResults([]);
+    if (!isLoggingOut) {
+      navigate(`/profile/${selectedUserId}`);
+      setSearchQuery("");
+      setShowSearchResults(false);
+      setSearchResults([]);
+    }
   };
 
   const handleProfileNavigation = () => {
-    // Navigate to current user's profile
-    if (authContext?.user?.userId) {
-      navigate(`/profile/${authContext.user.userId}`);
+    if (isLoggingOut) return;
+    
+    if (authContext?.user?.id) {
+      navigate(`/profile/${authContext.user.id}`);
     } else if (currentUserData?.id) {
       navigate(`/profile/${currentUserData.id}`);
     } else {
-      // Fallback to /profile/me if no user ID available
       navigate(`/profile/me`);
     }
     setShowMenu(false);
   };
 
   const handleLogin = () => {
-    navigate("/login");
+    if (!isLoggingOut) {
+      navigate("/login");
+    }
   };
 
   const handleRegister = () => {
-    navigate("/register");
-  };
-
-  const handleLogout = async () => {
-    setShowMenu(false);
-    // Clear local user data
-    setCurrentUserData(null);
-    
-    if (authContext?.logout) {
-      await authContext.logout();
+    if (!isLoggingOut) {
+      navigate("/register");
     }
   };
 
@@ -212,8 +271,7 @@ function TopHeader() {
     e.currentTarget.src = 'http://localhost:8080/uploads/images/default-avatar.png';
   };
 
-  // Show loading state if we're authenticated but fetching user data
-  const showUserDataLoading = isAuthenticated && !fullName && userDataLoading;
+  const showUserDataLoading = isAuthenticated && !fullName && userDataLoading && !isLoggingOut;
 
   return (
     <div
@@ -223,20 +281,19 @@ function TopHeader() {
           : "mx-auto w-full flex items-center justify-around py-3 px-4 sticky top-0 z-50 bg-black transition-all duration-300"
       }`}
     >
-      {/* logo and Search input */}
+      {/* Logo and Search */}
       <span className="w-auto lg:w-1/3 flex items-center justify-left relative">
         <span
           className="lg:w-10 lg:h-8 w-7 h-7 bg-white rounded-2xl shadow-md mx-1 lg:mx-3 cursor-pointer flex items-center justify-center hover:scale-110 transition-transform"
-          onClick={() => navigate("/")}
+          onClick={() => !isLoggingOut && navigate("/")}
         >
           <span
             className="lg:w-4 lg:h-4 w-3 h-3 bg-black cursor-pointer rounded-sm"
-            onClick={() => navigate("/")}
+            onClick={() => !isLoggingOut && navigate("/")}
           ></span>
         </span>
         
-        {/* Search Container - Only show if authenticated */}
-        {isAuthenticated && (
+        {isAuthenticated && !isLoggingOut && (
           <span className="lg:mx-3 lg:flex hidden w-full relative">
             <div className="relative w-full" ref={searchContainerRef}>
               <input
@@ -245,11 +302,12 @@ function TopHeader() {
                 onChange={handleSearchInputChange}
                 className="bg-gray-700 hidden lg:flex w-full h-8 outline-none border-2 text-gray-300 px-10 text-sm border-gray-700 shadow-lg rounded-md focus:border-blue-500 transition-colors"
                 placeholder="Search users..."
+                disabled={isLoggingOut}
               />
               <AiOutlineSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg" />
               
-              {/* Search Results Dropdown */}
-              {showSearchResults && (
+              {/* Search Results */}
+              {showSearchResults && !isLoggingOut && (
                 <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-80 overflow-y-auto z-50">
                   {searchLoading ? (
                     <div className="p-4 text-center">
@@ -296,13 +354,13 @@ function TopHeader() {
         )}
       </span>
 
-      {/* menu buttons - Some only show if authenticated */}
+      {/* Navigation */}
       <span className="w-auto lg:w-1/3 flex items-center justify-center">
         <HiHome
           className="text-white cursor-pointer text-lg lg:text-xl mx-2 lg:mx-4 hover:text-blue-400 hover:scale-110 transition-all"
-          onClick={() => navigate("/")}
+          onClick={() => !isLoggingOut && navigate("/")}
         />
-        {isAuthenticated && (
+        {isAuthenticated && !isLoggingOut && (
           <>
             <AiOutlineMessage 
               className="text-white cursor-pointer text-lg lg:text-xl mx-2 lg:mx-4 hover:text-blue-400 hover:scale-110 transition-all" 
@@ -316,11 +374,10 @@ function TopHeader() {
         )}
       </span>
 
-      {/* user menu or login buttons */}
+      {/* User Menu */}
       <span className="w-auto lg:w-1/3 flex items-center justify-start md:justify-end cursor-pointer p-1 relative z-50">
-        {isAuthenticated ? (
+        {isAuthenticated && !isLoggingOut ? (
           <div ref={userMenuRef} className="flex items-center">
-            {/* Show loading or user menu */}
             {showUserDataLoading ? (
               <div className="flex items-center">
                 <div className="w-6 h-6 lg:w-8 lg:h-8 rounded-full bg-gray-300 animate-pulse mr-2"></div>
@@ -328,10 +385,9 @@ function TopHeader() {
               </div>
             ) : (
               <>
-                {/* Authenticated User Menu */}
                 <div
                   className="flex items-center mr-2 cursor-pointer hover:opacity-80 transition-opacity"
-                  onClick={() => setShowMenu(!showMenu)}
+                  onClick={() => !isLoggingOut && setShowMenu(!showMenu)}
                 >
                   <img
                     src={getProfileImageSrc(userAvatar)}
@@ -346,7 +402,7 @@ function TopHeader() {
 
                 <span
                   className="w-6 lg:w-8 h-6 lg:h-8 shadow-md bg-black/70 flex items-center justify-center rounded-md hover:bg-black/80 transition-colors"
-                  onClick={() => setShowMenu(!showMenu)}
+                  onClick={() => !isLoggingOut && setShowMenu(!showMenu)}
                 >
                   <FaAngleDown
                     className={`text-white text-xs lg:text-sm transition-transform ${
@@ -355,10 +411,9 @@ function TopHeader() {
                   />
                 </span>
 
-                {/* dropdown menu */}
-                {showMenu && (
+                {/* Dropdown */}
+                {showMenu && !isLoggingOut && (
                   <div className="absolute w-full md:w-40 shadow-xl top-10 right-0 flex items-center justify-center flex-col rounded-lg overflow-hidden">
-                    {/* User Info in Dropdown */}
                     <div className="w-40 h-12 bg-black/95 shadow flex items-center justify-start px-3 border-b border-gray-700">
                       <img
                         src={getProfileImageSrc(userAvatar)}
@@ -384,7 +439,7 @@ function TopHeader() {
                       onClick={handleLogout}
                     >
                       <FaPowerOff fontSize={14} className="mr-2" />
-                      Log Out
+                      {isLoggingOut ? 'Logging out...' : 'Log Out'}
                     </li>
                   </div>
                 )}
@@ -392,23 +447,24 @@ function TopHeader() {
             )}
           </div>
         ) : (
-          <>
-            {/* Login/Register Buttons for Unauthenticated Users */}
-            <button
-              onClick={handleLogin}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 lg:px-4 lg:py-2 rounded-lg text-xs lg:text-sm font-medium transition-colors mr-2 flex items-center"
-            >
-              <AiOutlineLogin className="mr-1 lg:mr-2" />
-              Login
-            </button>
-            
-            <button
-              onClick={handleRegister}
-              className="bg-transparent hover:bg-white/10 text-white border border-white px-3 py-1.5 lg:px-4 lg:py-2 rounded-lg text-xs lg:text-sm font-medium transition-colors flex items-center"
-            >
-              Sign Up
-            </button>
-          </>
+          !isLoggingOut && (
+            <>
+              <button
+                onClick={handleLogin}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 lg:px-4 lg:py-2 rounded-lg text-xs lg:text-sm font-medium transition-colors mr-2 flex items-center"
+              >
+                <AiOutlineLogin className="mr-1 lg:mr-2" />
+                Login
+              </button>
+              
+              <button
+                onClick={handleRegister}
+                className="bg-transparent hover:bg-white/10 text-white border border-white px-3 py-1.5 lg:px-4 lg:py-2 rounded-lg text-xs lg:text-sm font-medium transition-colors flex items-center"
+              >
+                Sign Up
+              </button>
+            </>
+          )
         )}
       </span>
     </div>
