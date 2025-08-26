@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Client, type IMessage } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 
@@ -9,6 +9,19 @@ export const useStompClient = (
   const [stompClient, setStompClient] = useState<Client | null>(null);
   const [connected, setConnected] = useState(false);
 
+  // stable callback wrapper
+  const handleMessage = useCallback(
+    (message: IMessage) => {
+      try {
+        onMessage(message);
+      } catch (err) {
+        console.error("[WS] ❌ Error in message handler:", err);
+      }
+    },
+    [onMessage] // stable ref to parent-provided callback
+  );
+
+  // Initialize client once
   useEffect(() => {
     console.log("[WS] Initializing STOMP client...");
     const socket = new SockJS("http://localhost:8080/ws");
@@ -27,8 +40,8 @@ export const useStompClient = (
       setConnected(true);
     };
 
-    client.onWebSocketClose = () => {
-      console.warn("[WS] 🔌 Connection closed");
+    client.onDisconnect = () => {
+      console.log("[WS] 🔌 Disconnected");
       setConnected(false);
     };
 
@@ -45,10 +58,10 @@ export const useStompClient = (
     };
   }, []);
 
-  // handle subscription per chatId
+  // Subscribe when chatId changes
   useEffect(() => {
     if (!stompClient || !connected || !currentChatId) {
-      console.log("[WS] ⏳ Not ready to subscribe:", {
+      console.log("[WS] ⏳ Not ready to subscribe", {
         hasClient: !!stompClient,
         connected,
         currentChatId,
@@ -57,39 +70,17 @@ export const useStompClient = (
     }
 
     console.log(`[WS] 🔄 Subscribing to /topic/chat/${currentChatId}`);
-    try {
-      const subscription = stompClient.subscribe(
-        `/topic/chat/${currentChatId}`,
-        (message) => {
-          console.log(
-            `[WS] 📨 Received message on /topic/chat/${currentChatId}:`,
-            message
-          );
-          try {
-            onMessage(message);
-          } catch (error) {
-            console.error("[WS] ❌ Error in message handler:", error);
-          }
-        },
-        { id: `sub-${currentChatId}` }
-      );
+    const subscription = stompClient.subscribe(
+      `/topic/chat/${currentChatId}`,
+      handleMessage,
+      { id: `sub-${currentChatId}` }
+    );
 
-      console.log(
-        `[WS] ✅ Successfully subscribed to /topic/chat/${currentChatId}`
-      );
-
-      return () => {
-        console.log(`[WS] 🔕 Unsubscribing from /topic/chat/${currentChatId}`);
-        try {
-          subscription.unsubscribe();
-        } catch (error) {
-          console.error("[WS] ❌ Error unsubscribing:", error);
-        }
-      };
-    } catch (error) {
-      console.error("[WS] ❌ Failed to subscribe:", error);
-    }
-  }, [currentChatId]);
+    return () => {
+      console.log(`[WS] 🔕 Unsubscribing from /topic/chat/${currentChatId}`);
+      subscription.unsubscribe();
+    };
+  }, [stompClient, connected, currentChatId, handleMessage]);
 
   return { stompClient, connected };
 };

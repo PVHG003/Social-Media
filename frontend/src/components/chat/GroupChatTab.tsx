@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import type { UserResponse } from "@/api";
+import React, {useState} from "react";
+import {Input} from "../ui/input";
+import {Button} from "../ui/button";
+import type {UserResponse} from "@/api";
 
 interface GroupChatTabProps {
   users: UserResponse[];
@@ -9,6 +9,8 @@ interface GroupChatTabProps {
   onCreate: (groupName: string, userIds: string[]) => void;
   page: number;
   hasMore: boolean;
+  loading: boolean;
+  error: string | null;
 }
 
 const GroupChatTab: React.FC<GroupChatTabProps> = ({
@@ -17,6 +19,8 @@ const GroupChatTab: React.FC<GroupChatTabProps> = ({
   onCreate,
   page,
   hasMore,
+  loading,
+  error,
 }) => {
   const [query, setQuery] = useState("");
   const [groupName, setGroupName] = useState("");
@@ -48,8 +52,14 @@ const GroupChatTab: React.FC<GroupChatTabProps> = ({
         placeholder="Search for users..."
       />
 
+      {/* Error state */}
+      {error && <p className="text-sm text-red-500">{error}</p>}
+
+      {/* User list */}
       <div className="border rounded p-2 max-h-40 overflow-y-auto">
-        {users.length > 0 ? (
+        {loading ? (
+          <p className="text-sm text-gray-500">Loading users...</p>
+        ) : users.length > 0 ? (
           users.map((u) => (
             <label
               key={u.id}
@@ -68,7 +78,8 @@ const GroupChatTab: React.FC<GroupChatTabProps> = ({
         )}
       </div>
 
-      {hasMore && (
+      {/* Load more button */}
+      {hasMore && !loading && (
         <Button
           variant="outline"
           className="w-full"
@@ -78,12 +89,13 @@ const GroupChatTab: React.FC<GroupChatTabProps> = ({
         </Button>
       )}
 
+      {/* Create button */}
       <Button
         className="w-full"
         onClick={() => onCreate(groupName, selectedUsers)}
         disabled={!groupName || selectedUsers.length === 0}
       >
-        Create Group
+        {loading ? "Creating..." : "Create Group"}
       </Button>
     </div>
   );

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.pvhg.backend.dto.request.chat.ChatCreateRequest;
 import vn.pvhg.backend.dto.request.chat.ChatUpdateRequest;
 import vn.pvhg.backend.dto.response.chat.ChatDetailResponse;
@@ -86,6 +87,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    @Transactional
     public ChatDetailResponse createPrivateChat(UserDetailsImpl userDetails, ChatCreateRequest request) {
         UUID currentUserId = userDetails.getUser().getId();
 
@@ -118,6 +120,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    @Transactional
     public ChatDetailResponse createGroupChat(UserDetailsImpl userDetails, ChatCreateRequest request) {
         UUID currentUserId = userDetails.getUser().getId();
         Set<UUID> uniqueMemberIds = new HashSet<>(request.memberIds());
@@ -143,6 +146,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    @Transactional
     public ChatDetailResponse addMembers(UserDetailsImpl userDetails, UUID chatId, List<UUID> userIds) {
         UUID currentUserId = userDetails.getUser().getId();
 

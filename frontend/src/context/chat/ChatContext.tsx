@@ -107,7 +107,13 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addMessage = (message: ChatMessageResponse) => {
-    setMessages((prevMessages) => [...prevMessages ?? [], message]);
+    setMessages((prevMessage) => {
+      if (!prevMessage) return [message];
+      return [...prevMessage, {
+        content: message.content ? message.content.replace(/\\n/g, "\n") : "",
+        attachments: message.attachments,
+      }]
+    });
   };
 
   const addChat = async (payloadData: ChatMessageResponse) => {

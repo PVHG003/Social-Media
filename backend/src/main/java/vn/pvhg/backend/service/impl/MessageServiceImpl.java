@@ -3,6 +3,7 @@ package vn.pvhg.backend.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.pvhg.backend.dto.message.OutgoingMessage;
 import vn.pvhg.backend.dto.payload.MessagePayload;
 import vn.pvhg.backend.enums.FileState;
@@ -32,9 +33,9 @@ public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
     private final AttachmentRepository attachmentRepository;
     private final MessageMapper messageMapper;
-    private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public OutgoingMessage saveMessage(UserDetailsImpl userDetails, UUID chatId, MessagePayload messagePayload) {
         User user = userDetails.getUser();
         UUID currentUserId = user.getId();
@@ -61,12 +62,14 @@ public class MessageServiceImpl implements MessageService {
             });
             attachmentRepository.saveAll(attachments);
         }
-        Message reloadedMessage = messageRepository.findById(savedMessage.getId())
+        Message reloadedMessage = messageRepository.findByIdWithAttachments(savedMessage.getId())
                 .orElseThrow(() -> new ChatNotFoundException("Message not found after save"));
 
-        return messageMapper.toOutgoingMessage(user, reloadedMessage);    }
+        return messageMapper.toOutgoingMessage(user, reloadedMessage);
+    }
 
     @Override
+    @Transactional
     public OutgoingMessage deleteMessage(UserDetailsImpl userDetails, UUID messageId) {
         User user = userDetails.getUser();
 
@@ -85,6 +88,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    @Transactional
     public OutgoingMessage updateMessage(UserDetailsImpl userDetails, UUID messageId, MessagePayload messagePayload) {
         User user = userDetails.getUser();
 

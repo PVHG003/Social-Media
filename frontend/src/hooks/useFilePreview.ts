@@ -1,29 +1,41 @@
 import React, { useEffect, useState } from "react";
 
+export type PreviewFile = {
+  file: File;
+  url: string;
+};
+
 export const useFilePreview = () => {
   const [files, setFiles] = useState<FileList | null>(null);
-  const [previews, setPreviews] = useState<string[]>([]);
+  const [previews, setPreviews] = useState<PreviewFile[]>([]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
     if (!selectedFiles) return;
 
-    setFiles(selectedFiles);
+    console.log(selectedFiles);
 
-    const urls = Array.from(selectedFiles).map((file) =>
-      URL.createObjectURL(file)
-    );
-    setPreviews(urls);
+    const newFiles = Array.from(selectedFiles);
+    const newPreviews = newFiles.map((file) => ({
+      file,
+      url: URL.createObjectURL(file),
+    }));
+
+    setFiles(selectedFiles);
+    setPreviews(newPreviews);
+
+    console.log(files)
   };
 
   useEffect(() => {
     return () => {
-      previews.forEach((url) => URL.revokeObjectURL(url));
+      previews.forEach((p) => URL.revokeObjectURL(p.url));
     };
   }, [previews]);
 
   const clearFiles = () => {
     setFiles(null);
+    previews.forEach((p) => URL.revokeObjectURL(p.url));
     setPreviews([]);
   };
 
