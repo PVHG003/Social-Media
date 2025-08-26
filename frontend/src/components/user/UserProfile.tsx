@@ -2,13 +2,23 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { 
+  MdEdit, 
+  MdLock, 
+  MdPersonAdd, 
+  MdPersonRemove, 
+  MdMessage,
+  MdEmail,
+  MdCalendarToday
+} from 'react-icons/md';
+import { FaUser, FaUserPlus } from 'react-icons/fa';
+import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 import TopHeader from '../ui/NavBar/NavBar';
 import EditProfileModal from './EditProfileModal';
 import FollowModalComponent from './FollowModal';
 import PostCard from '../post/PostCard';
 import { useAuth } from '../../context/authentication/AuthContext';
 
-// Import custom hooks
 import { useUserProfile } from '../../hooks/user/useUserProfile';
 import { useUserPosts } from '../../hooks/user/useUserPosts';
 import { useFollow } from '../../hooks/user/useFollow';
@@ -18,7 +28,6 @@ const UserProfile = () => {
   const { username, userId } = useParams<{ username?: string; userId?: string }>();
   const authContext = useAuth();
   
-  // Custom hooks
   const { user, loading, error, isCurrentUser, refetchUser, updateUser } = useUserProfile(userId);
   const { 
     posts, 
@@ -62,7 +71,6 @@ const UserProfile = () => {
 
   const isAuthenticated = !!authContext?.token;
 
-  // Safe function to get profile image with fallback
   const getProfileImageSrc = (profileImagePath?: string | null): string => {
     if (!profileImagePath || profileImagePath.trim() === '') {
       return 'http://localhost:8080/uploads/images/default-avatar.png';
@@ -74,24 +82,19 @@ const UserProfile = () => {
     e.currentTarget.src = 'http://localhost:8080/uploads/images/default-avatar.png';
   };
 
-  // Initialize edit form when user data is loaded
   useEffect(() => {
     if (user) {
       initializeEditForm(user);
     }
   }, [user, initializeEditForm]);
 
-  // Fetch posts when user is loaded
   useEffect(() => {
     if (user) {
       fetchUserPosts(user.id, 0, false);
     }
   }, [user, fetchUserPosts]);
 
-  // Don't render anything if not authenticated
-  if (!isAuthenticated) {
-    return null;
-  }
+  if (!isAuthenticated) return null;
 
   if (loading) {
     return (
@@ -99,7 +102,7 @@ const UserProfile = () => {
         <TopHeader />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+            <AiOutlineLoading3Quarters className="inline-block animate-spin h-8 w-8 text-blue-600 mb-4" />
             <p className="text-gray-600">Loading profile...</p>
           </div>
         </div>
@@ -175,18 +178,15 @@ const UserProfile = () => {
                 </div>
               </div>
 
-              {/* Action Buttons Section */}
+              {/* Action Buttons */}
               <div className="flex flex-col gap-3">
                 {isCurrentUser ? (
-                  // Current User Buttons: Edit Profile + Change Password
                   <>
                     <button 
                       onClick={() => handleEditProfile(user, isCurrentUser)}
                       className="bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors flex items-center justify-center"
                     >
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
+                      <MdEdit className="w-4 h-4 mr-2" />
                       Edit Profile
                     </button>
                     
@@ -194,14 +194,11 @@ const UserProfile = () => {
                       onClick={handleChangePassword}
                       className="bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-700 transition-colors flex items-center justify-center"
                     >
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1721 9z" />
-                      </svg>
+                      <MdLock className="w-4 h-4 mr-2" />
                       Change Password
                     </button>
                   </>
                 ) : (
-                  // Other User Buttons: Follow/Unfollow + Message
                   <>
                     <button
                       onClick={() => handleFollowToggle(user, isCurrentUser, updateUser)}
@@ -214,21 +211,17 @@ const UserProfile = () => {
                     >
                       {followLoading ? (
                         <>
-                          <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                          <AiOutlineLoading3Quarters className="inline-block animate-spin h-4 w-4 mr-2" />
                           Loading...
                         </>
                       ) : user?.following ? (
                         <>
-                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6z" />
-                          </svg>
+                          <MdPersonRemove className="w-4 h-4 mr-2" />
                           Unfollow
                         </>
                       ) : (
                         <>
-                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                          </svg>
+                          <MdPersonAdd className="w-4 h-4 mr-2" />
                           Follow
                         </>
                       )}
@@ -238,9 +231,7 @@ const UserProfile = () => {
                       to={`/chat/${user?.id}`}
                       className="bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-center flex items-center justify-center"
                     >
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                      </svg>
+                      <MdMessage className="w-4 h-4 mr-2" />
                       Message
                     </Link>
                   </>
@@ -289,18 +280,27 @@ const UserProfile = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {user.email && (
               <div className="border-l-4 border-blue-500 pl-4">
-                <h4 className="font-semibold text-gray-900 mb-1">Email Address</h4>
+                <h4 className="font-semibold text-gray-900 mb-1 flex items-center">
+                  <MdEmail className="w-4 h-4 mr-2" />
+                  Email Address
+                </h4>
                 <p className="text-gray-600">{user.email}</p>
               </div>
             )}
             
             <div className="border-l-4 border-green-500 pl-4">
-              <h4 className="font-semibold text-gray-900 mb-1">Username</h4>
+              <h4 className="font-semibold text-gray-900 mb-1 flex items-center">
+                <FaUser className="w-4 h-4 mr-2" />
+                Username
+              </h4>
               <p className="text-gray-600">@{user.username}</p>
             </div>
             
             <div className="border-l-4 border-orange-500 pl-4">
-              <h4 className="font-semibold text-gray-900 mb-1">Member Since</h4>
+              <h4 className="font-semibold text-gray-900 mb-1 flex items-center">
+                <MdCalendarToday className="w-4 h-4 mr-2" />
+                Member Since
+              </h4>
               <p className="text-gray-600">
                 {new Date(user.createdAt).toLocaleDateString('en-US', {
                   year: 'numeric',
@@ -312,7 +312,7 @@ const UserProfile = () => {
           </div>
         </div>
 
-        {/* User Posts Section */}
+        {/* Posts Section */}
         <div className="mb-6">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
             <h3 className="text-2xl font-bold text-gray-900 mb-2">
@@ -321,17 +321,15 @@ const UserProfile = () => {
             <p className="text-gray-600 text-lg">{posts.length} posts</p>
           </div>
           
-          {/* Posts Loading State */}
           {postsLoading && posts.length === 0 && (
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="text-center">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+                <AiOutlineLoading3Quarters className="inline-block animate-spin h-8 w-8 text-blue-600 mb-4" />
                 <p className="text-gray-600 text-lg">Loading posts...</p>
               </div>
             </div>
           )}
 
-          {/* Posts Error State */}
           {postsError && (
             <div className="text-center bg-white rounded-xl border border-gray-100 p-8">
               <h2 className="text-xl font-bold text-red-600 mb-2">Error</h2>
@@ -345,7 +343,6 @@ const UserProfile = () => {
             </div>
           )}
 
-          {/* Posts List */}
           {posts.length > 0 && (
             <>
               {posts.map((post) => (
@@ -358,7 +355,6 @@ const UserProfile = () => {
                 />
               ))}
 
-              {/* Load More Button */}
               {hasMore && (
                 <div className="text-center mt-8">
                   <button
@@ -368,7 +364,7 @@ const UserProfile = () => {
                   >
                     {loadingMore ? (
                       <span className="flex items-center space-x-2">
-                        <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <AiOutlineLoading3Quarters className="inline-block animate-spin h-4 w-4" />
                         <span>Loading...</span>
                       </span>
                     ) : (
@@ -380,7 +376,6 @@ const UserProfile = () => {
             </>
           )}
 
-          {/* No Posts State */}
           {!postsLoading && !postsError && posts.length === 0 && (
             <div className="text-center py-16 bg-white rounded-xl border border-gray-100">
               <div className="text-gray-400 text-8xl mb-6">📝</div>
@@ -395,7 +390,7 @@ const UserProfile = () => {
         </div>
       </div>
 
-      {/* Edit Profile Modal */}
+      {/* Modals */}
       <EditProfileModal
         isOpen={showEditModal && isCurrentUser}
         user={user}
@@ -413,7 +408,6 @@ const UserProfile = () => {
         handleImageError={handleImageError}
       />
 
-      {/* Follow Modal */}
       <FollowModalComponent
         followModal={followModal}
         currentUserId={user?.id}

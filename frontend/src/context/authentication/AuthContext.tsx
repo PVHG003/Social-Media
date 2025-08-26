@@ -63,7 +63,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
-      await authApi.logout();
+      const res = await authApi.logout();
+
+      if(res.success) {
+        setIsAuthenticated(false);
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+      }
+
     } catch (error) {
       setIsAuthenticated(false);
       setUser(null);
