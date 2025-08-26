@@ -26,6 +26,7 @@ public class WebSecurityConfig {
             "/api/auth/reset",
             "/api/auth/verify",
             "/api/auth/send-code",
+            "api/auth/refresh",
             "/api/test/ping",
             "/v2/api-docs",
             "/v3/api-docs",

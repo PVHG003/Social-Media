@@ -1,13 +1,11 @@
 package vn.pvhg.backend.service.impl;
 
+import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.pvhg.backend.dto.request.auth.ChangePasswordRequest;
-import vn.pvhg.backend.dto.request.auth.LoginRequest;
-import vn.pvhg.backend.dto.request.auth.PasswordResetRequest;
-import vn.pvhg.backend.dto.request.auth.RegisterRequest;
+import vn.pvhg.backend.dto.request.auth.*;
 import vn.pvhg.backend.dto.response.AuthenticatedResponse;
 import vn.pvhg.backend.enums.Role;
 import vn.pvhg.backend.enums.TokenSubject;
@@ -20,6 +18,7 @@ import vn.pvhg.backend.service.JwtService;
 import vn.pvhg.backend.service.MailService;
 import vn.pvhg.backend.service.VerificationService;
 
+import java.text.ParseException;
 import java.util.UUID;
 
 @Service
@@ -39,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
             throw new EmailAlreadyExistsException("Email already exists");
         }
 
-        if (!request.password().equals(request.confirmPassword())) {
+        if (!request.password().equals(request.confirm_password())) {
             throw new PasswordMismatchException("Passwords do not match");
         }
 
@@ -66,18 +65,20 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidCredentialsException("OTP code is incorrect or has expired.");
         }
 
-        String token;
+        String accessToken;
+        String refreshToken;
 
         if (!user.isEmailVerified()) {
             user.setEmailVerified(true);
             userRepository.save(user);
 
-            token = jwtService.generateToken(user, TokenSubject.USER_ACCESS);
+            accessToken = jwtService.generateToken(user, TokenSubject.USER_ACCESS);
+            refreshToken = jwtService.generateToken(user, TokenSubject.REFRESH_TOKEN);
         } else {
             throw new InvalidOperationException("Account already verified");
         }
 
-        return jwtService.getToken(token);
+        return jwtService.getToken(accessToken, refreshToken);
     }
 
 
@@ -95,8 +96,9 @@ public class AuthServiceImpl implements AuthService {
             throw new AccountNotVerifiedException("Your account is not verified. A new OTP has been sent.");
         }
 
-        String token = jwtService.generateToken(user, TokenSubject.USER_ACCESS);
-        return jwtService.getToken(token);
+        String accessToken = jwtService.generateToken(user, TokenSubject.USER_ACCESS);
+        String refreshToken = jwtService.generateToken(user, TokenSubject.REFRESH_TOKEN);
+        return jwtService.getToken(accessToken, refreshToken);
     }
 
     @Override
@@ -153,9 +155,10 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
 
         jwtService.deleteToken(user.getId());
-        String token = jwtService.generateToken(user, TokenSubject.USER_ACCESS);
+        String accessToken = jwtService.generateToken(user, TokenSubject.USER_ACCESS);
+        String refreshToken = jwtService.generateToken(user, TokenSubject.REFRESH_TOKEN);
 
-        return jwtService.getToken(token);
+        return jwtService.getToken(accessToken, refreshToken);
     }
 
     @Override
@@ -165,5 +168,30 @@ public class AuthServiceImpl implements AuthService {
 
         String otp = verificationService.generateAndSaveOtp(user.getId());
         mailService.sendOtpEmail(user.getEmail(), otp);
+    }
+
+    @Override
+    public AuthenticatedResponse refreshToken(RefreshTokenRequest request) {
+        String refreshToken = request.refresh_token();
+
+        if(!jwtService.validateToken(refreshToken)) {
+            throw new InvalidCredentialsException("Invalid refresh token");
+        }
+
+        UUID userId;
+        try{
+            SignedJWT signedJWT = SignedJWT.parse(refreshToken);
+            userId = UUID.fromString(signedJWT.getJWTClaimsSet().getStringClaim("userId"));
+        } catch (ParseException e) {
+            throw new InvalidCredentialsException("Invalid refresh token");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        String newAccessToken = jwtService.generateToken(user, TokenSubject.USER_ACCESS);
+        String newRefreshToken = jwtService.generateToken(user, TokenSubject.REFRESH_TOKEN);
+
+        return jwtService.getToken(newAccessToken, newRefreshToken);
     }
 }

@@ -12,7 +12,7 @@ public interface JwtService {
 
     void deleteToken(UUID userId);
 
-    AuthenticatedResponse getToken(String token);
+    AuthenticatedResponse getToken(String accessToken, String refreshToken);
 
     boolean validateToken(String token);
 

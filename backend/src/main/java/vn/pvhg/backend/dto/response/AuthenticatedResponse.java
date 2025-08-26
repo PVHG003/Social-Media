@@ -7,6 +7,7 @@ public record AuthenticatedResponse(
         UUID userId,
         String email,
         String role,
-        String token
+        String accessToken,
+        String refreshToken
 ) {
 }
