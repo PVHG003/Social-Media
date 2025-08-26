@@ -101,7 +101,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
   const renderAvatar = () => {
     const hasAvatar = comment.author.profileImagePath && 
                      comment.author.profileImagePath.trim() !== '' &&
-                     comment.author.profileImagePath !== '/default-avatar.png' &&
+                     comment.author.profileImagePath !== 'http://localhost:8080/uploads/images/default-avatar.png' &&
                      !comment.author.profileImagePath.includes('/default-avatar.png');
 
     if (hasAvatar) {

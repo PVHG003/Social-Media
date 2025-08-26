@@ -225,8 +225,8 @@ const PostModal: React.FC<PostModalProps> = ({
   const renderAvatar = (profileImagePath?: string | null, username?: string, size: string = 'w-10 h-10') => {
     const hasAvatar = profileImagePath && 
                      profileImagePath.trim() !== '' &&
-                     profileImagePath !== '/default-avatar.png' &&
-                     !profileImagePath.includes('/default-avatar.png');
+                     profileImagePath !== 'http://localhost:8080/uploads/images/default-avatar.png' &&
+                     !profileImagePath.includes('http://localhost:8080/uploads/images/default-avatar.png');
 
     if (hasAvatar) {
       const avatarUrl = profileImagePath!.startsWith('http') 

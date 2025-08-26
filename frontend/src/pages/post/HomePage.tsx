@@ -111,7 +111,7 @@ const HomePage: React.FC = () => {
 
   const getProfileImageSrc = (profileImagePath?: string | null): string => {
     if (!profileImagePath || profileImagePath.trim() === '') {
-      return '/default-avatar.png';
+      return 'http://localhost:8080/uploads/images/default-avatar.png';
     }
     return profileImagePath.startsWith('http') ? profileImagePath : `http://localhost:8080${profileImagePath}`;
   };
