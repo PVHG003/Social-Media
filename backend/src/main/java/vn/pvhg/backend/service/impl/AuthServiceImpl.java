@@ -2,9 +2,12 @@ package vn.pvhg.backend.service.impl;
 
 import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.pvhg.backend.config.RabbitMQConfig;
+import vn.pvhg.backend.dto.message.EmailMessage;
 import vn.pvhg.backend.dto.request.auth.*;
 import vn.pvhg.backend.dto.response.AuthenticatedResponse;
 import vn.pvhg.backend.enums.Role;
@@ -28,7 +31,8 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final VerificationService verificationService;
-    private final MailService mailService;
+    //private final MailService mailService;
+    private final RabbitTemplate rabbitTemplate;
 
     @Override
     @Transactional
@@ -167,7 +171,10 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
 
         String otp = verificationService.generateAndSaveOtp(user.getId());
-        mailService.sendOtpEmail(user.getEmail(), otp);
+
+        EmailMessage emailMessage = new EmailMessage(user.getEmail(), otp);
+
+        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY, emailMessage);
     }
 
     @Override

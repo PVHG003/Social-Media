@@ -31,6 +31,12 @@ spring:
           max-age: 86400
           cache-public: true
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
 file:
   image-upload: uploads/images/
   video-upload: uploads/videos/
