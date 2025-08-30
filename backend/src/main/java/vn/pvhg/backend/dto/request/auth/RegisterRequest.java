@@ -1,6 +1,5 @@
 package vn.pvhg.backend.dto.request.auth;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -24,13 +23,12 @@ public record RegisterRequest(
         String lastName,
 
 
-        @JsonProperty("email")
         @Email(message = "Email must be in a valid format")
         @NotBlank(message = "Email cannot be blank")
         @Size(min = 1, max = 100, message = "Email must not exceed 100 characters")
         String email,
 
-        @JsonProperty("password")
+
         @NotBlank(message = "Password cannot be blank")
         @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
         @Pattern(
@@ -39,8 +37,8 @@ public record RegisterRequest(
         )
         String password,
 
-        // @JsonProperty("confirm_password")
+
         @NotBlank(message = "Confirm password cannot be blank")
-        String confirmPassword
+        String confirm_password
 ) {
 }

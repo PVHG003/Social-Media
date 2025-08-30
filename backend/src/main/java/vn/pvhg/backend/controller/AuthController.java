@@ -5,14 +5,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import vn.pvhg.backend.dto.request.auth.ChangePasswordRequest;
-import vn.pvhg.backend.dto.request.auth.LoginRequest;
-import vn.pvhg.backend.dto.request.auth.PasswordResetRequest;
-import vn.pvhg.backend.dto.request.auth.RegisterRequest;
+import vn.pvhg.backend.dto.request.auth.*;
 import vn.pvhg.backend.dto.response.AuthenticatedResponse;
 import vn.pvhg.backend.response.ApiResponse;
 import vn.pvhg.backend.security.UserDetailsImpl;
@@ -25,6 +23,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    public final RabbitTemplate rabbitTemplate;
 
     @PostMapping("/register")
     @SecurityRequirements
@@ -122,6 +121,18 @@ public class AuthController {
         authService.sendOtp(email);
         ApiResponse<Void> response = new ApiResponse<>(
                 HttpStatus.OK, "OTP sent successfully", true, null
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/refresh")
+    @SecurityRequirements
+    public ResponseEntity<ApiResponse<AuthenticatedResponse>> refresh(
+            @Valid @RequestBody RefreshTokenRequest request
+    ){
+        AuthenticatedResponse data = authService.refreshToken(request);
+        ApiResponse<AuthenticatedResponse> response = new ApiResponse<>(
+                HttpStatus.OK, "Refresh token successful", true, data
         );
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

@@ -8,6 +8,7 @@ import java.time.Duration;
 public enum TokenSubject {
     USER_ACCESS("User Access"),
     ADMIN_ACCESS("Admin Access"),
+    REFRESH_TOKEN("Refresh Token"),
     OTP_VERIFIED_ACCOUNT("OTP Verified Account"),
     OTP_RESET_PASSWORD("OTP Reset Password"),
     RESET_PASSWORD("Reset Password");
@@ -20,8 +21,8 @@ public enum TokenSubject {
 
     public Duration getDuration() {
         return switch (this) {
-            case USER_ACCESS -> Duration.ofHours(1);
-            case ADMIN_ACCESS -> Duration.ofMinutes(30);
+            case USER_ACCESS, ADMIN_ACCESS -> Duration.ofMinutes(15);
+            case REFRESH_TOKEN -> Duration.ofDays(1);
             case OTP_VERIFIED_ACCOUNT, OTP_RESET_PASSWORD, RESET_PASSWORD -> Duration.ofMinutes(5);
         };
     }

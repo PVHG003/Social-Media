@@ -23,7 +23,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
-    private static final String JWT_PREFIX = "jwt:";
+    private static final String JWT_ACCESS_PREFIX = "jwt:access:";
+    private static final String JWT_REFRESH_PREFIX = "jwt:refresh:";
     private final RedisTemplate<String, String> redisTemplate;
 
     private final RsaKeyProperties rsaKeyProperties;
@@ -62,7 +63,10 @@ public class JwtServiceImpl implements JwtService {
             String token = jwsObject.serialize();
 
             if (subject == TokenSubject.USER_ACCESS || subject == TokenSubject.ADMIN_ACCESS) {
-                String redisKey = JWT_PREFIX + user.getId().toString();
+                String redisKey = JWT_ACCESS_PREFIX + user.getId().toString();
+                redisTemplate.opsForValue().set(redisKey, token, expirationTime);
+            } else if (subject == TokenSubject.REFRESH_TOKEN) {
+                String redisKey = JWT_REFRESH_PREFIX + user.getId().toString();
                 redisTemplate.opsForValue().set(redisKey, token, expirationTime);
             }
             return token;
@@ -73,17 +77,19 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public void deleteToken(UUID userId) {
-        String redisKey = JWT_PREFIX + userId.toString();
-        redisTemplate.delete(redisKey);
+        String accessKey = JWT_ACCESS_PREFIX + userId.toString();
+        String refreshKey = JWT_REFRESH_PREFIX + userId.toString();
+        redisTemplate.delete(accessKey);
+        redisTemplate.delete(refreshKey);
     }
 
     @Override
-    public AuthenticatedResponse getToken(String token) {
-        JWTClaimsSet jwtClaimsSet = getClaimsFromToken(token);
+    public AuthenticatedResponse getToken(String accessToken, String refreshToken) {
+        JWTClaimsSet jwtClaimsSet = getClaimsFromToken(accessToken);
         if (jwtClaimsSet == null) {
             return null;
         }
-        return authMapper.toAuthenticatedResponse(jwtClaimsSet, token);
+        return authMapper.toAuthenticatedResponse(jwtClaimsSet, accessToken, refreshToken);
     }
 
     @Override
@@ -101,11 +107,15 @@ public class JwtServiceImpl implements JwtService {
                 return false;
             }
 
+            String userIdString = signedJWT.getJWTClaimsSet().getStringClaim("userId");
             String subject = signedJWT.getJWTClaimsSet().getSubject();
             if (TokenSubject.USER_ACCESS.getValue().equals(subject) || TokenSubject.ADMIN_ACCESS.getValue().equals(subject)) {
-                String userIdString = signedJWT.getJWTClaimsSet().getStringClaim("userId");
-                String redisKey = JWT_PREFIX + userIdString;
+                String redisKey = JWT_ACCESS_PREFIX + userIdString;
                 return redisTemplate.hasKey(redisKey);
+            } else if (TokenSubject.REFRESH_TOKEN.getValue().equals(subject)) {
+                String redisKey = JWT_REFRESH_PREFIX + userIdString;
+                String storedToken = redisTemplate.opsForValue().get(redisKey);
+                return token.equals(storedToken);
             }
             return true;
         } catch (JOSEException | ParseException e) {

@@ -1,13 +1,14 @@
 package vn.pvhg.backend.service.impl;
 
+import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.pvhg.backend.dto.request.auth.ChangePasswordRequest;
-import vn.pvhg.backend.dto.request.auth.LoginRequest;
-import vn.pvhg.backend.dto.request.auth.PasswordResetRequest;
-import vn.pvhg.backend.dto.request.auth.RegisterRequest;
+import vn.pvhg.backend.config.RabbitMQConfig;
+import vn.pvhg.backend.dto.message.EmailMessage;
+import vn.pvhg.backend.dto.request.auth.*;
 import vn.pvhg.backend.dto.response.AuthenticatedResponse;
 import vn.pvhg.backend.enums.Role;
 import vn.pvhg.backend.enums.TokenSubject;
@@ -20,6 +21,7 @@ import vn.pvhg.backend.service.JwtService;
 import vn.pvhg.backend.service.MailService;
 import vn.pvhg.backend.service.VerificationService;
 
+import java.text.ParseException;
 import java.util.UUID;
 
 @Service
@@ -29,7 +31,8 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final VerificationService verificationService;
-    private final MailService mailService;
+    //private final MailService mailService;
+    private final RabbitTemplate rabbitTemplate;
 
     @Override
     @Transactional
@@ -39,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
             throw new EmailAlreadyExistsException("Email already exists");
         }
 
-        if (!request.password().equals(request.confirmPassword())) {
+        if (!request.password().equals(request.confirm_password())) {
             throw new PasswordMismatchException("Passwords do not match");
         }
 
@@ -66,18 +69,20 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidCredentialsException("OTP code is incorrect or has expired.");
         }
 
-        String token;
+        String accessToken;
+        String refreshToken;
 
         if (!user.isEmailVerified()) {
             user.setEmailVerified(true);
             userRepository.save(user);
 
-            token = jwtService.generateToken(user, TokenSubject.USER_ACCESS);
+            accessToken = jwtService.generateToken(user, TokenSubject.USER_ACCESS);
+            refreshToken = jwtService.generateToken(user, TokenSubject.REFRESH_TOKEN);
         } else {
             throw new InvalidOperationException("Account already verified");
         }
 
-        return jwtService.getToken(token);
+        return jwtService.getToken(accessToken, refreshToken);
     }
 
 
@@ -95,8 +100,9 @@ public class AuthServiceImpl implements AuthService {
             throw new AccountNotVerifiedException("Your account is not verified. A new OTP has been sent.");
         }
 
-        String token = jwtService.generateToken(user, TokenSubject.USER_ACCESS);
-        return jwtService.getToken(token);
+        String accessToken = jwtService.generateToken(user, TokenSubject.USER_ACCESS);
+        String refreshToken = jwtService.generateToken(user, TokenSubject.REFRESH_TOKEN);
+        return jwtService.getToken(accessToken, refreshToken);
     }
 
     @Override
@@ -153,9 +159,10 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
 
         jwtService.deleteToken(user.getId());
-        String token = jwtService.generateToken(user, TokenSubject.USER_ACCESS);
+        String accessToken = jwtService.generateToken(user, TokenSubject.USER_ACCESS);
+        String refreshToken = jwtService.generateToken(user, TokenSubject.REFRESH_TOKEN);
 
-        return jwtService.getToken(token);
+        return jwtService.getToken(accessToken, refreshToken);
     }
 
     @Override
@@ -164,6 +171,34 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
 
         String otp = verificationService.generateAndSaveOtp(user.getId());
-        mailService.sendOtpEmail(user.getEmail(), otp);
+
+        EmailMessage emailMessage = new EmailMessage(user.getEmail(), otp);
+
+        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY, emailMessage);
+    }
+
+    @Override
+    public AuthenticatedResponse refreshToken(RefreshTokenRequest request) {
+        String refreshToken = request.refresh_token();
+
+        if(!jwtService.validateToken(refreshToken)) {
+            throw new InvalidCredentialsException("Invalid refresh token");
+        }
+
+        UUID userId;
+        try{
+            SignedJWT signedJWT = SignedJWT.parse(refreshToken);
+            userId = UUID.fromString(signedJWT.getJWTClaimsSet().getStringClaim("userId"));
+        } catch (ParseException e) {
+            throw new InvalidCredentialsException("Invalid refresh token");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        String newAccessToken = jwtService.generateToken(user, TokenSubject.USER_ACCESS);
+        String newRefreshToken = jwtService.generateToken(user, TokenSubject.REFRESH_TOKEN);
+
+        return jwtService.getToken(newAccessToken, newRefreshToken);
     }
 }

@@ -9,7 +9,8 @@ Name | Type | Description | Notes
 **userId** | **string** |  | [optional] [default to undefined]
 **email** | **string** |  | [optional] [default to undefined]
 **role** | **string** |  | [optional] [default to undefined]
-**token** | **string** |  | [optional] [default to undefined]
+**accessToken** | **string** |  | [optional] [default to undefined]
+**refreshToken** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -21,7 +22,8 @@ const instance: AuthenticatedResponse = {
     userId,
     email,
     role,
-    token,
+    accessToken,
+    refreshToken,
 };
 ```
 
