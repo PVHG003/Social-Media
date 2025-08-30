@@ -3,7 +3,6 @@ package vn.pvhg.backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import vn.pvhg.backend.enums.NotificationEventType;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -18,21 +17,23 @@ import java.util.UUID;
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(nullable = false)
     private UUID id;
 
-    private UUID recipientId; // who will receive the notification
-    private UUID sourceUserId; // who triggered the notification (nullable for system events)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recipient_id", nullable = false)
+    private User recipient;
 
-    @Enumerated(EnumType.STRING)
-    private NotificationEventType type;
+    private String title;
 
-    private String content;
+    private String body;
 
-    private UUID referenceId; // references to the id of target of notification
+    private String aggregationKey;
 
-    private boolean read = false; // read/unread status
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean read = false;
 
     @CreationTimestamp
-    @Column(updatable = false)
     private LocalDateTime createdAt;
 }

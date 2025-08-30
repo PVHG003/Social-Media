@@ -9,12 +9,15 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.pvhg.backend.dto.request.post.CommentRequestDto;
 import vn.pvhg.backend.dto.request.post.CommentUpdateDto;
 import vn.pvhg.backend.dto.response.CommentResponseDto;
+import vn.pvhg.backend.model.Notification;
 import vn.pvhg.backend.model.Post;
+import vn.pvhg.backend.model.User;
 import vn.pvhg.backend.model.interaction.Comment;
 import vn.pvhg.backend.repository.CommentRepository;
 import vn.pvhg.backend.repository.PostRepository;
 import vn.pvhg.backend.security.UserDetailsImpl;
 import vn.pvhg.backend.service.CommentService;
+import vn.pvhg.backend.service.NotificationService;
 
 import java.util.UUID;
 
@@ -25,20 +28,34 @@ public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
     public CommentResponseDto createComment(UUID postId, CommentRequestDto requestDto, UserDetailsImpl userDetails) {
         Post post = getPostByIdOrThrow(postId);
-        var user = userDetails.getUser();
+        User commenter = userDetails.getUser();
+        User postOwner = post.getUser();
 
         Comment comment = new Comment();
         comment.setContent(requestDto.getContent());
         comment.setPost(post);
-        comment.setUser(user);
+        comment.setUser(commenter);
 
         Comment savedComment = commentRepository.save(comment);
         log.info("Created comment with ID: {} for post: {}", savedComment.getId(), postId);
+
+        if (!commenter.getId().equals(postOwner.getId())) {
+            Notification notification = Notification.builder()
+                    .title("New Comment")
+                    .body(commenter.getUsername() + " has commented on your post")
+                    .aggregationKey("POST:" + savedComment.getPost().getId())
+                    .recipient(postOwner)
+                    .read(false)
+                    .build();
+
+            notificationService.createAndSend(notification);
+        }
 
         return convertToResponseDto(savedComment);
     }
@@ -118,4 +135,3 @@ public class CommentServiceImpl implements CommentService {
                 .build();
     }
 }
-
