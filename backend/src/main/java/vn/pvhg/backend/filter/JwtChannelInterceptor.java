@@ -44,8 +44,8 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    accessor.setUser(authentication);
                     log.info("Principal: {}", authentication.getName());
+                    accessor.setUser(authentication);
                 }
             }
         }

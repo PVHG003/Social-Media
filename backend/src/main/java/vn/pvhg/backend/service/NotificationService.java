@@ -1,10 +1,11 @@
 package vn.pvhg.backend.service;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import vn.pvhg.backend.dto.response.notification.NotificationResponse;
-import vn.pvhg.backend.security.UserDetailsImpl;
+import vn.pvhg.backend.model.Notification;
+
+import java.util.List;
 
 public interface NotificationService {
-    Page<NotificationResponse> getNotifications(UserDetailsImpl userDetails, Pageable pageable);
+    void createAndSend(Notification notification);
+
+    void createAndSendBulk(List<Notification> notifications);
 }

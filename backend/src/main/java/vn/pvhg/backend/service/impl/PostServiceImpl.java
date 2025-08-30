@@ -9,15 +9,18 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.pvhg.backend.dto.request.post.PostRequest;
 import vn.pvhg.backend.dto.request.post.PostUpdateRequest;
 import vn.pvhg.backend.dto.response.PostResponse;
+import vn.pvhg.backend.model.Notification;
 import vn.pvhg.backend.model.Post;
 import vn.pvhg.backend.model.User;
 import vn.pvhg.backend.model.interaction.Like;
 import vn.pvhg.backend.model.media.PostMedia;
+import vn.pvhg.backend.repository.FollowRepository;
 import vn.pvhg.backend.repository.LikeRepository;
 import vn.pvhg.backend.repository.PostRepository;
 import vn.pvhg.backend.repository.UserRepository;
 import vn.pvhg.backend.security.UserDetailsImpl;
 import vn.pvhg.backend.service.MediaService;
+import vn.pvhg.backend.service.NotificationService;
 import vn.pvhg.backend.service.PostService;
 
 import java.util.ArrayList;
@@ -33,6 +36,8 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final LikeRepository likeRepository;
     private final MediaService mediaService;
+    private final FollowRepository followRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -49,12 +54,27 @@ public class PostServiceImpl implements PostService {
             List<PostMedia> mediaList = mediaService.saveMultipleMedia(requestDto.getMediaFiles());
             mediaList.forEach(media -> media.setPost(post));
             post.setPostMedias(mediaList);
-        } else {
+        }
+        else {
             post.setPostMedias(new ArrayList<>());
         }
 
         Post savedPost = postRepository.save(post);
         log.info("Created post with ID: {}", savedPost.getId());
+
+        List<User> followers = followRepository.findFollowersByUserId(userId);
+
+        List<Notification> notifications = followers.stream()
+                .map(follower -> Notification.builder()
+                        .title("New Post")
+                        .body(user.getUsername() + " has created a new post")
+                        .aggregationKey("POST:" + savedPost.getId())
+                        .recipient(follower)
+                        .read(false)
+                        .build())
+                .toList();
+
+        notificationService.createAndSendBulk(notifications);
 
         return convertToResponseDto(savedPost, userId);
     }
