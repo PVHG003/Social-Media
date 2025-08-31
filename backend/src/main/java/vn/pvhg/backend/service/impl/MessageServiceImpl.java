@@ -1,9 +1,14 @@
 package vn.pvhg.backend.service.impl;
 
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
 import vn.pvhg.backend.dto.message.OutgoingMessage;
 import vn.pvhg.backend.dto.payload.MessagePayload;
 import vn.pvhg.backend.enums.FileState;
@@ -17,13 +22,8 @@ import vn.pvhg.backend.model.chat.Message;
 import vn.pvhg.backend.repository.AttachmentRepository;
 import vn.pvhg.backend.repository.ChatRepository;
 import vn.pvhg.backend.repository.MessageRepository;
-import vn.pvhg.backend.repository.UserRepository;
 import vn.pvhg.backend.security.UserDetailsImpl;
 import vn.pvhg.backend.service.MessageService;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

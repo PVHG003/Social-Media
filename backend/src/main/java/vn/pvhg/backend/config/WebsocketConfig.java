@@ -27,14 +27,13 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws") // WebSocket handshake endpoint
                 .setAllowedOriginPatterns("*") // adjust for prod
-//                .withSockJS()
-        ;
+                .withSockJS();
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app"); // client → server
-        registry.enableSimpleBroker("/topic", "/queue");    // server → client use queue for 1-1 communication, topic for system-wide broadcast
+        registry.enableSimpleBroker("/topic", "/queue"); // server → client use queue for 1-1 communication, topic for
         registry.setUserDestinationPrefix("/user");
     }
 

@@ -1,74 +1,101 @@
-import React from "react";
 import type {ChatMessageResponse} from "@/api";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
-import clsx from "clsx";
-import AttachmentGrid from "./AttachmentGrid";
+import {Card} from "@/components/ui/card.tsx";
+import {useAuth} from "@/context/authentication/AuthContext.tsx";
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar.tsx";
+import MessageAttachments from "@/components/chat/MessageAttachments.tsx";
+import {formatDistanceToNow} from "date-fns";
 
 interface MessageBubbleProps {
-  message: ChatMessageResponse;
-  scrollToBottom: () => void;
+	message: ChatMessageResponse;
 }
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({message, scrollToBottom}) => {
-  const userString = localStorage.getItem("user");
-  const currentUserId = userString ? JSON.parse(userString).id : null;
-  const isMe = message.senderId === currentUserId;
+const BASE_URL = "http://localhost:8080/";
 
-  return (
-    <div
-      className={clsx("flex items-end gap-2 mb-4", {
-        "justify-end": isMe,
-        "justify-start": !isMe,
-      })}
-    >
-      {!isMe && (
-        <Avatar className="w-8 h-8">
-          <AvatarImage src={message.senderProfileImage}/>
-          <AvatarFallback>
-            {message.senderUsername && message.senderUsername.charAt(0)}
-          </AvatarFallback>
-        </Avatar>
-      )}
+const MessageBubble = ({message}: MessageBubbleProps) => {
 
-      <div
-        className={clsx("max-w-xs flex flex-col gap-2", {
-          "items-end": isMe,
-          "items-start": !isMe,
-        })}
-      >
-        {/* Sender name (only once, before bubble) */}
-        {!isMe && (
-          <span className="text-xs text-gray-500 mb-1">
-            {message.senderUsername}
-          </span>
-        )}
+	const getYouTubeId = (url: string) => {
+		const regex =
+			/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+		const match = url.match(regex);
+		return match ? match[1] : null;
+	};
 
-        {/* Text bubble */}
-        {message.content && (
-          <div
-            className={clsx(
-              "rounded-lg px-4 py-2 text-sm shadow",
-              isMe
-                ? "bg-blue-500 text-white rounded-br-none"
-                : "bg-gray-200 text-gray-900 rounded-bl-none"
-            )}
-          >
-            {message.content}
-          </div>
-        )}
+	const timeLabel = message.sentAt
+		? formatDistanceToNow(new Date(message.sentAt), {addSuffix: true})
+		: "";
 
-        {/* Attachments */}
-        {message.attachments && message.attachments.length > 0 && message.attachments.map((attachment) => (
-          <div className="mt-2 space-y-2">
-            <AttachmentGrid
-              attachment={attachment}
-              onMediaLoad={scrollToBottom}
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+	const {user} = useAuth();
+
+	const isMe = user?.id === message.senderId;
+
+	return (
+		<div className={`flex gap-2 mb-2 ${isMe ? "justify-end" : "justify-start"}`}>
+			{/* Avatar for other users */}
+			{!isMe && (
+				<Avatar className="h-10 w-10">
+					{message.senderProfileImage ? (
+						<AvatarImage src={`${BASE_URL}${message.senderProfileImage}`} alt={message.senderUsername ?? "?"}/>
+					) : (
+						<AvatarFallback>
+							{message.senderUsername?.charAt(0) ?? "?"}
+						</AvatarFallback>
+					)}
+				</Avatar>
+			)}
+
+			{/* Message content + attachments */}
+			<Card
+				className={`p-3 flex flex-col gap-1 break-words 
+    ${isMe ? "bg-sky-100 text-sky-900 ml-auto" : "bg-gray-100 text-gray-900 mr-auto"} 
+    max-w-[400px]`}
+			>
+				{/* Sender name for other users */}
+				{!isMe && message.senderUsername && (
+					<span className="text-xs font-semibold">{message.senderUsername}</span>
+				)}
+
+				{/* Message text */}
+				{message.content && (
+					<div>
+						{message.content.split(/\s+/).map((word, i) => {
+							const videoId = getYouTubeId(word);
+							if (videoId) {
+								return (
+									<div key={i} className="my-2">
+										<iframe
+											width="300"
+											height="170"
+											src={`https://www.youtube.com/embed/${videoId}`}
+											title="YouTube video player"
+											allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+											allowFullScreen
+											className="rounded"
+										/>
+									</div>
+								);
+							}
+							return <span key={i}>{word} </span>;
+						})}
+					</div>
+				)}
+				{/*{message.content && <p className="break-words">{message.content}</p>}*/}
+
+				{/* Attachments */}
+				{message.attachments && <MessageAttachments attachments={message.attachments}/>}
+
+				{/* Timestamp */}
+				{message.sentAt && (
+					<span
+						className={`text-xs text-muted-foreground ${
+							!isMe ? "text-right self-end" : "text-left self-start"
+						}`}
+					>
+						{timeLabel}
+					</span>
+				)}
+			</Card>
+		</div>
+	);
 };
 
 export default MessageBubble;

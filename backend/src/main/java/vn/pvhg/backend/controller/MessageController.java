@@ -28,7 +28,7 @@ public class MessageController {
     private final MessageService messageService;
     private final UserDetailsServiceImpl userDetailsServiceImpl;
 
-    @MessageMapping("/chat.send.{chatId}")
+    @MessageMapping("/chat/send/{chatId}")
     public void sendMessage(
             @DestinationVariable UUID chatId,
             @Payload MessagePayload messagePayload,
@@ -45,7 +45,7 @@ public class MessageController {
         );
     }
 
-    @MessageMapping("/chat.{chatId}.message.delete.{messageId}")
+    @MessageMapping("/chat/{chatId}/message/{messageId}/delete")
     public void deleteMessage(
             @DestinationVariable UUID chatId,
             @DestinationVariable UUID messageId,
@@ -62,7 +62,7 @@ public class MessageController {
         );
     }
 
-    @MessageMapping("/chat.{chatId}.message.update.{messageId}")
+    @MessageMapping("/chat/{chatId}/message/{messageId}/update")
     public void updateMessage(
             @DestinationVariable UUID chatId,
             @DestinationVariable UUID messageId,
@@ -81,7 +81,7 @@ public class MessageController {
         );
     }
 
-    @MessageMapping("/chat.typingMessage.{chatId}")
+    @MessageMapping("/chat/{chatId}/typing")
     public void typingMessage(
             @DestinationVariable UUID chatId,
             Principal principal

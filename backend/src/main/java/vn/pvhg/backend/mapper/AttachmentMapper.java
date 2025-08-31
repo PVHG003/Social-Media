@@ -11,6 +11,7 @@ public class AttachmentMapper {
     public AttachmentResponse toAttachmentResponse(ChatAttachment attachment) {
         return new AttachmentResponse(
                 attachment.getId(),
+                attachment.getFileName(),
                 attachment.getFilePath(),
                 attachment.getContentType(),
                 attachment.getUploader().getId(),

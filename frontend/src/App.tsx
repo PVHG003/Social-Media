@@ -1,8 +1,10 @@
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import ChatLayout from "./components/chat/ChatLayout";
+import {
+  Outlet,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from "react-router-dom";
 import UserProfilePage from "./pages/user/UserProfilePage";
-import ChatPage from "./pages/chat/ChatPage";
-import { ChatProvider } from "./context/chat/ChatContext";
 import HomePage from "./pages/post/HomePage";
 import LoginPage from "./pages/authentication/LoginPage";
 import RegisterPage from "./pages/authentication/RegisterPage";
@@ -11,6 +13,9 @@ import VerifyPage from "./pages/authentication/VerifyPage";
 import ForgotPasswordPage from "./pages/authentication/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/authentication/ResetPasswordPage";
 import ChangePasswordForm from "./components/authentication/ChangePasswordForm";
+import ChatsPage from "./pages/chat/ChatsPage";
+import { ChatProvider } from "./hooks/chat/useChat";
+import { MessageProvider } from "./hooks/chat/useMessage";
 
 function App() {
   return (
@@ -26,15 +31,19 @@ function App() {
           <Route path="/forget" element={<ForgotPasswordPage />} />
           <Route path="/reset" element={<ResetPasswordPage />} />
           <Route path="/change-password" element={<ChangePasswordForm />} />
+
           <Route
-            path="/chat"
+            path="/chats"
             element={
               <ChatProvider>
-                <ChatLayout />
+                <MessageProvider>
+                  <Outlet />
+                </MessageProvider>
               </ChatProvider>
             }
           >
-            <Route path=":chatId" element={<ChatPage />} />
+            <Route index element={<ChatsPage />} />
+            <Route path=":chatId" element={<ChatsPage />} />
           </Route>
 
           {/* Other routes */}
