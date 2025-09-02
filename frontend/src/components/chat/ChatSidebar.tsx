@@ -5,6 +5,8 @@ import {Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarProvider,}
 import ChatInfoCard from "./ChatInfoCard";
 import {ScrollArea} from "../ui/scroll-area";
 import {MdChatBubble} from "react-icons/md";
+import {useState} from "react";
+import ChatSearchModal from "./ChatSearchModal";
 
 interface ChatSidebarProps {
 	chats: ChatListResponse[];
@@ -12,7 +14,9 @@ interface ChatSidebarProps {
 }
 
 const ChatSidebar = ({chats, onSelect}: ChatSidebarProps) => {
-	const navigate = useNavigate()
+	const navigate = useNavigate();
+	const [modalOpen, setModalOpen] = useState(false);
+	const [mode, setMode] = useState<"private" | "group">("private");
 
 	return (
 		<SidebarProvider>
@@ -29,7 +33,7 @@ const ChatSidebar = ({chats, onSelect}: ChatSidebarProps) => {
 						{chats.map((chat) => (
 							<Link
 								key={chat.chatId}
-								to={`/chats/${chat.chatId}`}
+								to={`/chat/${chat.chatId}`}
 								onClick={() => onSelect(chat.chatId!)}
 								className="block hover:bg-accent px-2 py-1 rounded"
 							>
@@ -41,14 +45,29 @@ const ChatSidebar = ({chats, onSelect}: ChatSidebarProps) => {
 
 				{/* Footer */}
 				<SidebarFooter className="p-3 border-t flex items-center justify-between gap-2">
-					<Button size="sm" className="flex-1">
+					<Button
+						size="sm"
+						className="flex-1"
+						onClick={() => {
+							setMode("private");
+							setModalOpen(true);
+						}}
+					>
 						Private Chat
 					</Button>
-					<Button size="sm" className="flex-1">
+					<Button
+						size="sm"
+						className="flex-1"
+						onClick={() => {
+							setMode("group");
+							setModalOpen(true);
+						}}
+					>
 						Group Chat
 					</Button>
 				</SidebarFooter>
 			</Sidebar>
+			<ChatSearchModal open={modalOpen} onClose={() => setModalOpen(false)} mode={mode}/>
 		</SidebarProvider>
 	);
 };

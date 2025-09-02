@@ -27,6 +27,10 @@ public class ChatMapper {
         ChatDisplayInfo displayInfo = Optional.of(extractChatDisplayInfo(chat, currentUserId))
                 .orElse(new ChatDisplayInfo(null, null));
 
+        List<UUID> memberIds = chat.getMembers().stream()
+                .map(ChatMember::getId)
+                .toList();
+
         // Unread messages count
         int unreadMessagesCount = chat.getMembers().stream()
                 .filter(member -> !member.getMember().getId().equals(currentUserId))
@@ -47,6 +51,7 @@ public class ChatMapper {
                         .findFirst()
                         .map(ChatMember::isMuted)
                         .orElse(false),
+                memberIds,
                 chat.getCreatedAt()
         );
     }
@@ -92,7 +97,8 @@ public class ChatMapper {
                     .findFirst()
                     .orElse(null);
 
-        } else { // GROUP
+        }
+        else { // GROUP
             name = chat.getGroupName() != null && !chat.getGroupName().isBlank()
                     ? chat.getGroupName()
                     : chat.getMembers().stream()

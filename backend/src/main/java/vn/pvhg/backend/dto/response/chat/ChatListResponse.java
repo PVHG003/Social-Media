@@ -3,6 +3,7 @@ package vn.pvhg.backend.dto.response.chat;
 import vn.pvhg.backend.enums.ChatType;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record ChatListResponse(
@@ -15,6 +16,7 @@ public record ChatListResponse(
         LocalDateTime lastMessageSentAt,
         int unreadMessagesCount,
         boolean muted,
+        List<UUID> memberIds,
         LocalDateTime createdAt
 ) {
 }

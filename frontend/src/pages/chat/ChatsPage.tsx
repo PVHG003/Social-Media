@@ -17,7 +17,7 @@ const ChatsPage = () => {
 
 	useEffect(() => {
 		if (!chatId && chats.length > 0) {
-			navigate(`/chats/${chats[0].chatId}`);
+			navigate(`/chat/${chats[0].chatId}`);
 		}
 	}, [chatId, chats]);
 

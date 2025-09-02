@@ -1830,6 +1830,12 @@ export interface ChatListResponse {
 	'muted'?: boolean;
 	/**
 	 *
+	 * @type {Array<string>}
+	 * @memberof ChatListResponse
+	 */
+	'memberIds'?: Array<string>;
+	/**
+	 *
 	 * @type {string}
 	 * @memberof ChatListResponse
 	 */

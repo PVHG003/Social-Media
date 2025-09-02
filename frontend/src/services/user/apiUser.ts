@@ -10,7 +10,7 @@ import {
 
 const configuration = new Configuration({
   basePath: "http://localhost:8080",
-  accessToken: `${localStorage.getItem("token")}`,
+  accessToken: () => localStorage.getItem("token") ?? "",
   baseOptions: {
     withCredentials: true,
     Origin: "http://localhost:5173",
@@ -23,7 +23,7 @@ const userApi = {
   getCurrentUser: async (): Promise<ApiResponseUserResponse> => {
     const { data } = await userControllerApi.getCurrentUser();
     if (!data.success) {
-      throw new Error(data.message || 'Failed to fetch current user');
+      throw new Error(data.message || "Failed to fetch current user");
     }
     return data;
   },
@@ -41,7 +41,7 @@ const userApi = {
   ): Promise<ApiResponseUserResponse> => {
     const { data } = await userControllerApi.updateCurrentUser(request);
     if (!data.success) {
-      throw new Error(data.message || 'Failed to update user profile');
+      throw new Error(data.message || "Failed to update user profile");
     }
     return data;
   },
@@ -51,12 +51,12 @@ const userApi = {
     pageable?: Pageable
   ): Promise<ApiPaginatedResponseListUserResponse> => {
     const { data } = await userControllerApi.searchUsers(
-      query, 
-      pageable?.page, 
+      query,
+      pageable?.page,
       pageable?.size
     );
     if (!data.success) {
-      throw new Error(data.message || 'Failed to search users');
+      throw new Error(data.message || "Failed to search users");
     }
     return data;
   },
@@ -64,7 +64,7 @@ const userApi = {
   followUser: async (userId: string): Promise<ApiResponseVoid> => {
     const { data } = await userControllerApi.followUser(userId);
     if (!data.success) {
-      throw new Error(data.message || 'Failed to follow user');
+      throw new Error(data.message || "Failed to follow user");
     }
     return data;
   },
@@ -72,7 +72,7 @@ const userApi = {
   unfollowUser: async (userId: string): Promise<ApiResponseVoid> => {
     const { data } = await userControllerApi.unfollowUser(userId);
     if (!data.success) {
-      throw new Error(data.message || 'Failed to unfollow user');
+      throw new Error(data.message || "Failed to unfollow user");
     }
     return data;
   },
@@ -82,12 +82,12 @@ const userApi = {
     pageable?: Pageable
   ): Promise<ApiPaginatedResponseListUserResponse> => {
     const { data } = await userControllerApi.getFollowers(
-      userId, 
-      pageable?.page, 
+      userId,
+      pageable?.page,
       pageable?.size
     );
     if (!data.success) {
-      throw new Error(data.message || 'Failed to get followers');
+      throw new Error(data.message || "Failed to get followers");
     }
     return data;
   },
@@ -97,12 +97,12 @@ const userApi = {
     pageable?: Pageable
   ): Promise<ApiPaginatedResponseListUserResponse> => {
     const { data } = await userControllerApi.getFollowing(
-      userId, 
-      pageable?.page, 
+      userId,
+      pageable?.page,
       pageable?.size
     );
     if (!data.success) {
-      throw new Error(data.message || 'Failed to get following');
+      throw new Error(data.message || "Failed to get following");
     }
     return data;
   },
