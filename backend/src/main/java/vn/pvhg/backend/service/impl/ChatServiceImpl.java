@@ -110,9 +110,10 @@ public class ChatServiceImpl implements ChatService {
         Chat savedChat = chatRepository.save(chat);
 
         List<ChatMember> members = List.of(
-                ChatMember.builder().chat(savedChat).member(User.builder().id(currentUserId).build()).role(MemberRole.MEMBER).build(),
-                ChatMember.builder().chat(savedChat).member(User.builder().id(otherMemberId).build()).role(MemberRole.MEMBER).build()
-        );
+                ChatMember.builder().chat(savedChat).member(User.builder().id(currentUserId).build())
+                        .role(MemberRole.MEMBER).build(),
+                ChatMember.builder().chat(savedChat).member(User.builder().id(otherMemberId).build())
+                        .role(MemberRole.MEMBER).build());
 
         List<ChatMember> savedMembers = chatMemberRepository.saveAll(members);
 
@@ -137,8 +138,10 @@ public class ChatServiceImpl implements ChatService {
         Chat savedChat = chatRepository.save(chat);
 
         List<ChatMember> membersToSave = new ArrayList<>();
-        membersToSave.add(ChatMember.builder().member(User.builder().id(currentUserId).build()).chat(savedChat).role(MemberRole.ADMIN).build());
-        uniqueMemberIds.forEach(memberId -> membersToSave.add(ChatMember.builder().member(User.builder().id(memberId).build()).chat(savedChat).role(MemberRole.MEMBER).build()));
+        membersToSave.add(ChatMember.builder().member(User.builder().id(currentUserId).build()).chat(savedChat)
+                .role(MemberRole.ADMIN).build());
+        uniqueMemberIds.forEach(memberId -> membersToSave.add(ChatMember.builder()
+                .member(User.builder().id(memberId).build()).chat(savedChat).role(MemberRole.MEMBER).build()));
 
         List<ChatMember> savedMembers = chatMemberRepository.saveAll(membersToSave);
 
@@ -173,7 +176,8 @@ public class ChatServiceImpl implements ChatService {
                 .toList();
 
         List<ChatMember> savedMembers = chatMemberRepository.saveAll(newMemberIds.stream()
-                .map(memberId -> ChatMember.builder().member(User.builder().id(memberId).build()).chat(chat).role(MemberRole.MEMBER).build())
+                .map(memberId -> ChatMember.builder().member(User.builder().id(memberId).build()).chat(chat)
+                        .role(MemberRole.MEMBER).build())
                 .toList());
 
         Chat savedChat = chatRepository.save(chat);
@@ -182,19 +186,94 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    @Transactional
     public ChatDetailResponse updateChat(UserDetailsImpl userDetails, UUID chatId, ChatUpdateRequest request) {
-        // Implementation similar: extract currentUserId and check admin permissions
-        return null;
+        UUID currentUserId = userDetails.getUser().getId();
+
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new ChatNotFoundException("Chat id " + chatId + " not found"));
+
+        if (chat.getChatType() != ChatType.GROUP) {
+            throw new InvalidChatTypeException("Chat id " + chatId + " is not a group chat");
+        }
+
+        boolean isAdmin = chat.getMembers().stream()
+                .anyMatch(m -> m.getMember().getId().equals(currentUserId) && m.getRole() == MemberRole.ADMIN);
+        if (!isAdmin) {
+            throw new NotChatAdminException("Only admins can update group details");
+        }
+
+        if (request.groupName() != null && !request.groupName().isBlank()) {
+            chat.setGroupName(request.groupName());
+        }
+
+        Chat savedChat = chatRepository.save(chat);
+
+        return chatMapper.toChatDetailResponse(currentUserId, savedChat, chat.getMembers());
     }
 
     @Override
+    @Transactional
     public void deleteChat(UserDetailsImpl userDetails, UUID chatId) {
-        // Implementation similar: extract currentUserId and check admin permissions
+        UUID currentUserId = userDetails.getUser().getId();
+
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new ChatNotFoundException("Chat id " + chatId + " not found"));
+
+        if (chat.getChatType() == ChatType.GROUP) {
+            boolean isAdmin = chat.getMembers().stream()
+                    .anyMatch(m -> m.getMember().getId().equals(currentUserId) && m.getRole() == MemberRole.ADMIN);
+            if (!isAdmin) {
+                throw new NotChatAdminException("Only admins can delete group chats");
+            }
+        } else {
+            // Private chat → must be a member
+            boolean isMember = chat.getMembers().stream()
+                    .anyMatch(m -> m.getMember().getId().equals(currentUserId));
+            if (!isMember) {
+                throw new NotChatMemberException("User not in private chat");
+            }
+        }
+
+        chatRepository.delete(chat);
     }
 
     @Override
+    @Transactional
     public ChatDetailResponse removeMember(UserDetailsImpl userDetails, UUID chatId, UUID memberId) {
-        // Implementation similar: extract currentUserId and check admin permissions
-        return null;
+        UUID currentUserId = userDetails.getUser().getId();
+
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new ChatNotFoundException("Chat id " + chatId + " not found"));
+
+        if (chat.getChatType() != ChatType.GROUP) {
+            throw new InvalidChatTypeException("Chat id " + chatId + " is not a group chat");
+        }
+
+        boolean isAdmin = chat.getMembers().stream()
+                .anyMatch(m -> m.getMember().getId().equals(currentUserId) && m.getRole() == MemberRole.ADMIN);
+        if (!isAdmin) {
+            throw new NotChatAdminException("Only admins can remove members");
+        }
+
+        ChatMember member = chat.getMembers().stream()
+                .filter(m -> m.getMember().getId().equals(memberId))
+                .findFirst()
+                .orElseThrow(
+                        () -> new NotChatMemberException("User " + memberId + " is not a member of chat " + chatId));
+
+        // Prevent removing the last admin
+        if (member.getRole() == MemberRole.ADMIN) {
+            long adminCount = chat.getMembers().stream().filter(m -> m.getRole() == MemberRole.ADMIN).count();
+            if (adminCount <= 1) {
+                throw new NotChatAdminException("Cannot remove the last admin from the group");
+            }
+        }
+
+        chatMemberRepository.delete(member);
+
+        List<ChatMember> updatedMembers = chatMemberRepository.findByChatId(chatId);
+        return chatMapper.toChatDetailResponse(currentUserId, chat, updatedMembers);
     }
+
 }

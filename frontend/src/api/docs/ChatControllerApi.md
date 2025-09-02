@@ -377,7 +377,7 @@ const { status, data } = await apiInstance.removeMember(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **updateChat**
-> ApiResponseChatDetailResponse updateChat(body)
+> ApiResponseChatDetailResponse updateChat(chatUpdateRequest)
 
 
 ### Example
@@ -385,18 +385,19 @@ const { status, data } = await apiInstance.removeMember(
 ```typescript
 import {
     ChatControllerApi,
-    Configuration
+    Configuration,
+    ChatUpdateRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ChatControllerApi(configuration);
 
 let chatId: string; // (default to undefined)
-let body: any; //
+let chatUpdateRequest: ChatUpdateRequest; //
 
 const { status, data } = await apiInstance.updateChat(
     chatId,
-    body
+    chatUpdateRequest
 );
 ```
 
@@ -404,7 +405,7 @@ const { status, data } = await apiInstance.updateChat(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **body** | **any**|  | |
+| **chatUpdateRequest** | **ChatUpdateRequest**|  | |
 | **chatId** | [**string**] |  | defaults to undefined|
 
 

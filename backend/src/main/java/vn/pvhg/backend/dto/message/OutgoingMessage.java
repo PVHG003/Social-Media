@@ -1,10 +1,10 @@
 package vn.pvhg.backend.dto.message;
 
-import vn.pvhg.backend.dto.response.chat.AttachmentResponse;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+
+import vn.pvhg.backend.dto.response.chat.AttachmentResponse;
 
 public record OutgoingMessage(
         UUID messageId,
@@ -13,7 +13,7 @@ public record OutgoingMessage(
         String senderProfileImage,
         String content,
         List<AttachmentResponse> attachments,
-        LocalDateTime sentAt,
+        Instant sentAt,
         boolean deleted,
         boolean fromMe
 ) {

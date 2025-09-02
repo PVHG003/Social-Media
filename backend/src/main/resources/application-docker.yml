@@ -25,13 +25,13 @@ spring:
 
   web:
     resources:
-      static-locations: classpath:/static/, classpath:/public/, file:app/uploads/
+      static-locations: classpath:/static/, classpath:/public/, file:uploads/
 
 file:
-  image-upload: app/uploads/images/
-  video-upload: app/uploads/videos/
+  image-upload: uploads/images/
+  video-upload: uploads/videos/
 
 application:
   file:
     uploads:
-      media-output-path: app/uploads/
+      media-output-path: uploads/

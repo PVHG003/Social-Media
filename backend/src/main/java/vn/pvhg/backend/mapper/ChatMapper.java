@@ -10,6 +10,7 @@ import vn.pvhg.backend.model.chat.Chat;
 import vn.pvhg.backend.model.chat.ChatMember;
 import vn.pvhg.backend.model.chat.Message;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -124,7 +125,7 @@ public class ChatMapper {
 
         String latestMessageContent = latestMessage.getContent();
         String latestMessageSenderUsername = latestMessage.getSender().getUsername();
-        LocalDateTime latestMessageSentAt = latestMessage.getSentAt();
+        Instant latestMessageSentAt = latestMessage.getSentAt();
 
         return new ChatLatestMessageInfo(
                 latestMessageContent,
@@ -135,7 +136,7 @@ public class ChatMapper {
     private record ChatDisplayInfo(String name, String image) {
     }
 
-    private record ChatLatestMessageInfo(String content, String senderUsername, LocalDateTime sentAt) {
+    private record ChatLatestMessageInfo(String content, String senderUsername, Instant sentAt) {
     }
 
 }

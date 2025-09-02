@@ -32,7 +32,7 @@ const MessageAttachments = ({attachments}: MessageAttachmentsProps) => {
 						<Card key={idx} className="p-1">
 							<img
 								src={`${BASE_URL}${att.filePath}`}
-								alt={truncateAttachmentName(att.fileName) ?? "attachment"}
+								alt={truncateAttachmentName(att.fileName!) ?? "attachment"}
 								className="rounded-md max-h-64 object-contain w-full"
 							/>
 						</Card>
@@ -56,7 +56,7 @@ const MessageAttachments = ({attachments}: MessageAttachmentsProps) => {
 						key={idx}
 						className="p-2 flex items-center justify-between gap-2 bg-gray-50 hover:bg-gray-100 transition-colors"
 					>
-						<span className="truncate">{truncateAttachmentName(att.fileName) ?? "Unknown file"}</span>
+						<span className="truncate">{truncateAttachmentName(att.fileName!) ?? "Unknown file"}</span>
 						<a
 							href={`${BASE_URL}${att.filePath}`}
 							download

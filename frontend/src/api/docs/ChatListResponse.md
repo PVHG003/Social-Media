@@ -14,6 +14,7 @@ Name | Type | Description | Notes
 **lastMessageSentAt** | **string** |  | [optional] [default to undefined]
 **unreadMessagesCount** | **number** |  | [optional] [default to undefined]
 **muted** | **boolean** |  | [optional] [default to undefined]
+**memberIds** | **Array&lt;string&gt;** |  | [optional] [default to undefined]
 **createdAt** | **string** |  | [optional] [default to undefined]
 
 ## Example
@@ -31,6 +32,7 @@ const instance: ChatListResponse = {
     lastMessageSentAt,
     unreadMessagesCount,
     muted,
+    memberIds,
     createdAt,
 };
 ```

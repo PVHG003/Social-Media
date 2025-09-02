@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 **lastName** | **string** |  | [default to undefined]
 **email** | **string** |  | [default to undefined]
 **password** | **string** |  | [default to undefined]
-**confirm_password** | **string** |  | [default to undefined]
+**confirmPassword** | **string** |  | [default to undefined]
 
 ## Example
 
@@ -23,7 +23,7 @@ const instance: RegisterRequest = {
     lastName,
     email,
     password,
-    confirm_password,
+    confirmPassword,
 };
 ```
 

@@ -1,6 +1,7 @@
 import {
   ChatMediaControllerApi,
   Configuration,
+  type ApiResponseChatDetailResponse,
   type ApiResponseListAttachmentResponse,
 } from "@/api";
 
@@ -31,6 +32,22 @@ const apiAttachment = {
       return data;
     } catch (error) {
       console.error("Error uploading files:", error);
+      throw error;
+    }
+  },
+
+  groupImage: async (
+    chatId: string,
+    file: File
+  ): Promise<ApiResponseChatDetailResponse> => {
+    try {
+      const { data } = await chatMediaControllerApi.uploadGroupImage(
+        chatId,
+        file
+      );
+      return data;
+    } catch (error) {
+      console.error("Error uploading group image:", error);
       throw error;
     }
   },

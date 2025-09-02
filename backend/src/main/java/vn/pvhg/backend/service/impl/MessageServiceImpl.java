@@ -1,5 +1,6 @@
 package vn.pvhg.backend.service.impl;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -81,7 +82,7 @@ public class MessageServiceImpl implements MessageService {
         }
 
         message.setDeleted(true);
-        message.setDeletedAt(LocalDateTime.now());
+        message.setDeletedAt(Instant.now());
         messageRepository.save(message);
 
         return messageMapper.toOutgoingMessage(user, message);

@@ -51,7 +51,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./uploads:/app/uploads
+      - ./uploads:/uploads
 
 volumes:
   postgres_data:

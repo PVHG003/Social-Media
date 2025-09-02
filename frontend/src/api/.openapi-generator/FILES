@@ -1,6 +1,5 @@
 .gitignore
 .npmignore
-.openapi-generator-ignore
 api.ts
 base.ts
 common.ts
@@ -9,7 +8,6 @@ docs/AddMembersRequest.md
 docs/ApiPaginatedResponseListChatListResponse.md
 docs/ApiPaginatedResponseListChatMessageResponse.md
 docs/ApiPaginatedResponseListCommentResponseDto.md
-docs/ApiPaginatedResponseListNotificationResponse.md
 docs/ApiPaginatedResponseListPostResponse.md
 docs/ApiPaginatedResponseListUserResponse.md
 docs/ApiResponseAuthenticatedResponse.md
@@ -29,6 +27,7 @@ docs/ChatDetailResponse.md
 docs/ChatListResponse.md
 docs/ChatMediaControllerApi.md
 docs/ChatMessageResponse.md
+docs/ChatUpdateRequest.md
 docs/CommentControllerApi.md
 docs/CommentRequestDto.md
 docs/CommentResponseDto.md
@@ -36,8 +35,6 @@ docs/CommentUpdateDto.md
 docs/LoginRequest.md
 docs/MediaDto.md
 docs/MemberResponse.md
-docs/NotificationControllerApi.md
-docs/NotificationResponse.md
 docs/Pageable.md
 docs/PasswordResetRequest.md
 docs/PostControllerApi.md
