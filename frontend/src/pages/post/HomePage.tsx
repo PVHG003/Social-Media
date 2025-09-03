@@ -9,6 +9,7 @@ import postApi from '@/services/post/apiPost';
 import userApi from '@/services/user/apiUser';
 import { useNavigate } from 'react-router-dom';
 import { is } from 'zod/v4/locales';
+import { AiOutlineUser } from 'react-icons/ai';
 
 const HomePage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -191,6 +192,39 @@ const HomePage: React.FC = () => {
       </div>
     );
   }
+    const renderAvatar = () => {
+      const hasAvatar = currentUser?.profileImagePath && 
+                        currentUser.profileImagePath.trim() !== '' &&
+                        currentUser.profileImagePath !== 'http://localhost:8080/uploads/images/default-avatar.png' &&
+                        !currentUser.profileImagePath.includes('/default-avatar.png');
+  
+      if (hasAvatar) {
+        const avatarUrl = currentUser.profileImagePath!.startsWith('http') 
+          ? currentUser.profileImagePath 
+          : `http://localhost:8080${currentUser.profileImagePath}`;
+  
+        return (
+          <img
+            src={avatarUrl}
+            alt={currentUser.username}
+            className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+              target.nextElementSibling?.classList.remove('hidden');
+            }}
+          />
+        );
+      }
+  
+      return (
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center border-2 border-gray-200">
+          <AiOutlineUser className="w-5 h-5 text-white" />
+        </div>
+      );
+    };
+  
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -212,11 +246,7 @@ const HomePage: React.FC = () => {
             {/* Create Post Section - Updated với onClick */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-bold text-lg">
-                    {currentUser?.firstName?.charAt(0) || 'U'}
-                  </span>
-                </div>
+                {renderAvatar()}
                 <div className="flex-1">
                   <button 
                     onClick={() => setIsCreatePostModalOpen(true)}

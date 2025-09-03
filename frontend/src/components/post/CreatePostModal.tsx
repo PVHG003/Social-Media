@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { IoClose, IoImages, IoVideocam, IoTrash } from 'react-icons/io5';
-import { AiOutlineSend } from 'react-icons/ai';
+import { AiOutlineSend, AiOutlineUser } from 'react-icons/ai';
 import { FiPlay, FiImage } from 'react-icons/fi';
 import postApi from '@/services/post/apiPost';
 import type { Post } from '@/types/post';
@@ -197,6 +197,39 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
   };
 
   if (!isOpen) return null;
+  const renderAvatar = () => {
+    const hasAvatar = currentUser?.profileImagePath && 
+                      currentUser.profileImagePath.trim() !== '' &&
+                      currentUser.profileImagePath !== 'http://localhost:8080/uploads/images/default-avatar.png' &&
+                      !currentUser.profileImagePath.includes('/default-avatar.png');
+
+    if (hasAvatar) {
+      const avatarUrl = currentUser.profileImagePath!.startsWith('http') 
+        ? currentUser.profileImagePath 
+        : `http://localhost:8080${currentUser.profileImagePath}`;
+
+      return (
+        <img
+          src={avatarUrl}
+          alt={currentUser.username}
+          className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.style.display = 'none';
+            target.nextElementSibling?.classList.remove('hidden');
+          }}
+        />
+      );
+    }
+
+    return (
+      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center border-2 border-gray-200">
+        <AiOutlineUser className="w-5 h-5 text-white" />
+      </div>
+    );
+  };
+
+  
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -218,11 +251,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
           {/* User Info */}
           <div className="p-6 pb-4">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-                <span className="text-white font-bold text-lg">
-                  {currentUser?.firstName?.charAt(0) || 'U'}
-                </span>
-              </div>
+              {renderAvatar()}
               <div>
                 <h3 className="font-bold text-gray-900">
                   {currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'User'}

@@ -107,16 +107,45 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ currentUser }) => {
     }
   ];
 
+  const renderAvatar = () => {
+    const hasAvatar = currentUser?.profileImagePath && 
+                      currentUser.profileImagePath.trim() !== '' &&
+                      currentUser.profileImagePath !== 'http://localhost:8080/uploads/images/default-avatar.png' &&
+                      !currentUser.profileImagePath.includes('/default-avatar.png');
+
+    if (hasAvatar) {
+      const avatarUrl = currentUser.profileImagePath!.startsWith('http') 
+        ? currentUser.profileImagePath 
+        : `http://localhost:8080${currentUser.profileImagePath}`;
+
+      return (
+        <img
+          src={avatarUrl}
+          alt={currentUser.username}
+          className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.style.display = 'none';
+            target.nextElementSibling?.classList.remove('hidden');
+          }}
+        />
+      );
+    }
+
+    return (
+      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center border-2 border-gray-200">
+        <AiOutlineUser className="w-5 h-5 text-white" />
+      </div>
+    );
+  };
+
+
   return (
     <div className="sticky top-20">
       {/* User Profile Card */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-4">
         <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-            <span className="text-white font-bold text-xl">
-              {currentUser?.firstName?.charAt(0) || 'U'}
-            </span>
-          </div>
+          {renderAvatar()}
           <div className="flex-1">
             <h3 className="font-bold text-gray-900 text-lg">
               {currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'User'}
