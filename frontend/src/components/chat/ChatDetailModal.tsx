@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { useChat } from "@/hooks/chat/useChat";
 import apiAttachment from "@/services/chat/apiAttachment";
 import chatApi from "@/services/chat/apiChat.ts";
+import { MinusCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface ChatDetailModalProps {
@@ -63,6 +64,12 @@ const ChatDetailModal = ({ open, onClose, chat }: ChatDetailModalProps) => {
 
   if (!chat) return null;
 
+  const handleRemoveMember = async (id: string | undefined): Promise<void> => {
+    if (!id) return;
+    await chatApi.members.remove(chat.chatId!, id);
+    await fetchChatDetail(chat.chatId!);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
@@ -109,6 +116,12 @@ const ChatDetailModal = ({ open, onClose, chat }: ChatDetailModalProps) => {
                   </AvatarFallback>
                 </Avatar>
                 <span className="text-sm">{m.username}</span>
+                <Button
+                  variant="outline"
+                  onClick={() => handleRemoveMember(m.id)}
+                >
+                  <MinusCircle />
+                </Button>
               </div>
             ))}
           </div>
