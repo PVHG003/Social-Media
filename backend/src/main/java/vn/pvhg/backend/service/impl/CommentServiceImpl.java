@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.pvhg.backend.dto.request.post.CommentRequestDto;
 import vn.pvhg.backend.dto.request.post.CommentUpdateDto;
 import vn.pvhg.backend.dto.response.CommentResponseDto;
+import vn.pvhg.backend.enums.Role;
 import vn.pvhg.backend.model.Notification;
 import vn.pvhg.backend.model.Post;
 import vn.pvhg.backend.model.User;
@@ -108,6 +109,14 @@ public class CommentServiceImpl implements CommentService {
 
         commentRepository.delete(comment);
         log.info("Deleted comment with ID: {}", commentId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCommentByAdmin(UUID commentId) {
+        Comment comment = getCommentByIdOrThrow(commentId);
+        commentRepository.delete(comment);
+        log.info("Admin deleted comment with ID: {}", commentId);
     }
 
     private Comment getCommentByIdOrThrow(UUID commentId) {

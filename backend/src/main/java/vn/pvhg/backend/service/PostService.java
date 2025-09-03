@@ -22,6 +22,8 @@ public interface PostService {
 
     void deletePost(UserDetailsImpl userDetails, UUID postId);
 
+    void deletePostByAdmin(UUID postId);
+
     PostResponse likePost(UserDetailsImpl userDetails, UUID postId);
 
     PostResponse unlikePost(UserDetailsImpl userDetails, UUID postId);

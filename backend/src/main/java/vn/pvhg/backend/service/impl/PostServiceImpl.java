@@ -137,6 +137,16 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
+    public void deletePostByAdmin(UUID postId) {
+        Post post = getPostByIdOrThrow(postId);
+        // Delete media files
+        post.getPostMedias().forEach(media -> mediaService.deleteMedia(media.getStoragePath()));
+        postRepository.delete(post);
+        log.info("Admin deleted post with ID: {}", postId);
+    }
+
+    @Override
+    @Transactional
     public PostResponse likePost(UserDetailsImpl userDetails, UUID postId) {
         Post post = getPostByIdOrThrow(postId);
         User user = userDetails.getUser();

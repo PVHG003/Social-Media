@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { HiHome } from "react-icons/hi";
 import { GoBell } from "react-icons/go";
-import { MdAccountCircle } from "react-icons/md";
+import { MdAccountCircle, MdAdminPanelSettings } from "react-icons/md";
 import { FaAngleDown, FaPowerOff } from "react-icons/fa";
 import { AiOutlineMessage, AiOutlineSearch, AiOutlineLogin } from "react-icons/ai";
 import { useEffect, useState, useRef, useCallback } from "react";
@@ -427,20 +427,32 @@ function TopHeader() {
                       </div>
                     </div>
 
-                    <li
+                    <div
                       className="w-40 h-10 bg-black/90 shadow flex items-center justify-start list-none px-3 text-white text-xs font-bold hover:bg-gray-800 transition-all duration-300 cursor-pointer"
                       onClick={handleProfileNavigation}
                     >
                       <MdAccountCircle fontSize={14} className="mr-2" />
                       View Profile
-                    </li>
-                    <li
+                    </div>
+                    {authContext?.authUser?.role === 'admin' && (
+                      <div
+                        className="w-40 h-10 bg-black/90 shadow flex items-center justify-start list-none px-3 text-white text-xs font-bold hover:bg-gray-800 transition-all duration-300 cursor-pointer"
+                        onClick={() => {
+                          navigate('/admin');
+                          setShowMenu(false);
+                        }}
+                      >
+                        <MdAdminPanelSettings fontSize={14} className="mr-2" />
+                        Admin Panel
+                      </div>
+                    )}
+                    <div
                       className="w-40 h-10 bg-black/90 shadow flex items-center justify-start list-none px-3 text-white text-xs font-bold hover:bg-gray-800 transition-all duration-300 cursor-pointer"
                       onClick={handleLogout}
                     >
                       <FaPowerOff fontSize={14} className="mr-2" />
                       {isLoggingOut ? 'Logging out...' : 'Log Out'}
-                    </li>
+                    </div>
                   </div>
                 )}
               </>

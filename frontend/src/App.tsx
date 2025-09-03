@@ -11,6 +11,10 @@ import ChangePasswordForm from "./components/authentication/ChangePasswordForm";
 import ChatsPage from "./pages/chat/ChatsPage";
 import {ChatProvider} from "./hooks/chat/useChat";
 import {MessageProvider} from "./hooks/chat/useMessage";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+import UserManagementPage from "./pages/admin/UserManagementPage";
+import PostManagementPage from "./pages/admin/PostManagementPage";
 
 function App() {
 	return (
@@ -39,6 +43,13 @@ function App() {
 					>
 						<Route index element={<ChatsPage/>}/>
 						<Route path=":chatId" element={<ChatsPage/>}/>
+					</Route>
+
+					{/* Admin Routes */}
+					<Route path="/admin" element={<AdminLayout />}>
+						<Route index element={<AdminDashboardPage />} />
+						<Route path="users" element={<UserManagementPage />} />
+						<Route path="posts" element={<PostManagementPage />} />
 					</Route>
 
 					{/* Other routes */}

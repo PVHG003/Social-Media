@@ -28,4 +28,8 @@ public interface UserService {
     UserResponse uploadProfileImage(MultipartFile file);
 
     UserResponse uploadCoverImage(MultipartFile file);
+
+    void deleteUser(UUID userId);
+
+    Page<UserResponse> getAllUsers(Pageable pageable);
 }

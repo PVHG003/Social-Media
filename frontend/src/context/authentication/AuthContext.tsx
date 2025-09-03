@@ -6,6 +6,7 @@ import React, {createContext, useContext, useEffect, useState} from "react";
 interface AuthContextType {
 	isAuthenticated: boolean;
 	user: UserResponse | null;
+	authUser: AuthenticatedResponse | null;
 	token: string | null;
 	login: (authResponse: AuthenticatedResponse) => void;
 	logout: () => Promise<void>;
@@ -25,6 +26,7 @@ export const useAuth = () => {
 export const AuthProvider = ({children}: { children: React.ReactNode }) => {
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 	const [user, setUser] = useState<UserResponse | null>(null);
+	const [authUser, setAuthUser] = useState<AuthenticatedResponse | null>(null);
 	const [token, setToken] = useState<string | null>(
 		localStorage.getItem("token")
 	);
@@ -34,7 +36,9 @@ export const AuthProvider = ({children}: { children: React.ReactNode }) => {
 		if (!authResponse.token) return;
 
 		setToken(authResponse.token);
+		setAuthUser(authResponse);
 		localStorage.setItem("token", authResponse.token);
+		localStorage.setItem("authUser", JSON.stringify(authResponse));
 	};
 
 	const logout = async () => {
@@ -44,17 +48,21 @@ export const AuthProvider = ({children}: { children: React.ReactNode }) => {
 			if (res.success) {
 				setIsAuthenticated(false);
 				setUser(null);
+				setAuthUser(null);
 				setToken(null);
 				localStorage.removeItem("token");
 				localStorage.removeItem("user");
+				localStorage.removeItem("authUser");
 				window.location.href = "/login";
 			}
 		} catch (error) {
 			setIsAuthenticated(false);
 			setUser(null);
+			setAuthUser(null);
 			setToken(null);
 			localStorage.removeItem("token");
 			localStorage.removeItem("user");
+			localStorage.removeItem("authUser");
 			window.location.href = "/login";
 			console.error("Logout failed:", error);
 		}
@@ -65,11 +73,18 @@ export const AuthProvider = ({children}: { children: React.ReactNode }) => {
 			if (!token) {
 				setIsAuthenticated(false);
 				setUser(null);
+				setAuthUser(null);
 				setIsLoading(false);
 				return;
 			}
 
 			try {
+				// Load authUser from localStorage
+				const storedAuthUser = localStorage.getItem("authUser");
+				if (storedAuthUser) {
+					setAuthUser(JSON.parse(storedAuthUser));
+				}
+
 				const response = await userApi.getCurrentUser();
 				const user = response.data ?? null;
 
@@ -89,8 +104,10 @@ export const AuthProvider = ({children}: { children: React.ReactNode }) => {
 				setIsAuthenticated(false);
 				setToken(null);
 				setUser(null);
+				setAuthUser(null);
 				localStorage.removeItem("token");
 				localStorage.removeItem("user");
+				localStorage.removeItem("authUser");
 			} finally {
 				setIsLoading(false);
 			}
@@ -99,7 +116,7 @@ export const AuthProvider = ({children}: { children: React.ReactNode }) => {
 		fetchUser();
 	}, [token]);
 
-	const value = {user, token, login, logout, isLoading, isAuthenticated};
+	const value = {user, authUser, token, login, logout, isLoading, isAuthenticated};
 
 	return (
 		<AuthContext.Provider value={value}>

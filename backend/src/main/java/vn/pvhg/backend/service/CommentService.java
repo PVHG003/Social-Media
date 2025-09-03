@@ -22,4 +22,6 @@ public interface CommentService {
     CommentResponseDto updateComment(UUID commentId, @Valid CommentUpdateDto updateDto, UserDetailsImpl userDetails);
 
     void deleteComment(UUID commentId, UserDetailsImpl userDetails);
+
+    void deleteCommentByAdmin(UUID commentId);
 }

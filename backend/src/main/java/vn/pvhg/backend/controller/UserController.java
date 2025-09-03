@@ -141,4 +141,26 @@ public class UserController {
         );
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @GetMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiPaginatedResponse<List<UserResponse>>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<UserResponse> data = userService.getAllUsers(pageable);
+        ApiPaginatedResponse<List<UserResponse>> response = new ApiPaginatedResponse<>(
+                HttpStatus.OK, "Users retrieved successfully", true, data.getContent(), page, size, data.getTotalPages(), data.getTotalElements()
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/admin/{userId}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> deleteUserByAdmin(@PathVariable UUID userId) {
+        userService.deleteUser(userId);
+        ApiResponse<Void> response = new ApiResponse<>(HttpStatus.OK, "User deleted", true, null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

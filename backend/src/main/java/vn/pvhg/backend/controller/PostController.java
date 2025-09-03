@@ -159,6 +159,20 @@ public class PostController {
         }
     }
 
+    @DeleteMapping("/admin/{postId}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> deletePostByAdmin(@PathVariable UUID postId) {
+        try {
+            postService.deletePostByAdmin(postId);
+            ApiResponse<Void> response = new ApiResponse<>(HttpStatus.OK, "Post deleted by admin", true, null);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Error deleting post by admin: {}", e.getMessage());
+            ApiResponse<Void> response = new ApiResponse<>(HttpStatus.BAD_REQUEST, e.getMessage(), false, null);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @PostMapping("/{postId}/like")
     public ResponseEntity<ApiResponse<PostResponse>> likePost(
             @PathVariable UUID postId,

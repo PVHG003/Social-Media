@@ -18,7 +18,11 @@ import vn.pvhg.backend.mapper.FollowMapper;
 import vn.pvhg.backend.mapper.UserMapper;
 import vn.pvhg.backend.model.Follow;
 import vn.pvhg.backend.model.User;
+import vn.pvhg.backend.repository.CommentRepository;
 import vn.pvhg.backend.repository.FollowRepository;
+import vn.pvhg.backend.repository.LikeRepository;
+import vn.pvhg.backend.repository.NotificationRepository;
+import vn.pvhg.backend.repository.PostRepository;
 import vn.pvhg.backend.repository.UserRepository;
 import vn.pvhg.backend.security.UserDetailsImpl;
 import vn.pvhg.backend.service.UserService;
@@ -37,6 +41,10 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
+    private final LikeRepository likeRepository;
+    private final NotificationRepository notificationRepository;
     private final UserMapper userMapper;
     private final FollowMapper followMapper;
 
@@ -247,6 +255,37 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Override
+    @Transactional
+    public void deleteUser(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BadRequestException("User not found with ID: " + userId));
+
+        likeRepository.deleteByUserId(userId);
+        commentRepository.deleteByUserId(userId);
+        postRepository.deleteByUserId(userId);
+        notificationRepository.deleteByRecipientId(userId);
+        followRepository.deleteAll(followRepository.findByFollower(user, Pageable.unpaged()).getContent());
+        followRepository.deleteAll(followRepository.findByFollowing(user, Pageable.unpaged()).getContent());
+        userRepository.delete(user);
+    }
+
+    @Override
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+        User currentUser = getCurrentUserEntity();
+        Page<User> users = userRepository.findAll(pageable);
+
+        return users.map(user -> {
+            boolean isFollowing = !currentUser.getId().equals(user.getId()) &&
+                    followRepository.existsByFollowerAndFollowing(currentUser, user);
+
+            long followersCount = followRepository.countByFollowing(user);
+            long followingCount = followRepository.countByFollower(user);
+
+            return userMapper.toUserResponse(user, isFollowing, followersCount, followingCount);
+        });
+    }
+
     // ----- Helper Methods -----
     private User getCurrentUserEntity() {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -285,4 +324,3 @@ public class UserServiceImpl implements UserService {
     }
 
 }
-

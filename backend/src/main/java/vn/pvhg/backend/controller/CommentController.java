@@ -140,5 +140,12 @@ public class CommentController {
             return ResponseEntity.badRequest().build();
         }
     }
-}
 
+    @DeleteMapping("/admin/{commentId}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> deleteCommentByAdmin(@PathVariable UUID commentId) {
+        commentService.deleteCommentByAdmin(commentId);
+        ApiResponse<Void> response = new ApiResponse<>(HttpStatus.OK, "Comment deleted", true, null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+}

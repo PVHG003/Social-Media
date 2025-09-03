@@ -16,6 +16,7 @@ import vn.pvhg.backend.filter.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 

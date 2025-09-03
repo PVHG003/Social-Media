@@ -2209,6 +2209,12 @@ export interface UserResponse {
      * @type {string}
      * @memberof UserResponse
      */
+    'role'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserResponse
+     */
     'createdAt'?: string;
     /**
      * 
