@@ -8,9 +8,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/context/authentication/AuthContext";
 import { useChat } from "@/hooks/chat/useChat";
 import apiAttachment from "@/services/chat/apiAttachment";
 import chatApi from "@/services/chat/apiChat.ts";
+import { MinusCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface ChatDetailModalProps {
@@ -22,6 +24,7 @@ interface ChatDetailModalProps {
 const BASE_URL = "http://localhost:8080/";
 
 const ChatDetailModal = ({ open, onClose, chat }: ChatDetailModalProps) => {
+  const { user } = useAuth();
   const { selectedChatId, fetchChatDetail } = useChat();
   const [name, setName] = useState(chat?.chatDisplayName ?? "");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -62,6 +65,12 @@ const ChatDetailModal = ({ open, onClose, chat }: ChatDetailModalProps) => {
   };
 
   if (!chat) return null;
+
+  const handleRemoveMember = async (id: string | undefined): Promise<void> => {
+    if (!id) return;
+    await chatApi.members.remove(chat.chatId!, id);
+    await fetchChatDetail(chat.chatId!);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -109,6 +118,14 @@ const ChatDetailModal = ({ open, onClose, chat }: ChatDetailModalProps) => {
                   </AvatarFallback>
                 </Avatar>
                 <span className="text-sm">{m.username}</span>
+                {user?.id !== m.id && (
+                  <Button
+                    variant="outline"
+                    onClick={() => handleRemoveMember(m.id)}
+                  >
+                    <MinusCircle />
+                  </Button>
+                )}
               </div>
             ))}
           </div>

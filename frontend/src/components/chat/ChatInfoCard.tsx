@@ -13,6 +13,13 @@ const ChatInfoCard = ({ chat }: ChatInfoCardProps) => {
     ? formatDistanceToNow(new Date(chat.lastMessageSentAt), { addSuffix: true })
     : "";
 
+  const getProfileImage = () => {
+    if (!chat.chatDisplayImage) return "";
+    return chat.chatDisplayImage?.startsWith("https://")
+      ? chat.chatDisplayImage
+      : `${BASE_URL}${chat.chatDisplayImage}`;
+  };
+
   // Limit chat name length
   const displayName =
     chat.chatDisplayName && chat.chatDisplayName.length > 20
@@ -26,14 +33,12 @@ const ChatInfoCard = ({ chat }: ChatInfoCardProps) => {
   const displayMessage = chat.lastMessage
     ? truncate(chat.lastMessage, 20)
     : "No messages yet";
+
   return (
     <div className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent transition-colors">
       {/* Avatar */}
       <Avatar className="h-10 w-10">
-        <AvatarImage
-          src={`${BASE_URL}${chat.chatDisplayImage}`}
-          alt={chat.chatDisplayName}
-        />
+        <AvatarImage src={getProfileImage()} alt={chat.chatDisplayName} />
         <AvatarFallback>
           {chat.chatDisplayName?.charAt(0) ?? "?"}
         </AvatarFallback>

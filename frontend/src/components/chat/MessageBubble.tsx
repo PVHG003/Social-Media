@@ -20,10 +20,17 @@ const MessageBubble = ({ message }: MessageBubbleProps) => {
   const { user } = useAuth();
   const isMe = user?.id === message.senderId;
 
+  const getProfileImage = () => {
+    return message.senderProfileImage &&
+    message.senderProfileImage?.startsWith("https://")
+      ? message.senderProfileImage
+      : `${BASE_URL}${message.senderProfileImage}`;
+  };
+
   const getYouTubeId = (url: string) => {
     const regex =
       /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-    const match = url.match(regex);
+    const match = url.match(regex); 
     return match ? match[1] : null;
   };
 
@@ -43,7 +50,7 @@ const MessageBubble = ({ message }: MessageBubbleProps) => {
           <Avatar className="h-10 w-10">
             {message.senderProfileImage ? (
               <AvatarImage
-                src={`${BASE_URL}${message.senderProfileImage}`}
+                src={getProfileImage()}
                 alt={message.senderUsername ?? "?"}
               />
             ) : (
@@ -151,6 +158,8 @@ const MessageBubble = ({ message }: MessageBubbleProps) => {
               // Normal text
               return <span key={i}>{word} </span>;
             })}
+
+          <MessageAttachments attachments={message.attachments} />
         </Card>
       </div>
 
