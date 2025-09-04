@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/context/authentication/AuthContext";
 import { useChat } from "@/hooks/chat/useChat";
 import apiAttachment from "@/services/chat/apiAttachment";
 import chatApi from "@/services/chat/apiChat.ts";
@@ -23,6 +24,7 @@ interface ChatDetailModalProps {
 const BASE_URL = "http://localhost:8080/";
 
 const ChatDetailModal = ({ open, onClose, chat }: ChatDetailModalProps) => {
+  const { user } = useAuth();
   const { selectedChatId, fetchChatDetail } = useChat();
   const [name, setName] = useState(chat?.chatDisplayName ?? "");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -116,12 +118,14 @@ const ChatDetailModal = ({ open, onClose, chat }: ChatDetailModalProps) => {
                   </AvatarFallback>
                 </Avatar>
                 <span className="text-sm">{m.username}</span>
-                <Button
-                  variant="outline"
-                  onClick={() => handleRemoveMember(m.id)}
-                >
-                  <MinusCircle />
-                </Button>
+                {user?.id !== m.id && (
+                  <Button
+                    variant="outline"
+                    onClick={() => handleRemoveMember(m.id)}
+                  >
+                    <MinusCircle />
+                  </Button>
+                )}
               </div>
             ))}
           </div>
