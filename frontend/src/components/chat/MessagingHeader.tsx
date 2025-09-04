@@ -17,6 +17,13 @@ const MessagingHeader = ({ chat, onClick }: MessagingHeaderProps) => {
   const [openModal, setOpenModal] = useState(false);
   const { fetchChatDetail } = useChat();
 
+  const getProfileImageUrl = (profileImagePath?: string) => {
+    if (!profileImagePath) return undefined;
+    return profileImagePath.startsWith("http")
+      ? profileImagePath
+      : `${BASE_URL}${profileImagePath}`;
+  };
+
   const handleAddMember = async (userIds: string[]) => {
     if (!chat?.chatId) return;
     const request: AddMembersRequest = { userIds };
@@ -32,7 +39,7 @@ const MessagingHeader = ({ chat, onClick }: MessagingHeaderProps) => {
         onClick={onClick}
       >
         <Avatar className="h-10 w-10">
-          <AvatarImage src={`${BASE_URL}${chat?.chatDisplayImage || ""}`} />
+          <AvatarImage src={getProfileImageUrl(chat?.chatDisplayImage)} />
           <AvatarFallback>
             {chat?.chatDisplayName?.charAt(0) ?? "?"}
           </AvatarFallback>
